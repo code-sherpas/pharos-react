@@ -1,0 +1,11 @@
+dist
+node_modules
+coverage
+storybook-static
+*.tsbuildinfo
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+# Third-party skills installed via `skills` CLI — formatting would diverge on next update.
+.agents/skills/find-docs/
+.agents/skills/git-commit/

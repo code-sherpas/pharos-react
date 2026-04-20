@@ -1,0 +1,64 @@
+@import '@code-sherpas/pharos-tokens/css';
+@import 'tailwindcss';
+
+/* Exclude markdown from Tailwind's class scanning. AGENTS.md / RULES.md
+ * contain `bg-[var(--pharos-*)]` as prose examples; scanning them would
+ * compile an invalid `var(--pharos-*)` rule and emit a CSS warning. */
+@source not "../../**/*.md";
+
+/*
+ * Map Pharos CSS vars to Tailwind v4 theme vars so internal components can use
+ * ergonomic class names (`bg-primary-600`, `text-neutral-900`) and they resolve
+ * to `var(--pharos-*)`. pharos-tokens stays the single source of truth — we
+ * only point Tailwind's theme at it.
+ */
+@theme inline {
+  /* Color — base */
+  --color-base-white: var(--pharos-color-base-white);
+  --color-base-black: var(--pharos-color-base-black);
+
+  /* Color — neutral */
+  --color-neutral-50: var(--pharos-color-neutral-50);
+  --color-neutral-100: var(--pharos-color-neutral-100);
+  --color-neutral-200: var(--pharos-color-neutral-200);
+  --color-neutral-300: var(--pharos-color-neutral-300);
+  --color-neutral-400: var(--pharos-color-neutral-400);
+  --color-neutral-500: var(--pharos-color-neutral-500);
+  --color-neutral-600: var(--pharos-color-neutral-600);
+  --color-neutral-700: var(--pharos-color-neutral-700);
+  --color-neutral-800: var(--pharos-color-neutral-800);
+  --color-neutral-900: var(--pharos-color-neutral-900);
+  --color-neutral-950: var(--pharos-color-neutral-950);
+
+  /* Color — primary */
+  --color-primary-50: var(--pharos-color-primary-50);
+  --color-primary-100: var(--pharos-color-primary-100);
+  --color-primary-200: var(--pharos-color-primary-200);
+  --color-primary-300: var(--pharos-color-primary-300);
+  --color-primary-400: var(--pharos-color-primary-400);
+  --color-primary-500: var(--pharos-color-primary-500);
+  --color-primary-600: var(--pharos-color-primary-600);
+  --color-primary-700: var(--pharos-color-primary-700);
+  --color-primary-800: var(--pharos-color-primary-800);
+  --color-primary-900: var(--pharos-color-primary-900);
+
+  /* Color — semantic */
+  --color-success: var(--pharos-color-semantic-success-fg);
+  --color-success-bg: var(--pharos-color-semantic-success-bg);
+  --color-error: var(--pharos-color-semantic-error-fg);
+  --color-error-bg: var(--pharos-color-semantic-error-bg);
+  --color-warning: var(--pharos-color-semantic-warning-fg);
+  --color-warning-bg: var(--pharos-color-semantic-warning-bg);
+  --color-info: var(--pharos-color-semantic-info-fg);
+  --color-info-bg: var(--pharos-color-semantic-info-bg);
+
+  /* Radius */
+  --radius-none: var(--pharos-radius-none);
+  --radius-sm: var(--pharos-radius-sm);
+  --radius-md: var(--pharos-radius-md);
+  --radius-lg: var(--pharos-radius-lg);
+  --radius-xl: var(--pharos-radius-xl);
+  --radius-2xl: var(--pharos-radius-2xl);
+  --radius-3xl: var(--pharos-radius-3xl);
+  --radius-full: var(--pharos-radius-full);
+}
