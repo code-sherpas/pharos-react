@@ -22,9 +22,13 @@ const config: StorybookConfig = {
       delete viteConfig.build.lib;
       delete viteConfig.build.rollupOptions;
     }
+    // vite-plugin-dts registers itself as `vite:dts` (not `vite-plugin-dts`).
+    // Storybook builds the preview with vite.config.ts; leaving dts in place
+    // tries to emit ./dist/index.d.ts from a preview entry that does not
+    // have one, which breaks the Storybook build in a clean CI workspace.
     viteConfig.plugins = (viteConfig.plugins ?? []).filter((plugin) => {
       if (!plugin || typeof plugin !== 'object' || !('name' in plugin)) return true;
-      return plugin.name !== 'vite-plugin-dts';
+      return plugin.name !== 'vite:dts' && plugin.name !== 'vite-plugin-dts';
     });
     return viteConfig;
   },
