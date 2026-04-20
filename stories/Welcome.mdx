@@ -1,0 +1,40 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Pharos/Welcome" />
+
+# Welcome to Pharos
+
+**Pharos** is the design system of Code Sherpas. It lights the way for every
+product we ship.
+
+## The two packages
+
+Pharos is published as two npm packages with clear boundaries:
+
+- **[`@code-sherpas/pharos-tokens`](https://github.com/code-sherpas/pharos-tokens)**
+  — the atomic visual values (colors, spacing, radius, typography, shadow,
+  z-index, motion). Framework-agnostic, consumable from React, Vue, Svelte,
+  plain HTML emails and backend-generated PDFs. DTCG + Style Dictionary + OKLCH.
+- **`@code-sherpas/pharos-react`** (this package) — the React component
+  layer. Consumes `pharos-tokens` as a peer dependency and maps its CSS vars
+  into Tailwind v4 via `@theme inline`. Components use `class-variance-authority`
+  for variants and `clsx` + `tailwind-merge` for class composition.
+
+This Storybook is the **live reference** for the `pharos-react` package.
+Every component lives here as a canonical story before it ships to consumers.
+
+## Principles at a glance
+
+1. Tokens are the single source of truth — `pharos-react` never hardcodes values.
+2. Canonical naming: shadcn/ui > Base UI > ARIA APG. Shorter name wins.
+3. Variants, not sub-components. Use CVA.
+4. Accessible by default.
+5. Every public-API change ships with a Changeset.
+
+Read the full list under **Pharos / Principles**.
+
+## Who should read what
+
+- **Designers** — start with **Tokens** to see the palette, spacing and type scales.
+- **Engineers consuming the library** — check **Components** and `RULES.md` in the repo.
+- **Contributors** — read `AGENTS.md` at the repo root.

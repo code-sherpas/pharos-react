@@ -1,0 +1,67 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Pharos/Principles" />
+
+# Principles
+
+Non-negotiable rules that shape every decision in `pharos-react`.
+
+## 1. Tokens come from `pharos-tokens`
+
+Never hardcode hex, rem, px or shadow values. Every visual value resolves
+back to `--pharos-*` via the `@theme inline` mapping in
+`src/styles/index.css`.
+
+## 2. Canonical naming
+
+Components follow, in this order of authority:
+
+1. **shadcn/ui**
+2. **Base UI**
+3. **ARIA Authoring Practices Guide**
+4. Sibling systems (Primer, Polaris, Material, Radix, Ark) when the top
+   three are silent.
+
+Tiebreaker: **shorter, more generic name wins**. `Button`, not
+`PrimaryButton`. `Dialog`, not `Modal`. `Sheet`, not `Drawer`.
+
+The consumer adapts — not the library. Alexandria renames its components
+when it adopts Pharos in phase 6.
+
+## 3. Variants, not sub-components
+
+Size, tone, intent, emphasis — all as props driven by `class-variance-authority`.
+Never create `PrimaryButton`, `DestructiveButton`, `GhostButton` as separate
+exports when a `variant` prop suffices.
+
+## 4. Accessible by default
+
+Primitives from Base UI carry ARIA. We wrap them without regressing
+semantics. The `@storybook/addon-a11y` addon flags violations on every
+story.
+
+## 5. No direct primitive imports
+
+Consumers never `import '@radix-ui/*'` or `import '@base-ui-components/*'`.
+Pharos wraps what it uses. Enforced via lint rules in consumers (phase 4).
+
+## 6. Decisions from phase 0 (approved 2026-04-19)
+
+- **D2 — one red.** Only `semantic.error`. No `laser-red`, no `true-red`.
+- **D3 — body is 14/20.** `text-sm` is the default, not `text-base`.
+- **D4 — Lucide is the icon system.** Custom icons only when Lucide is silent.
+- **D5 — no `components/` legacy port.** Rewrite, don't migrate.
+- **D6 — no deprecated token aliases.** Clean slate; consumers map explicitly.
+
+## 7. Changeset required
+
+Every PR touching the public API includes a changeset. CI enforces it.
+
+Semver policy:
+
+| Change                                 | Bump  |
+| -------------------------------------- | ----- |
+| Rename / remove component or variant   | major |
+| Change peer dependency range           | major |
+| Add component / variant / prop         | minor |
+| Visual refinement, a11y fix, bug, perf | patch |
