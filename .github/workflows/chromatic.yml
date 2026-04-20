@@ -1,0 +1,54 @@
+name: Chromatic
+
+# Publishes the Storybook to Chromatic on every push and pull request so
+# visual regressions are caught before merge. The first build was seeded
+# locally; subsequent builds run here with CHROMATIC_PROJECT_TOKEN from
+# repo secrets.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: chromatic-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  chromatic:
+    name: Publish Storybook
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          # Chromatic needs full git history to detect baselines and changes.
+          fetch-depth: 0
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10.33.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24.15.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Publish to Chromatic
+        uses: chromaui/action@v11
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          # Skip waiting for the visual review to finish — GitHub Checks get
+          # the final status via Chromatic's own integration.
+          exitOnceUploaded: true
+          # Skip the build if the Storybook source did not change (saves
+          # snapshots on the free plan).
+          onlyChanged: true
