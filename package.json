@@ -1,6 +1,6 @@
 {
   "name": "@code-sherpas/pharos-react",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "React component library for Code Sherpas. Consumes @code-sherpas/pharos-tokens. Vite library mode + Tailwind v4.",
   "license": "MIT",
   "repository": {
