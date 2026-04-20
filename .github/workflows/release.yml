@@ -63,7 +63,11 @@ jobs:
           title: 'chore: version packages'
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
-          # No NPM_TOKEN / NODE_AUTH_TOKEN: authentication to npm uses
-          # Trusted Publishing (OIDC). permissions.id-token:write is set at
-          # the workflow level; publishConfig.provenance:true in package.json
-          # makes `npm publish` emit an attestation. See docs/release-setup.md.
+          # NPM_TOKEN bootstraps the very first publish (0.1.0). npm's Trusted
+          # Publisher flow requires the package to exist on the registry, so
+          # classic-token auth seeds it. Once @code-sherpas/pharos-react is
+          # live on npm, configure the Trusted Publisher in npmjs.com pointing
+          # at code-sherpas/pharos-react + release.yml, drop this env var, and
+          # revoke the token. permissions.id-token:write above is already in
+          # place so provenance continues to work in either auth mode.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
