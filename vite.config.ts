@@ -28,6 +28,8 @@ export default defineConfig({
         'react/jsx-runtime',
         '@code-sherpas/pharos-tokens',
         /^@code-sherpas\/pharos-tokens\//,
+        '@base-ui-components/react',
+        /^@base-ui-components\/react\//,
       ],
     },
     cssCodeSplit: false,

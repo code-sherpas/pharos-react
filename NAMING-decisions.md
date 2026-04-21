@@ -50,16 +50,16 @@ Alexandria has ~14 button-like components today (see
 `ANALYSIS-components.md` in `alexandria-web-application` branch
 `feat/fase-0-analysis`). They collapse into the Pharos `Button` as follows:
 
-| Alexandria component                 | Pharos equivalent                                                                    |
-| ------------------------------------ | ------------------------------------------------------------------------------------ |
-| `PrimaryButton`                      | `<Button intent="primary">`                                                          |
-| `CtaButton`                          | `<Button intent="primary" size="lg">`                                                |
-| `SecondaryButton`                    | `<Button intent="secondary">`                                                        |
-| `OutlineButton`                      | `<Button intent="secondary">`                                                        |
-| `TextButton`                         | `<Button intent="ghost">`                                                            |
-| `LinkButton` (button styled as link) | `<Button intent="ghost">` — or `<Link>` when available                               |
-| `DestructiveButton` / `DangerButton` | `<Button intent="destructive">`                                                      |
-| `IconButton`                         | Deferred — will be covered by a dedicated `IconButton` wrapper once icons land (D4). |
+| Alexandria component                 | Pharos equivalent                                                                                  |
+| ------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| `PrimaryButton`                      | `<Button intent="primary">`                                                                        |
+| `CtaButton`                          | `<Button intent="primary" size="lg">`                                                              |
+| `SecondaryButton`                    | `<Button intent="secondary">`                                                                      |
+| `OutlineButton`                      | `<Button intent="secondary">`                                                                      |
+| `TextButton`                         | `<Button intent="ghost">`                                                                          |
+| `LinkButton` (button styled as link) | `<Button intent="ghost" render={<Link to="..." />}>` — Button composes via Base UI's `render` prop |
+| `DestructiveButton` / `DangerButton` | `<Button intent="destructive">`                                                                    |
+| `IconButton`                         | Deferred — will be covered by a dedicated `IconButton` wrapper once icons land (D4).               |
 
 Fase 6 (Alexandria migration) will perform the codemod. This document is the
 contract.
