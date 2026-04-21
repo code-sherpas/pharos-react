@@ -24,12 +24,12 @@ describe('Button', () => {
   it('applies the default intent and size classes when none are provided', () => {
     render(<Button>Default</Button>);
     const button = screen.getByRole('button');
-    expect(button).toHaveClass('bg-primary-600');
+    expect(button).toHaveClass('bg-neutral-900');
     expect(button).toHaveClass('h-10');
   });
 
   it.each([
-    ['primary', 'bg-primary-600'],
+    ['primary', 'bg-neutral-900'],
     ['secondary', 'bg-base-white'],
     ['ghost', 'bg-transparent'],
     ['destructive', 'bg-error'],
@@ -51,7 +51,7 @@ describe('Button', () => {
     render(<Button className="custom-class">Label</Button>);
     const button = screen.getByRole('button');
     expect(button).toHaveClass('custom-class');
-    expect(button).toHaveClass('bg-primary-600');
+    expect(button).toHaveClass('bg-neutral-900');
   });
 
   it('forwards a ref to the underlying button element', () => {
@@ -131,7 +131,7 @@ describe('Button', () => {
     const link = screen.getByRole('link');
     expect(link).toHaveClass('outer-link');
     expect(link).toHaveClass('user-class');
-    expect(link).toHaveClass('bg-primary-600');
+    expect(link).toHaveClass('bg-neutral-900');
   });
 
   it('forwards onClick through the render prop composition', async () => {

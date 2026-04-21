@@ -56,7 +56,7 @@ instance using these mappings.
 
 | Alexandria component                                        | Pharos equivalent                                                                                  |
 | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `NewButton variant="filled" tone="default"` (navy-filled)   | `<Button intent="primary">` — navy → **brand blue** (deliberate, see below)                        |
+| `NewButton variant="filled" tone="default"` (navy-filled)   | `<Button intent="primary">` — stays navy; the blue `primary-*` palette is brand accent, not CTA    |
 | `NewButton variant="default" tone="default"` (bordered)     | `<Button intent="secondary">`                                                                      |
 | `NewButton variant="text" tone="default"`                   | `<Button intent="ghost">`                                                                          |
 | `NewButton variant="filled" tone="destructive"`             | `<Button intent="destructive">`                                                                    |
@@ -74,22 +74,35 @@ instance using these mappings.
 | `DestructiveButton` / `DangerButton`                        | `<Button intent="destructive">`                                                                    |
 | `IconButton`                                                | Deferred — dedicated component once Lucide integration lands (D4)                                  |
 
+### Note on `intent="primary"` vs the `primary-*` palette
+
+The word "primary" names two different things in Pharos, and they
+intentionally do not refer to each other:
+
+- **`primary-*` palette** (`primary-50`..`primary-900` in tokens) is the
+  brand blue (`primary-600` = `#2a48e9`, sea-blue). It exists as accent
+  — focus rings, active tab indicators, badges, links, highlights.
+- **`<Button intent="primary">`** is the most emphasized CTA. It renders
+  in **neutral-900** (dark navy-black), matching Alexandria's dominant
+  `NewButton variant="filled" tone="default"` treatment and the
+  Linear / Vercel / Notion convention of "brand as accent, dark neutral
+  as CTA".
+
+The name collision is a known quirk of Pharos inheriting shadcn's
+"primary" palette naming while picking a CTA that is not the brand
+color. Renaming the palette (to `brand-*` or `accent-*`) was
+considered and rejected: it would be a major-version break of
+pharos-tokens for a purely cosmetic naming concern, and the ambiguity
+is bounded to one document — this one. Read "`intent="primary"`" as
+"the primary action on the screen", not as "the primary-palette color".
+
 ### Deliberate visual changes at migration time
 
 These are cases where Pharos intentionally diverges from Alexandria's
 current look because following the design-system best practice is
-worth the one-time visual shift:
-
-- **`filled=navy-blue-text` → `intent="primary"` (brand blue)**.
-  Alexandria's `NewButton variant="filled" tone="default"` renders with
-  `bg-navy-blue-text` (neutral-900, near-black). Pharos `primary` is
-  the brand's canonical CTA color — `primary-600` = `#2a48e9`, the
-  sea-blue primitive. Using a neutral as the brand intent is an
-  implementation quirk of Alexandria that would confuse any DS
-  consumer (tenant skinning, dark mode, future brand refresh). At
-  migration, every filled-default button switches from navy to brand
-  blue. This is **the DS deciding what "primary" means**, not Alexandria
-  preserving an implementation detail.
+worth the one-time visual shift. The `intent="primary"` color is **not**
+on this list — it matches Alexandria's navy filled button. The shift
+is only in the cases below:
 
 - **`outline-destructive` → `intent="destructive"`**. Alexandria has
   `variant="default" tone="destructive"` (red border + red text, fills
