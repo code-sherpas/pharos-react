@@ -52,3 +52,14 @@ jobs:
           # Skip the build if the Storybook source did not change (saves
           # snapshots on the free plan).
           onlyChanged: true
+          # Side-effect CSS imports (our Tailwind entry and the pharos-tokens
+          # CSS it re-imports) don't appear in any story's JS dependency
+          # graph, so TurboSnap can't infer that a token color change affects
+          # any story. Declaring them as externals invalidates every story
+          # whenever those files — or any file inside pharos-tokens — change.
+          # Without this, a pharos-tokens version bump reuses stale
+          # snapshots, and an a11y violation fixed in the token doesn't
+          # clear until some story source happens to be edited.
+          externals: |
+            src/styles/index.css
+            node_modules/@code-sherpas/pharos-tokens/**
