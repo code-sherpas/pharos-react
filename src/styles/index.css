@@ -56,6 +56,8 @@
   --color-success-on: var(--pharos-color-semantic-success-on);
 
   --color-error: var(--pharos-color-semantic-error-fg);
+  --color-error-hover: var(--pharos-color-semantic-error-fg-hover);
+  --color-error-active: var(--pharos-color-semantic-error-fg-active);
   --color-error-bg: var(--pharos-color-semantic-error-bg);
   --color-error-on: var(--pharos-color-semantic-error-on);
 
