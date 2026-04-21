@@ -10,7 +10,7 @@ Forbidden:
 
 - Hand-rolled `<button>` / `<input>` when `Button` / `Input` exists in
   `@code-sherpas/pharos-react`.
-- Importing primitives (`@radix-ui/*`, `@base-ui-components/*`, `antd`,
+- Importing primitives (`@radix-ui/*`, `@base-ui/*`, `antd`,
   `@heroicons/*`, `@headlessui/*`) directly. Pharos wraps what it needs.
 - Copy-pasting a Pharos component into the consumer and modifying it. If
   Pharos is missing a variant, open an issue in this repo.

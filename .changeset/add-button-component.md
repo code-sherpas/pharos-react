@@ -13,8 +13,7 @@ First Pharos component, following shadcn/ui canonical naming:
 - Composition via Base UI's `render` prop (element or function) so
   consumers can render the Button as a router `<Link>`, an anchor, or
   any wrapper without losing styling or behavior. Powered by
-  `useRender` from `@base-ui-components/react` (added as peer
-  dependency).
+  `useRender` from `@base-ui/react` (added as peer dependency).
 
 Alongside the component, the `@theme inline` block in
 `src/styles/index.css` now maps **every** Pharos token category onto

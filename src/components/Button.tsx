@@ -1,4 +1,4 @@
-import { useRender } from '@base-ui-components/react/use-render';
+import { useRender } from '@base-ui/react/use-render';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/cn';
 
@@ -32,15 +32,10 @@ const buttonVariants = cva(
           'active:bg-neutral-200',
           'focus-visible:ring-primary-600',
         ],
-        // Destructive uses `brightness` as a filter-based darken for hover /
-        // active until pharos-tokens ships dedicated `error.fg-hover` /
-        // `error.fg-active` shades (PR open). Once that lands, swap to
-        // `hover:bg-error-hover active:bg-error-active`.
         destructive: [
           'bg-error text-error-on',
-          'transition-[filter,background-color]',
-          'hover:brightness-95',
-          'active:brightness-90',
+          'hover:bg-error-hover',
+          'active:bg-error-active',
           'focus-visible:ring-error',
         ],
       },

@@ -40,7 +40,7 @@ Principles:
 1. **No hardcoded design values.** Colors, spacing, radius, shadow, typography,
    z-index and motion come from `--pharos-*` or the mapped Tailwind theme vars.
 2. **No direct imports of primitive libraries.** Do not re-export
-   `@radix-ui/*` or `@base-ui-components/*` directly. Wrap them.
+   `@radix-ui/*` or `@base-ui/*` directly. Wrap them.
 3. **Canonical names only.** When adding a component, check shadcn first. If
    the Alexandria name differs, Pharos still uses the canonical one.
 4. **Lucide for icons.** Decision D4. Custom icons only if Lucide does not
