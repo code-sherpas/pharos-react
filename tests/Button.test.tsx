@@ -1,4 +1,4 @@
-import { createRef } from 'react';
+import { createRef, type MouseEvent } from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -92,6 +92,57 @@ describe('Button', () => {
     const button = screen.getByRole('button');
     button.focus();
     await user.keyboard(' ');
+    expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('composes with a custom element via the render prop (element form)', () => {
+    render(
+      <Button render={<a href="/dashboard" />} intent="secondary">
+        Dashboard
+      </Button>,
+    );
+    const link = screen.getByRole('link', { name: 'Dashboard' });
+    expect(link.tagName).toBe('A');
+    expect(link).toHaveAttribute('href', '/dashboard');
+    expect(link).toHaveClass('bg-base-white');
+  });
+
+  it('composes with a custom element via the render prop (function form)', () => {
+    render(
+      <Button
+        render={(props) => <a data-variant="link" {...props} href="/external" />}
+        intent="ghost"
+      >
+        External
+      </Button>,
+    );
+    const link = screen.getByRole('link', { name: 'External' });
+    expect(link).toHaveAttribute('href', '/external');
+    expect(link).toHaveAttribute('data-variant', 'link');
+    expect(link).toHaveClass('bg-transparent');
+  });
+
+  it('merges className from the render element with the Button variants', () => {
+    render(
+      <Button render={<a className="outer-link" href="/x" />} className="user-class">
+        Mixed
+      </Button>,
+    );
+    const link = screen.getByRole('link');
+    expect(link).toHaveClass('outer-link');
+    expect(link).toHaveClass('user-class');
+    expect(link).toHaveClass('bg-primary-600');
+  });
+
+  it('forwards onClick through the render prop composition', async () => {
+    const user = userEvent.setup();
+    const onClick = vi.fn((event: MouseEvent) => event.preventDefault());
+    render(
+      <Button render={<a href="#" />} onClick={onClick}>
+        Link
+      </Button>,
+    );
+    await user.click(screen.getByRole('link'));
     expect(onClick).toHaveBeenCalledTimes(1);
   });
 });

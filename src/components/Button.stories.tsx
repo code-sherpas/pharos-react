@@ -73,6 +73,32 @@ export const Disabled: Story = {
   args: { disabled: true, children: 'Disabled' },
 };
 
+export const AsLink: Story = {
+  name: 'As link (render prop)',
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Compose `<Button>` with another element using Base UI’s `render` prop. ' +
+          'Styles and event handlers are merged onto the outer element — here an anchor — ' +
+          'so a navigation link can inherit Button styling without any wrapper markup.',
+      },
+    },
+  },
+  args: {
+    intent: 'secondary',
+    children: 'Open docs',
+  },
+  render: (args) => (
+    <Button
+      {...args}
+      render={
+        <a href="https://pharos-react-storybook.onrender.com" target="_blank" rel="noreferrer" />
+      }
+    />
+  ),
+};
+
 export const Matrix: Story = {
   parameters: {
     controls: { disable: true },
