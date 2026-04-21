@@ -23,17 +23,59 @@ CSS var from `@code-sherpas/pharos-tokens`.
 
 Principles:
 
-1. **Tokens come from `pharos-tokens`.** `pharos-react` never hardcodes hex,
+1. **DS and library quality above current-Alexandria visual fidelity.**
+   Pharos is the explicit extraction of Alexandria's implicit design system,
+   but Pharos is not Alexandria's mirror. When a best-practice DS choice
+   (token structure, component naming, variant axes, accessibility contract,
+   size grid) conflicts with a current Alexandria quirk, the DS choice wins.
+   Tokens stay as close to Alexandria values as possible without compromising
+   this.
+2. **Tokens come from `pharos-tokens`.** `pharos-react` never hardcodes hex,
    rem/px spacing, or shadow values. Tokens are mapped to Tailwind theme vars
    via `@theme inline` in `src/styles/index.css`.
-2. **Canonical naming.** Components follow shadcn/ui > Base UI > ARIA APG, in
+3. **Canonical naming.** Components follow shadcn/ui > Base UI > ARIA APG, in
    that order. Tiebreaker: shorter, more generic name wins. `Button`, not
    `PrimaryButton`. `Dialog`, not `Modal`. `Sheet`, not `Drawer`.
-3. **Variants, not sub-components.** Use CVA for `variant`/`size`/`tone`.
-4. **Accessible by default.** Primitives (Base UI) carry ARIA; we wrap them
+4. **Variants, not sub-components.** Use CVA for `variant`/`size`/`tone`.
+5. **Accessible by default.** Primitives (Base UI) carry ARIA; we wrap them
    without regressing semantics.
-5. **Changeset required.** Every PR that touches the public API includes a
+6. **Changeset required.** Every PR that touches the public API includes a
    changeset. See semver policy in `.changeset/README.md`.
+7. **Atomic-design build order.** Ship atoms first, then molecules, then
+   organisms. Rationale: molecules and organisms compose the atoms, so
+   shipping the bottom of the tree first means later components reuse
+   already-stable primitives instead of temporary stubs.
+
+## Relationship with Alexandria
+
+`alexandria-web-application` is the first consumer of Pharos. The migration
+is **incremental**, not a big-bang end-of-plan event:
+
+1. A component lands in `pharos-react` on a feature branch, with stories,
+   tests, Chromatic baseline, and a changeset.
+2. When the PR merges and Changesets publishes the new version to npm, a
+   separate PR opens in `alexandria-web-application` that:
+   - Replaces every instance of the Alexandria equivalent(s) with the
+     Pharos component, following the mapping in `NAMING-decisions.md`.
+   - Deletes the obsolete Alexandria components once all call-sites are
+     swapped.
+   - Lists **every affected route** (URL paths under `/app/`) in the PR
+     description as a QA checklist.
+   - Appends a summary entry to `docs/migration-log.md` in
+     `alexandria-web-application` for historical traceability.
+3. This only applies when the swap is a local textual replacement
+   (prop remap + import change). Cases that require structural refactor
+   (JSX-tree changes, state ownership moves, file relocation) are
+   deferred to Fase 6 of the master plan. See
+   `PLAN-pharos-alexandria.md` for the catalog of what is incremental
+   vs deferred.
+
+Pharos is the source of truth for the design system. Alexandria consumes it.
+When a Pharos release introduces a deliberate visual change from Alexandria
+(e.g. `NewButton`'s navy fill becoming brand blue), that is the DS deciding
+what the design vocabulary means — not a bug. Deliberate changes are
+documented in the component's entry in `NAMING-decisions.md` at the time
+the swap PR opens.
 
 ## NON-NEGOTIABLE rules
 

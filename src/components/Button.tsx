@@ -40,9 +40,9 @@ const buttonVariants = cva(
         ],
       },
       size: {
-        sm: 'h-8 gap-1.5 rounded-md px-3 text-sm',
-        md: 'h-10 gap-2 rounded-md px-4 text-sm',
-        lg: 'h-12 gap-2 rounded-lg px-6 text-base',
+        sm: 'h-8 gap-1.5 rounded-full px-3 text-sm',
+        md: 'h-10 gap-2 rounded-full px-4 text-sm',
+        lg: 'h-12 gap-2 rounded-full px-6 text-base',
       },
     },
     defaultVariants: {
