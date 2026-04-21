@@ -14,10 +14,16 @@ const buttonVariants = cva(
   {
     variants: {
       intent: {
+        // `primary` is the most emphasized CTA. It renders in neutral-900,
+        // matching Alexandria's `NewButton variant="filled" tone="default"`
+        // and the Linear/Vercel/Notion convention of "brand color as accent,
+        // dark neutral as primary action". The blue `primary-*` palette is
+        // reserved for brand accents (focus rings, highlights, badges) —
+        // not for the default filled button.
         primary: [
-          'bg-primary-600 text-base-white',
-          'hover:bg-primary-700',
-          'active:bg-primary-800',
+          'bg-neutral-900 text-base-white',
+          'hover:bg-neutral-700',
+          'active:bg-neutral-950',
           'focus-visible:ring-primary-600',
         ],
         secondary: [
