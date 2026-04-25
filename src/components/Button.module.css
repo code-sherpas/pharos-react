@@ -1,0 +1,140 @@
+/* Button.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). The build emits hashed
+ * class names (e.g. `Button_button__a3f2`) into dist/styles.css; the runtime
+ * JS references those names through the `styles` object imported by Button.tsx.
+ *
+ * Every visual value comes from a `--pharos-*` token. No hex, no raw px/rem
+ * for design dimensions, no Tailwind. Hover / active / focus states are
+ * authored with native CSS pseudo-classes — no preprocessor, no utility-first
+ * shorthand, no framework dependency at runtime.
+ *
+ * Consumers do not need Tailwind (any version) or any other CSS framework to
+ * use this component. They only need to load the published `dist/styles.css`
+ * once and the consumer's app must define `--pharos-*` (achieved by importing
+ * `@code-sherpas/pharos-tokens/css`, which is a peer dependency).
+ */
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 0 solid transparent;
+  border-radius: var(--pharos-radius-full);
+  font-family: var(--pharos-font-family-sans);
+  font-weight: var(--pharos-font-weight-medium);
+  white-space: nowrap;
+  user-select: none;
+  cursor: pointer;
+  transition-property: color, background-color, border-color, box-shadow;
+  transition-duration: var(--pharos-duration-normal);
+  transition-timing-function: var(--pharos-easing-out);
+}
+
+.button:focus-visible {
+  outline: none;
+  /* Two-stop box-shadow mimics the Tailwind `ring-offset-2 ring-2` pattern:
+   * an inner halo in the surface color separates the ring from the button
+   * fill, and the outer color is the per-intent focus accent. */
+  box-shadow:
+    0 0 0 2px var(--pharos-color-base-white),
+    0 0 0 4px var(--button-focus-ring, var(--pharos-color-primary-600));
+}
+
+.button:disabled {
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* === Intents === */
+
+.primary {
+  background-color: var(--pharos-color-neutral-900);
+  color: var(--pharos-color-base-white);
+  --button-focus-ring: var(--pharos-color-primary-600);
+}
+
+.primary:hover {
+  background-color: var(--pharos-color-neutral-700);
+}
+
+.primary:active {
+  background-color: var(--pharos-color-neutral-950);
+}
+
+.secondary {
+  background-color: var(--pharos-color-base-white);
+  color: var(--pharos-color-neutral-900);
+  border: 1px solid var(--pharos-color-neutral-200);
+  --button-focus-ring: var(--pharos-color-primary-600);
+}
+
+.secondary:hover {
+  background-color: var(--pharos-color-neutral-50);
+  border-color: var(--pharos-color-neutral-300);
+}
+
+.secondary:active {
+  background-color: var(--pharos-color-neutral-100);
+}
+
+.ghost {
+  background-color: transparent;
+  color: var(--pharos-color-neutral-900);
+  --button-focus-ring: var(--pharos-color-primary-600);
+}
+
+.ghost:hover {
+  background-color: var(--pharos-color-neutral-100);
+}
+
+.ghost:active {
+  background-color: var(--pharos-color-neutral-200);
+}
+
+.destructive {
+  background-color: var(--pharos-color-semantic-error-fg);
+  color: var(--pharos-color-semantic-error-on);
+  --button-focus-ring: var(--pharos-color-semantic-error-fg);
+}
+
+.destructive:hover {
+  background-color: var(--pharos-color-semantic-error-fg-hover);
+}
+
+.destructive:active {
+  background-color: var(--pharos-color-semantic-error-fg-active);
+}
+
+/* === Sizes ===
+ *
+ * Heights and paddings are derived from `--pharos-spacing-*` so a runtime
+ * override of the spacing scale rescales the whole control proportionally.
+ * Font sizes use `--pharos-font-size-*` tokens; the line-height ratios match
+ * the Tailwind v4 defaults that shipped in 0.2.x so visual fidelity is
+ * preserved across the migration. */
+
+.sizeSm {
+  height: var(--pharos-spacing-8);
+  gap: var(--pharos-spacing-1-5);
+  padding: 0 var(--pharos-spacing-3);
+  font-size: var(--pharos-font-size-sm);
+  line-height: calc(1.25 / 0.875);
+}
+
+.sizeMd {
+  height: var(--pharos-spacing-10);
+  gap: var(--pharos-spacing-2);
+  padding: 0 var(--pharos-spacing-4);
+  font-size: var(--pharos-font-size-sm);
+  line-height: calc(1.25 / 0.875);
+}
+
+.sizeLg {
+  height: var(--pharos-spacing-12);
+  gap: var(--pharos-spacing-2);
+  padding: 0 var(--pharos-spacing-6);
+  font-size: var(--pharos-font-size-base);
+  line-height: 1.5;
+}

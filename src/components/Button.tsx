@@ -1,62 +1,41 @@
 import { useRender } from '@base-ui/react/use-render';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/cn';
+import styles from './Button.module.css';
 
-const buttonVariants = cva(
-  [
-    'inline-flex items-center justify-center',
-    'font-medium whitespace-nowrap select-none',
-    'transition-colors ease-out',
-    'cursor-pointer',
-    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
-    'disabled:pointer-events-none disabled:opacity-50 disabled:cursor-not-allowed',
-  ],
-  {
-    variants: {
-      intent: {
-        // `primary` is the most emphasized CTA. It renders in neutral-900,
-        // matching Alexandria's `NewButton variant="filled" tone="default"`
-        // and the Linear/Vercel/Notion convention of "brand color as accent,
-        // dark neutral as primary action". The blue `primary-*` palette is
-        // reserved for brand accents (focus rings, highlights, badges) —
-        // not for the default filled button.
-        primary: [
-          'bg-neutral-900 text-base-white',
-          'hover:bg-neutral-700',
-          'active:bg-neutral-950',
-          'focus-visible:ring-primary-600',
-        ],
-        secondary: [
-          'bg-base-white text-neutral-900 border border-neutral-200',
-          'hover:bg-neutral-50 hover:border-neutral-300',
-          'active:bg-neutral-100',
-          'focus-visible:ring-primary-600',
-        ],
-        ghost: [
-          'bg-transparent text-neutral-900',
-          'hover:bg-neutral-100',
-          'active:bg-neutral-200',
-          'focus-visible:ring-primary-600',
-        ],
-        destructive: [
-          'bg-error text-error-on',
-          'hover:bg-error-hover',
-          'active:bg-error-active',
-          'focus-visible:ring-error',
-        ],
-      },
-      size: {
-        sm: 'h-8 gap-1.5 rounded-full px-3 text-sm',
-        md: 'h-10 gap-2 rounded-full px-4 text-sm',
-        lg: 'h-12 gap-2 rounded-full px-6 text-base',
-      },
+/**
+ * Maps the two public variant axes (`intent`, `size`) to the per-class names
+ * inside `Button.module.css`. CVA stays as the typed-variants mechanism
+ * (Decision D9 keeps the authoring DX) but each value points at a hashed
+ * CSS Modules class instead of a Tailwind utility string. The base class
+ * carries layout, typography and the focus-visible ring — every variant
+ * stacks on top of it.
+ */
+const buttonVariants = cva(styles.button, {
+  variants: {
+    intent: {
+      // `primary` is the most emphasized CTA. It renders in neutral-900,
+      // matching Alexandria's `NewButton variant="filled" tone="default"`
+      // and the Linear/Vercel/Notion convention of "brand color as accent,
+      // dark neutral as primary action". The blue `primary-*` palette is
+      // reserved for brand accents (focus rings, highlights, badges) —
+      // not for the default filled button.
+      primary: styles.primary,
+      secondary: styles.secondary,
+      ghost: styles.ghost,
+      destructive: styles.destructive,
     },
-    defaultVariants: {
-      intent: 'primary',
-      size: 'md',
+    size: {
+      sm: styles.sizeSm,
+      md: styles.sizeMd,
+      lg: styles.sizeLg,
     },
   },
-);
+  defaultVariants: {
+    intent: 'primary',
+    size: 'md',
+  },
+});
 
 type ButtonVariantProps = VariantProps<typeof buttonVariants>;
 
@@ -83,13 +62,21 @@ export function Button({
   ref,
   ...rest
 }: ButtonProps) {
+  const resolvedIntent = intent ?? 'primary';
+  const resolvedSize = size ?? 'md';
   return useRender({
     render: render ?? <button />,
     ref,
     defaultTagName: 'button',
     props: {
       type,
-      className: cn(buttonVariants({ intent, size }), className),
+      // `data-pharos-intent` / `data-pharos-size` are stable hooks for
+      // selectors and tests. They mirror the CSS Modules class but stay
+      // semantic — consumer queries do not need to know the hashed class
+      // name and tests do not need to import the module to assert variant.
+      'data-pharos-intent': resolvedIntent,
+      'data-pharos-size': resolvedSize,
+      className: cn(buttonVariants({ intent: resolvedIntent, size: resolvedSize }), className),
       ...rest,
     },
   });
