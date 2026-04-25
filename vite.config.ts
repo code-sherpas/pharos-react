@@ -9,9 +9,13 @@ export default defineConfig({
     react(),
     tailwindcss(),
     dts({
-      include: ['src/**/*'],
-      exclude: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
-      rollupTypes: true,
+      tsconfigPath: 'tsconfig.build.json',
+      // rollupTypes is intentionally off: API Extractor (used by
+      // vite-plugin-dts to merge declarations) does not yet support
+      // TypeScript 6, and silently emits an empty `export {}` as
+      // dist/index.d.ts. Per-file declarations from tsconfig.build.json
+      // (rootDir = src) keep dist mirroring the src layout, so
+      // package.json's `./dist/index.d.ts` resolves correctly.
     }),
   ],
   build: {
