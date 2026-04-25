@@ -19,8 +19,25 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  /* Explicit box model so the rendered control matches the height set in
+   * the size rules even when the consumer's app does not ship a CSS reset.
+   * Without `box-sizing: border-box` here, a 1px border on `.secondary`
+   * adds 2px to the rendered height and shifts the centered text
+   * relative to the button's bounding box. `margin: 0` and the
+   * explicit `padding-block: 0` neutralise the user-agent button
+   * padding (Chrome ships `padding: 1px 6px`) so the per-size rules
+   * fully control the vertical metrics. */
+  box-sizing: border-box;
+  margin: 0;
+  padding-block: 0;
   border: 0 solid transparent;
   border-radius: var(--pharos-radius-full);
+  /* `font: inherit` neutralises the user-agent's `<button>` font
+   * shorthand, which on most browsers includes a tighter line-height
+   * than what we set per size below — without this, the size rules
+   * win for `line-height` and `font-size` but the inherent button
+   * font's metrics still shift the baseline. */
+  font: inherit;
   font-family: var(--pharos-font-family-sans);
   font-weight: var(--pharos-font-weight-medium);
   white-space: nowrap;
