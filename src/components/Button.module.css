@@ -48,6 +48,28 @@
   justify-content: center;
   white-space: nowrap;
 
+  /* === Optical text centering ===
+   * `text-box-trim` strips the leading above the cap-line and below the
+   * alphabetic baseline so `align-items: center` centres the actual
+   * cap-block instead of the line-box (which includes per-font half-
+   * leading that biases the visual centre upward or downward depending
+   * on the font's vertical metrics). Without this, fonts with a high
+   * baseline like Outfit (the D8 sans) render visibly above the
+   * geometric centre even though `align-items: center` is correctly
+   * applied — matching what Chromatic flagged on the migration PR.
+   * The `text-box-edge` longhand picks the cap-line at the start and
+   * the alphabetic baseline at the end so descenders ("y", "g", ...)
+   * still hang below the cap-block as the font intended; only the
+   * extra leading is trimmed.
+   *
+   * Browser support: Chromium 133+ / Safari 18.2+ ship the property,
+   * Firefox has it behind a flag at the time of writing. In engines
+   * without support the declaration is ignored and the text falls
+   * back to standard line-box centring — which is the same behaviour
+   * the bundle had before this rule, so the fallback is safe. */
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+
   /* === Typography ===
    * Each font longhand is set explicitly. The shorthand `font: inherit`
    * was tempting but the CSS spec says the `font` shorthand resets a
