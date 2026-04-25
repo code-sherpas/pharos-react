@@ -49,17 +49,17 @@ jobs:
           # Skip waiting for the visual review to finish — GitHub Checks get
           # the final status via Chromatic's own integration.
           exitOnceUploaded: true
-          # When a build runs on `main`, accept any visual change the PR                                                                                                                                                                     
-          # has already approved. Prevents baseline drift: without this,                                                                                                                                                                            
-          # a baseline stays frozen at the last manually-accepted build                                                                                                                                                                      
-          # forever. If between accepted-build N and the next manually                                                                                                                                                                              
-          # accepted build N+M someone merges a PR with visual changes,                                                                                                                                                                      
-          # all subsequent PRs compare against build N — so the diff                                                                                                                                                                                
-          # piles up instead of resetting per merge. Setting                                                                                                                                                                                 
-          # `autoAcceptChanges: main` says "what landed on main is the                                                                                                                                                                              
-          # new truth", which is correct as long as PRs themselves                                                                                                                                                                           
-          # cannot merge with un-reviewed Chromatic changes (enforced                                                                                                                                                                        
-          # via branch protection on this repo).                                                                                                                                                                                             
+          # When a build runs on `main`, accept any visual change the PR
+          # has already approved. Prevents baseline drift: without this,
+          # a baseline stays frozen at the last manually-accepted build
+          # forever. If between accepted-build N and the next manually
+          # accepted build N+M someone merges a PR with visual changes,
+          # all subsequent PRs compare against build N — so the diff
+          # piles up instead of resetting per merge. Setting
+          # `autoAcceptChanges: main` says "what landed on main is the
+          # new truth", which is correct as long as PRs themselves
+          # cannot merge with un-reviewed Chromatic changes (enforced
+          # via branch protection on this repo).
           autoAcceptChanges: main
           # TurboSnap (`onlyChanged: true`) is off for now. It chains
           # snapshots across builds via the previous build's baseline, and
