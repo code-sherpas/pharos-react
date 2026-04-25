@@ -16,33 +16,69 @@
  */
 
 .button {
+  /* === Reset native button rendering ===
+   * `appearance: none` strips the platform-specific button styling that
+   * shifts the text baseline on iOS/Safari and on some Linux Chromium
+   * builds (the same fonts that Chromatic uses on its render farm). The
+   * `-webkit-appearance` line is a no-op on modern Chromium but kept
+   * for older WebKit. */
+  appearance: none;
+  -webkit-appearance: none;
+
+  /* === Box model ===
+   * Explicit so the rendered control matches the height set in the size
+   * rules even when the consumer's app does not ship a CSS reset. With
+   * the consumer-side preflight gone, `border-box`, `margin: 0` and the
+   * zero block-padding neutralise the user-agent's `padding: 1px 6px`
+   * (Chrome) or `padding: 0 8px` (Firefox) on `<button>`. */
+  box-sizing: border-box;
+  margin: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border: 0 solid transparent;
+  border-radius: var(--pharos-radius-full);
+
+  /* === Layout === */
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  /* Explicit box model so the rendered control matches the height set in
-   * the size rules even when the consumer's app does not ship a CSS reset.
-   * Without `box-sizing: border-box` here, a 1px border on `.secondary`
-   * adds 2px to the rendered height and shifts the centered text
-   * relative to the button's bounding box. `margin: 0` and the
-   * explicit `padding-block: 0` neutralise the user-agent button
-   * padding (Chrome ships `padding: 1px 6px`) so the per-size rules
-   * fully control the vertical metrics. */
-  box-sizing: border-box;
-  margin: 0;
-  padding-block: 0;
-  border: 0 solid transparent;
-  border-radius: var(--pharos-radius-full);
-  /* `font: inherit` neutralises the user-agent's `<button>` font
-   * shorthand, which on most browsers includes a tighter line-height
-   * than what we set per size below — without this, the size rules
-   * win for `line-height` and `font-size` but the inherent button
-   * font's metrics still shift the baseline. */
-  font: inherit;
-  font-family: var(--pharos-font-family-sans);
-  font-weight: var(--pharos-font-weight-medium);
   white-space: nowrap;
+
+  /* === Typography ===
+   * Each font longhand is set explicitly. The shorthand `font: inherit`
+   * was tempting but the CSS spec says the `font` shorthand resets a
+   * dozen related properties (`font-feature-settings`,
+   * `font-variation-settings`, `font-kerning`, `font-optical-sizing`,
+   * `font-size-adjust`, etc.) to their *initial* values rather than
+   * inheriting them. That subtle reset shifted the rendered baseline
+   * by a fraction of a pixel against the consumer's surrounding text,
+   * which Chromatic flagged as a diff vs 0.2.x. The size variants
+   * below override `font-size` and `line-height` per size. */
+  font-family: var(--pharos-font-family-sans);
+  font-style: normal;
+  font-weight: var(--pharos-font-weight-medium);
+  font-stretch: normal;
+  font-variant: normal;
+  font-kerning: auto;
+  font-optical-sizing: auto;
+  font-size-adjust: none;
+  font-feature-settings: normal;
+  font-variation-settings: normal;
+  letter-spacing: normal;
+  text-decoration: none;
+  text-transform: none;
+  /* Default size (overridden per size variant) — keeps a sensible
+   * fallback if a Button is somehow rendered without a size class. */
+  font-size: var(--pharos-font-size-sm);
+  line-height: 1.5;
+
+  /* === Interactivity === */
   user-select: none;
   cursor: pointer;
+  background-color: transparent;
+  color: inherit;
+
+  /* === Transitions === */
   transition-property: color, background-color, border-color, box-shadow;
   transition-duration: var(--pharos-duration-normal);
   transition-timing-function: var(--pharos-easing-out);
