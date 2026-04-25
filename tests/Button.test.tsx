@@ -21,37 +21,33 @@ describe('Button', () => {
     expect(screen.getByRole('button')).toHaveAttribute('type', 'submit');
   });
 
-  it('applies the default intent and size classes when none are provided', () => {
+  it('applies the default intent and size when none are provided', () => {
     render(<Button>Default</Button>);
     const button = screen.getByRole('button');
-    expect(button).toHaveClass('bg-neutral-900');
-    expect(button).toHaveClass('h-10');
+    expect(button).toHaveAttribute('data-pharos-intent', 'primary');
+    expect(button).toHaveAttribute('data-pharos-size', 'md');
   });
 
-  it.each([
-    ['primary', 'bg-neutral-900'],
-    ['secondary', 'bg-base-white'],
-    ['ghost', 'bg-transparent'],
-    ['destructive', 'bg-error'],
-  ] as const)('applies the %s intent classes', (intent, expectedClass) => {
-    render(<Button intent={intent}>Label</Button>);
-    expect(screen.getByRole('button')).toHaveClass(expectedClass);
-  });
+  it.each([['primary'], ['secondary'], ['ghost'], ['destructive']] as const)(
+    'exposes %s intent through data-pharos-intent',
+    (intent) => {
+      render(<Button intent={intent}>Label</Button>);
+      expect(screen.getByRole('button')).toHaveAttribute('data-pharos-intent', intent);
+    },
+  );
 
-  it.each([
-    ['sm', 'h-8'],
-    ['md', 'h-10'],
-    ['lg', 'h-12'],
-  ] as const)('applies the %s size classes', (size, expectedClass) => {
+  it.each([['sm'], ['md'], ['lg']] as const)('exposes %s size through data-pharos-size', (size) => {
     render(<Button size={size}>Label</Button>);
-    expect(screen.getByRole('button')).toHaveClass(expectedClass);
+    expect(screen.getByRole('button')).toHaveAttribute('data-pharos-size', size);
   });
 
   it('merges a custom className with the variant classes', () => {
     render(<Button className="custom-class">Label</Button>);
     const button = screen.getByRole('button');
     expect(button).toHaveClass('custom-class');
-    expect(button).toHaveClass('bg-neutral-900');
+    // The variant + base classes still apply (CSS Modules hashed names).
+    // We assert via data attribute rather than the hashed class name.
+    expect(button).toHaveAttribute('data-pharos-intent', 'primary');
   });
 
   it('forwards a ref to the underlying button element', () => {
@@ -104,7 +100,7 @@ describe('Button', () => {
     const link = screen.getByRole('link', { name: 'Dashboard' });
     expect(link.tagName).toBe('A');
     expect(link).toHaveAttribute('href', '/dashboard');
-    expect(link).toHaveClass('bg-base-white');
+    expect(link).toHaveAttribute('data-pharos-intent', 'secondary');
   });
 
   it('composes with a custom element via the render prop (function form)', () => {
@@ -119,7 +115,7 @@ describe('Button', () => {
     const link = screen.getByRole('link', { name: 'External' });
     expect(link).toHaveAttribute('href', '/external');
     expect(link).toHaveAttribute('data-variant', 'link');
-    expect(link).toHaveClass('bg-transparent');
+    expect(link).toHaveAttribute('data-pharos-intent', 'ghost');
   });
 
   it('merges className from the render element with the Button variants', () => {
@@ -131,7 +127,7 @@ describe('Button', () => {
     const link = screen.getByRole('link');
     expect(link).toHaveClass('outer-link');
     expect(link).toHaveClass('user-class');
-    expect(link).toHaveClass('bg-neutral-900');
+    expect(link).toHaveAttribute('data-pharos-intent', 'primary');
   });
 
   it('forwards onClick through the render prop composition', async () => {

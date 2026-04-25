@@ -1,0 +1,31 @@
+/* Storybook-only utilities used by demo stories (e.g. the Button Matrix
+ * grid layout, label captions). Lives outside src/ so it is never bundled
+ * into the published library. The published library is pure CSS Modules
+ * with hashed class names — see Decision D9. */
+
+.storybook-matrix {
+  display: grid;
+  grid-template-columns: auto repeat(3, auto);
+  align-items: center;
+  gap: 1rem;
+}
+
+.storybook-matrix-label {
+  text-align: center;
+  font-family: var(--pharos-font-family-sans);
+  font-size: var(--pharos-font-size-sm);
+  font-weight: var(--pharos-font-weight-medium);
+  color: var(--pharos-color-neutral-500);
+}
+
+.storybook-matrix-label-row {
+  font-family: var(--pharos-font-family-sans);
+  font-size: var(--pharos-font-size-sm);
+  font-weight: var(--pharos-font-weight-medium);
+  color: var(--pharos-color-neutral-500);
+  text-transform: capitalize;
+}
+
+.storybook-matrix-label-col {
+  text-transform: uppercase;
+}

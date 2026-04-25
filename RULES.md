@@ -38,8 +38,16 @@ canonical one — do not alias.
 import '@code-sherpas/pharos-react/styles.css';
 ```
 
-This loads the compiled Tailwind v4 output plus the `@theme inline` mapping
-to `--pharos-*`. Without it, components render unstyled.
+This loads the compiled CSS Modules output of every component (hashed class
+names that the React components reference at runtime). Without it,
+components render unstyled.
+
+**You do not need Tailwind, PostCSS, or any other CSS framework to consume
+pharos-react** (Decision D9). The published bundle is pure CSS — no
+`@layer` directives, no preflight, no global resets, no class-name
+collisions with your own utilities. It works the same in Next.js + Tailwind
+v3, Next.js + Tailwind v4, Vite + plain CSS, Astro, Remix, or any other
+React stack.
 
 ## 4. `pharos-tokens` is a peer dependency
 

@@ -105,16 +105,16 @@ export const Matrix: Story = {
     actions: { disable: true },
   },
   render: () => (
-    <div className="grid grid-cols-[auto_repeat(3,auto)] items-center gap-4">
+    <div className="storybook-matrix">
       <span />
       {SIZES.map((size) => (
-        <span key={size} className="text-center text-sm font-medium text-neutral-500 uppercase">
+        <span key={size} className="storybook-matrix-label storybook-matrix-label-col">
           {size}
         </span>
       ))}
       {INTENTS.map((intent) => (
         <Fragment key={intent}>
-          <span className="text-sm font-medium text-neutral-500 capitalize">{intent}</span>
+          <span className="storybook-matrix-label-row">{intent}</span>
           {SIZES.map((size) => (
             <Button key={`${intent}-${size}`} intent={intent} size={size}>
               {intent}
