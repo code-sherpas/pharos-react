@@ -16,14 +16,18 @@
  */
 
 .button {
-  /* === Reset native button rendering ===
-   * `appearance: none` strips the platform-specific button styling that
-   * shifts the text baseline on iOS/Safari and on some Linux Chromium
-   * builds (the same fonts that Chromatic uses on its render farm). The
-   * `-webkit-appearance` line is a no-op on modern Chromium but kept
-   * for older WebKit. */
-  appearance: none;
-  -webkit-appearance: none;
+  /* `appearance: button` matches what Tailwind v4's preflight set for
+   * `<button>` in 0.2.x. It is *not* the same as `appearance: none`:
+   * Chromium applies a small amount of native font-metric normalisation
+   * to controls with `appearance: button` (and to the user-agent default
+   * `appearance: auto` for `<button>`), which positions the text baseline
+   * a fraction of a pixel lower. Stripping that with `appearance: none`
+   * shifted the label up against the 0.2.x baseline that Chromatic uses
+   * for visual diffs — keeping `appearance: button` preserves the
+   * historical rendering. The `-webkit-appearance` line is a no-op on
+   * modern Chromium but stays for older WebKit. */
+  appearance: button;
+  -webkit-appearance: button;
 
   /* === Box model ===
    * Explicit so the rendered control matches the height set in the size
