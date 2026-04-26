@@ -1,0 +1,64 @@
+/* Base layout. Same across every variant — only surface, label and border
+ * change. Inline-flex so a child SVG (rendered by the consumer as plain
+ * children) sits on the same baseline as the label. The font-relative SVG
+ * sizing rule mirrors shadcn's `[&>svg]:size-3` utility. */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pharos-spacing-1);
+  padding: 0 var(--pharos-spacing-2);
+  height: var(--pharos-spacing-5);
+  border: 1px solid transparent;
+  border-radius: var(--pharos-radius-md);
+  font-family: var(--pharos-font-family-sans);
+  font-size: var(--pharos-font-size-xs);
+  font-weight: var(--pharos-font-weight-medium);
+  line-height: 1;
+  white-space: nowrap;
+  width: fit-content;
+  text-box-trim: trim-both;
+  text-box-edge: cap alphabetic;
+}
+
+.badge > svg {
+  width: 0.75em;
+  height: 0.75em;
+  flex: 0 0 auto;
+  pointer-events: none;
+}
+
+.default {
+  background: var(--pharos-color-neutral-900);
+  color: var(--pharos-color-base-white);
+}
+
+.secondary {
+  background: var(--pharos-color-neutral-100);
+  color: var(--pharos-color-neutral-900);
+}
+
+.destructive {
+  background: var(--pharos-color-semantic-error-fg);
+  color: var(--pharos-color-semantic-error-on);
+}
+
+.outline {
+  background: transparent;
+  color: var(--pharos-color-neutral-900);
+  border-color: var(--pharos-color-neutral-300);
+}
+
+.success {
+  background: var(--pharos-color-semantic-success-fg);
+  color: var(--pharos-color-semantic-success-on);
+}
+
+.warning {
+  background: var(--pharos-color-semantic-warning-fg);
+  color: var(--pharos-color-semantic-warning-on);
+}
+
+.info {
+  background: var(--pharos-color-semantic-info-fg);
+  color: var(--pharos-color-semantic-info-on);
+}

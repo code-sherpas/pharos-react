@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Button } from '../src/components/Button';
+import { Badge } from '../src/components/Badge';
 
 /**
  * Multi-component gallery. One story per published component family, grouped
@@ -49,6 +50,20 @@ function ButtonShowcase() {
   );
 }
 
+function BadgeShowcase() {
+  return (
+    <div className="storybook-overview-row">
+      <Badge variant="default">Default</Badge>
+      <Badge variant="secondary">Secondary</Badge>
+      <Badge variant="destructive">Destructive</Badge>
+      <Badge variant="outline">Outline</Badge>
+      <Badge variant="success">Success</Badge>
+      <Badge variant="warning">Warning</Badge>
+      <Badge variant="info">Info</Badge>
+    </div>
+  );
+}
+
 function Overview() {
   return (
     <div className="storybook-overview">
@@ -63,6 +78,9 @@ function Overview() {
       <Section title="Primitives">
         <Showcase name="Button">
           <ButtonShowcase />
+        </Showcase>
+        <Showcase name="Badge">
+          <BadgeShowcase />
         </Showcase>
       </Section>
     </div>
