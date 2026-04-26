@@ -27,13 +27,18 @@ inside each `*.module.css`.
 
 Principles:
 
-1. **DS and library quality above current-Alexandria visual fidelity.**
-   Pharos is the explicit extraction of Alexandria's implicit design system,
-   but Pharos is not Alexandria's mirror. When a best-practice DS choice
-   (token structure, component naming, variant axes, accessibility contract,
-   size grid) conflicts with a current Alexandria quirk, the DS choice wins.
-   Tokens stay as close to Alexandria values as possible without compromising
-   this.
+1. **State-of-the-art first; Alexandria adapts to Pharos, not the
+   reverse.** (Cardinal rule, restated by the CTO on 2026-04-26.)
+   Pharos is the explicit extraction of Alexandria's implicit design
+   system, but Pharos is not Alexandria's mirror — it is the
+   state-of-the-art version Alexandria will adopt. When a DS / library
+   best practice (token structure, canonical naming, variant axes,
+   accessibility contract, composition pattern, size grid) conflicts
+   with Alexandria's current API or quirk, **the DS choice always
+   wins**. Alexandria refactors at adoption time; structural cases
+   roll into Phase 6. Token numerical values stay as close to
+   Alexandria as possible without compromising this; component APIs
+   follow shadcn / Base UI / ARIA APG without shortcuts.
 2. **Tokens come from `pharos-tokens`.** `pharos-react` never hardcodes hex,
    rem/px spacing, or shadow values. Tokens are referenced directly inside
    `<Component>.module.css` via `var(--pharos-color-*)`, `var(--pharos-spacing-*)`,
