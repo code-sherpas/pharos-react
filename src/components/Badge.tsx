@@ -31,9 +31,7 @@ const badgeVariants = cva(styles.badge, {
 
 type BadgeVariantProps = VariantProps<typeof badgeVariants>;
 
-export interface BadgeProps
-  extends ComponentPropsWithoutRef<'span'>,
-    BadgeVariantProps {}
+export interface BadgeProps extends ComponentPropsWithoutRef<'span'>, BadgeVariantProps {}
 
 export function Badge({ variant, className, ...rest }: BadgeProps) {
   const resolvedVariant = variant ?? 'default';
