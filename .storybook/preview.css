@@ -29,3 +29,88 @@
 .storybook-matrix-label-col {
   text-transform: uppercase;
 }
+
+/* Layout for the multi-component overview gallery (Pharos/Overview).
+ * One Chromatic snapshot covers every published component, so the layout
+ * has to be deterministic — fixed gaps, no auto-fit reflow that would
+ * change baselines when a viewport tweaks. */
+
+.storybook-overview {
+  padding: 2rem 2.5rem 4rem;
+  max-width: 1280px;
+  margin: 0 auto;
+  font-family: var(--pharos-font-family-sans);
+  color: var(--pharos-color-neutral-900);
+}
+
+.storybook-overview-header {
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--pharos-color-neutral-200);
+}
+
+.storybook-overview-title {
+  font-size: var(--pharos-font-size-3xl);
+  font-weight: var(--pharos-font-weight-semibold);
+  margin: 0 0 0.5rem;
+}
+
+.storybook-overview-subtitle {
+  font-size: var(--pharos-font-size-sm);
+  color: var(--pharos-color-neutral-600);
+  margin: 0;
+  max-width: 64ch;
+}
+
+.storybook-overview-subtitle code {
+  font-family: var(--pharos-font-family-mono);
+  font-size: 0.9em;
+  background: var(--pharos-color-neutral-100);
+  padding: 0 0.25rem;
+  border-radius: var(--pharos-radius-sm);
+}
+
+.storybook-overview-section {
+  margin-bottom: 2.5rem;
+}
+
+.storybook-overview-section-title {
+  font-size: var(--pharos-font-size-xl);
+  font-weight: var(--pharos-font-weight-semibold);
+  margin: 0 0 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--pharos-color-neutral-500);
+}
+
+.storybook-overview-section-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.storybook-overview-showcase {
+  border: 1px solid var(--pharos-color-neutral-200);
+  border-radius: var(--pharos-radius-md);
+  background: var(--pharos-color-base-white);
+  padding: 1.25rem 1.5rem;
+}
+
+.storybook-overview-showcase-title {
+  font-size: var(--pharos-font-size-base);
+  font-weight: var(--pharos-font-weight-semibold);
+  margin: 0 0 1rem;
+}
+
+.storybook-overview-showcase-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.storybook-overview-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
