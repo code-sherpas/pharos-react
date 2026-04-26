@@ -149,3 +149,6 @@ chromatic-diagnostics.json
 # IDE
 .idea
 .vscode
+
+# Husky internals (auto-generated on install)
+.husky/_
