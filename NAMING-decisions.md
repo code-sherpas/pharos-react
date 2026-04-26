@@ -149,9 +149,11 @@ Public API:
 </Badge>
 ```
 
-Single axis. No `shape`. No built-in `onRemove`. Icons compose as
-plain `<svg>` children of the badge — the base style auto-sizes any
-direct child SVG to `0.75em` (mirrors shadcn's `[&>svg]:size-3`).
+Single axis. No `shape` axis. No built-in `onRemove`. Shape is fixed
+`rounded-full` to align with `Button` — see "Why rounded-full" below.
+Icons compose as plain `<svg>` children of the badge — the base style
+auto-sizes any direct child SVG to `0.75em` (mirrors shadcn's
+`[&>svg]:size-3`).
 
 ### Why a single `variant` axis
 
@@ -170,6 +172,33 @@ because:
   it goes in as a new variant value, not as a new axis. The single
   list of allowed values stays the documentation.
 
+### Why `rounded-full`
+
+Industry is split: shadcn / Radix Themes / Polaris Badge / Bootstrap
+default to `rounded-md`; Mantine, MUI Chip, and Tailwind UI status
+pills default to `rounded-full`. Either choice is defensible —
+none of them violates a documented best practice.
+
+Pharos picks `rounded-full` for **internal coherence with Button**.
+Button is fully rounded across every size (decision documented in the
+Button entry above; aligned with Alexandria's dominant convention,
+117 `rounded-full` button usages in the codebase). If Badge defaulted
+to `rounded-md`, the Pharos visual language would carry two corner
+languages — pill for actions, rectangle for labels — for no real
+reader benefit. One shape across primitives keeps the system
+recognisable as one system.
+
+The single argument that pulled toward `rounded-md` was readability
+on long badge labels (e.g. `AssessmentStatus` values such as
+`"Window closed and reviews collected"`). The end-caps of a fully-
+rounded long label can read as "exaggeratedly capsular". This is
+acceptable in practice — the base style already sets
+`white-space: nowrap` and `width: fit-content` so the badge keeps
+its label intact, and the optical weight is dominated by the surface
+fill, not by the corner radius. If a long-label readability problem
+ever emerges, the answer is a label truncation policy, not a second
+shape on Badge.
+
 ### Why the asymmetric naming (`destructive` vs `success`)
 
 shadcn ships `default | secondary | destructive | outline`. Pharos
@@ -186,21 +215,26 @@ Alexandria has three components in the badge family. **Pharos does
 not mirror their APIs** — Alexandria adapts at adoption time
 (cardinal rule, plan §7).
 
-| Alexandria component                                                | Pharos equivalent                                                                   | Notes                                                                                                                                                                                                                                                                                                                                      |
-| ------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `Pill size="sm"` (rounded-full, no variants, color via `className`) | `<Badge variant="secondary">`                                                       | Pharos drops the rounded-full pill shape — modern Badge convention is rounded-md rectangular. Fully-rounded "tag pill" UX, if needed later, becomes a separate `Tag` component. The 4 Alexandria call-sites with bespoke Tailwind colors map to the closest semantic variant: `success`/`warning`/`info` instead of hex-tinted classNames. |
-| `Pill size="md"`                                                    | n/a                                                                                 | Dead code in Alexandria (zero call-sites). Not preserved in Pharos.                                                                                                                                                                                                                                                                        |
-| `Chip variant="primary"` (filled dark, removable)                   | `<Badge variant="default">` plus a sibling close button when removable UX is needed | Pharos does not bake `onRemove` into Badge. The chip-removable pattern is composition: `<span><Badge>label</Badge><button aria-label="Remove">…</button></span>`, or a dedicated `Chip` component if the pattern proliferates.                                                                                                             |
-| `Chip variant="secondary"` (filled light, removable)                | `<Badge variant="secondary">` plus close button as above                            | Same rationale.                                                                                                                                                                                                                                                                                                                            |
-| `StatusBadge` (rectangular, slot icon, status-driven copy)          | `<Badge variant="outline">` with the icon as a child                                | Pharos absorbs the icon-as-child pattern naturally — any `<svg>` rendered inside Badge auto-sizes via the base style. The status → text + icon mapping stays in the Alexandria wrapper that calls `<Badge>`.                                                                                                                               |
-| `AssessmentStatusBadge`, `PublishedDraftStatusBadge`, etc.          | wrappers in Alexandria call `<Badge>` directly                                      | These remain Alexandria-side adapters. They are domain-aware (status enum → label + icon) and do not belong in pharos-react.                                                                                                                                                                                                               |
+| Alexandria component                                                | Pharos equivalent                                                                   | Notes                                                                                                                                                                                                                                                                                                                                                  |
+| ------------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `Pill size="sm"` (rounded-full, no variants, color via `className`) | `<Badge variant="secondary">`                                                       | Pharos keeps the rounded-full shape (coherence with Button). The 4 Alexandria call-sites with bespoke Tailwind colors map to the closest semantic variant where applicable: `success`/`warning`/`info` instead of hex-tinted classNames; the bespoke brand-blue / Platform-purple keep their `className` overrides until a Pharos variant covers them. |
+| `Pill size="md"`                                                    | n/a                                                                                 | Dead code in Alexandria (zero call-sites). Not preserved in Pharos.                                                                                                                                                                                                                                                                                    |
+| `Chip variant="primary"` (filled dark, removable)                   | `<Badge variant="default">` plus a sibling close button when removable UX is needed | Pharos does not bake `onRemove` into Badge. The chip-removable pattern is composition: `<span><Badge>label</Badge><button aria-label="Remove">…</button></span>`, or a dedicated `Chip` component if the pattern proliferates.                                                                                                                         |
+| `Chip variant="secondary"` (filled light, removable)                | `<Badge variant="secondary">` plus close button as above                            | Same rationale.                                                                                                                                                                                                                                                                                                                                        |
+| `StatusBadge` (rectangular, slot icon, status-driven copy)          | `<Badge variant="outline">` with the icon as a child                                | Pharos absorbs the icon-as-child pattern naturally — any `<svg>` rendered inside Badge auto-sizes via the base style. The status → text + icon mapping stays in the Alexandria wrapper that calls `<Badge>`.                                                                                                                                           |
+| `AssessmentStatusBadge`, `PublishedDraftStatusBadge`, etc.          | wrappers in Alexandria call `<Badge>` directly                                      | These remain Alexandria-side adapters. They are domain-aware (status enum → label + icon) and do not belong in pharos-react.                                                                                                                                                                                                                           |
 
 ### Deliberate divergences from Alexandria at migration time
 
-- **No `shape="pill"`**. Alexandria's Pill is rounded-full; Pharos
-  Badge is `rounded-md`. The rounded-md style is shadcn canonical and
-  consistent across modern DSes (Tailwind UI, Radix Themes, Polaris
-  Badge). Adoption shifts visually for the four Pill call-sites.
+- **Fixed `rounded-full` shape**. Alexandria's `Pill` is rounded-full
+  already, Alexandria's `Chip` is asymmetric (`rounded-l-full
+rounded-tr-full`), and Alexandria's `StatusBadge` is rectangular
+  (`rounded-[4px]`). Pharos collapses the three shapes into one:
+  fully rounded across every variant. Pill / Chip stay close to their
+  current visuals; StatusBadge becomes the noticeable shape change at
+  adoption (`rounded-[4px]` → `rounded-full`), which is acceptable
+  because StatusBadge already carries minimal visual weight on the
+  pages that render it.
 - **No built-in `onRemove`**. Alexandria's Chip ties label + close
   button into one component. Pharos models the close affordance as an
   external sibling because (a) shadcn does, and (b) it keeps Badge

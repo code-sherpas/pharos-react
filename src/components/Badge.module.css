@@ -9,7 +9,7 @@
   padding: 0 var(--pharos-spacing-2);
   height: var(--pharos-spacing-5);
   border: 1px solid transparent;
-  border-radius: var(--pharos-radius-md);
+  border-radius: var(--pharos-radius-full);
   font-family: var(--pharos-font-family-sans);
   font-size: var(--pharos-font-size-xs);
   font-weight: var(--pharos-font-weight-medium);
