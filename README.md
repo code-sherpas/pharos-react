@@ -2,7 +2,9 @@
 
 React component library for Code Sherpas. Consumes
 [`@code-sherpas/pharos-tokens`](https://github.com/code-sherpas/pharos-tokens)
-as a peer dependency. Built with Vite library mode, React 19, Tailwind v4.
+as a peer dependency. Built with Vite library mode, React 19 and CSS Modules.
+The published bundle ships zero Tailwind, zero PostCSS preflight and zero
+global resets — see Decision D9 in `PLAN-pharos-alexandria.md`.
 
 ## What's in this package
 
@@ -22,15 +24,16 @@ explicitly alongside this package.
 ## Usage
 
 ```ts
-// Root entry file (e.g. main.tsx, app/layout.tsx)
-import '@code-sherpas/pharos-react/styles.css';
+// Root entry file (e.g. main.tsx, app/layout.tsx). Import once.
+import '@code-sherpas/pharos-tokens/css'; // CSS variables for the design tokens
+import '@code-sherpas/pharos-react/styles.css'; // hashed component styles
 ```
 
 ```tsx
-import { PharosHello } from '@code-sherpas/pharos-react';
+import { Button } from '@code-sherpas/pharos-react';
 
 export function Demo() {
-  return <PharosHello name="Alexandria" />;
+  return <Button intent="primary">Save changes</Button>;
 }
 ```
 
@@ -50,7 +53,8 @@ The live component reference runs on Storybook 10 + `@storybook/react-vite`.
 ## Contributing
 
 1. `pnpm install`
-2. Implement the component under `src/components/<Name>.tsx`, export it from
+2. Implement the component under `src/components/<Name>.tsx` plus its
+   sibling `src/components/<Name>.module.css` (Decision D9). Export it from
    `src/index.ts`.
 3. Add a story alongside: `src/components/<Name>.stories.tsx`.
 4. Add tests under `tests/` (Vitest + Testing Library).
