@@ -10,6 +10,7 @@ shadcn-style API: a single `variant` axis with seven values
 button.
 
 Public exports:
+
 - `Badge` — the component.
 - `badgeVariants` — CVA helper for consumers that need to style a
   custom element with the same variant classes.
