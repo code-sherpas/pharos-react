@@ -258,3 +258,135 @@ mappings above. Cases that need structural rework (Chip removable
 UX, AssessmentStatusBadge wrapper that depends on icon mapping) ship
 the swap of the underlying primitive but defer any parent-component
 restructuring to Phase 6.
+
+## Input
+
+Canonical name: **`Input`** (shadcn/ui, Radix Themes, Mantine —
+unanimous). Material's `TextField` is a different abstraction (a
+pre-composed control bundling label + input + helper); see "Why
+no `error` / `helperText` props" below for why Pharos goes with
+the primitive school.
+
+Public API:
+
+```ts
+<Input size="sm | md | lg" />                  // default size: md
+<Input aria-invalid="true" />                  // error state
+<Input disabled />
+<Input readOnly />
+<Input type="email | password | search | ..." /> // any native input type
+```
+
+Single chrome (no `variant` axis). Three sizes whose heights match
+the Button grid exactly so an `<Input>` and a `<Button>` of the same
+size sit flush on a row.
+
+### Why no `variant` axis
+
+shadcn's primitive contract is "a single styled `<input>`". Mantine,
+Radix Themes, and Polaris's `TextField` all follow the same shape —
+the form-control atom is the chromed default. Variations come from
+composition (`<Input>` inside a search box, inside a chip group,
+inside a date picker) rather than from a `variant` prop on the atom
+itself.
+
+The candidate variants we considered:
+
+- **`bordered | unstyled`** (Alexandria's current axis). The
+  `unstyled` value is used inside composite widgets
+  (`MultiTextInput`, `ArrayInput`) where the parent owns the chrome.
+  In Pharos this is a structural concern — a parent composite wires
+  a visually unstyled control into its own surface — and the right
+  fix is a different primitive (or `className` override) at the
+  composite level, not an axis on the atom. Deferred to the
+  composite-level work in Phase 6.
+- **`ghost`** for inline-edit affordances. No call-site in Alexandria
+  needs it today; adding it pre-emptively would design for a
+  hypothetical future requirement. Re-evaluated when an inline-edit
+  pattern shows up.
+
+### Why no `error` / `helperText` / `hideMessageSlot` props
+
+Alexandria's Input bakes the message slot into the atom (`error`,
+`helperText`, plus a reserved-space `<p>` to keep layout stable
+even when no message is shown). That is a `<Field>`-level concern,
+not an atom-level one — the consumer needs label + control + helper
+
+- error all wired by the same `id` for screen readers, and that
+  contract belongs to a wrapper that owns the whole field, not to the
+  control.
+
+Pharos exposes the **standard `aria-invalid` attribute** as the only
+error-state hook. The CSS reacts to `[aria-invalid="true"]`,
+matching shadcn / Base UI / Mantine. The actual message text and
+the reserved-space slot land in a future `<Field>` molecule
+(Escuela 1: composable primitives, decision 2026-04-27). Until
+that molecule ships, Alexandria continues to render its existing
+`<FormFieldMessage>` next to the Pharos input — see "Mapping from
+Alexandria" below.
+
+### Why no leading / trailing icon slots
+
+shadcn does not expose icon slots on `<Input>`. The pattern is a
+positioned wrapper (`<div className="relative">…</div>`) that
+absolute-positions the icon over the input, and the consumer
+controls placement. Alexandria already implements this via
+`formFieldLeftIconClasses` / `formFieldRightIconClasses` so the
+pattern is familiar.
+
+A future `<InputGroup>` or `<TextField>` molecule may absorb the
+positioned-icon pattern explicitly; the atom stays minimal.
+
+### Why no `render` prop (unlike Button)
+
+Button uses Base UI's `useRender` so a button can render as an
+anchor (`<Button render={<Link />}>`). Inputs do not have a
+meaningful "render as something else" target — `<input>` is a void
+element and rendering it as a `<textarea>`, `<select>`, or anything
+else changes the underlying contract entirely. Textarea ships as a
+**separate atom** (next on the Phase 2 roadmap) instead of being
+folded into Input via `render`.
+
+### Mapping from Alexandria
+
+Alexandria has one canonical Input plus a constellation of composites
+that wrap or compose it. Only the canonical Input is in scope for the
+adoption PR that pairs with this release; the composites are
+domain-specific and stay in their bounded contexts.
+
+| Alexandria component                                      | Pharos equivalent                                                          | Notes                                                                                                                                                                                                                                                                              |
+| --------------------------------------------------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Input variant="bordered"` (default)                      | `<Input size="md">`                                                        | Default chrome. Heights match (40px in Alexandria → `--pharos-spacing-10` in Pharos).                                                                                                                                                                                              |
+| `Input variant="unstyled"`                                | n/a — composition concern                                                  | Used only inside `MultiTextInput`, `ArrayInput`, and similar composites. The composites stay structural until Phase 6; in the meantime they keep their local unstyled input. Pharos does not expose `unstyled` because the right fix is a composite-level wrapper, not an axis.    |
+| `Input` props `helperText` / `error` / `hideMessageSlot`  | composition with `<FormFieldMessage>` (today) / `<Field>` molecule (later) | At adoption time, Alexandria's `Input.tsx` becomes a thin Field-style wrapper that renders `<PharosInput aria-invalid={!!error} />` plus the existing `<FormFieldMessage>`. The 11 call-sites under `@/web-application-src/common/components/form/Input` keep their current props. |
+| `Textarea` (Alexandria's `Textarea/Textarea.tsx`)         | forthcoming separate Pharos atom (`<Textarea>`)                            | Out of scope of this release. Same composition rules will apply.                                                                                                                                                                                                                   |
+| `ArrayInput`, `MultiTextInput`, `*Input` (career-ladders) | stay in Alexandria                                                         | Domain composites — they orchestrate add/remove rows, validation, and bounded-context state. They consume the local Alexandria `Input.tsx` (the wrapper above) and are not in scope for pharos-react.                                                                              |
+
+### Deliberate divergences from Alexandria at migration time
+
+- **No `error` / `helperText` props on the atom**. Alexandria's
+  Input bakes the message slot in; Pharos splits the atom from the
+  field-level message. Net effect for the 11 canonical call-sites
+  is **zero** — Alexandria's wrapper preserves the prop surface.
+  The divergence becomes visible when a future `<Field>` molecule
+  ships and the wrapper goes away.
+- **`aria-invalid` is the contract**. Alexandria toggles
+  `border-red-600` via a className branch on `error`. Pharos does
+  the same border + ring shift via `[aria-invalid="true"]` in CSS,
+  so the contract for "this input is in error" is the standard
+  ARIA attribute that screen readers already understand, not a
+  prop name unique to the wrapper.
+- **`focus-visible` ring uses the brand accent**. Alexandria's
+  `formFieldBaseClasses` use `ring` (the project's CSS variable that
+  resolves to a neutral). Pharos uses the same two-stop ring as
+  Button (`primary-600` outer, base-white inner) so the system has
+  a single focus look across pressable controls and form fields.
+  Deliberate, one-time visual shift at adoption.
+
+Adoption is incremental: when this Input ships to npm, an Alexandria
+PR rewires the local `Input.tsx` to render `<PharosInput>` plus the
+existing `<FormFieldMessage>`, with no caller-side changes. The 11
+call-sites under the canonical alias absorb the swap transparently.
+The local Input wrapper is preserved (same pattern used for `Pill`
+→ `Badge` wrappers); a follow-up PR removes it once the `<Field>`
+molecule lands.

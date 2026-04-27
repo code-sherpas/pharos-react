@@ -1,0 +1,111 @@
+/* Input.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). The build emits hashed
+ * class names (`Input_input__xxxx`) into `dist/styles.css`; the runtime JS
+ * references them through the `styles` object imported by Input.tsx.
+ *
+ * Every visual value comes from a `--pharos-*` token. No hex, no Tailwind,
+ * no preflight. Hover / focus-visible / invalid / disabled states are
+ * authored with native CSS pseudo-classes and the `[aria-invalid="true"]`
+ * attribute selector — the component does not own any "error mode" state
+ * itself; it reflects what the consumer puts on the DOM.
+ */
+
+.input {
+  /* Strip the user-agent input chrome (gradient backgrounds, internal
+   * padding, rounded corners on macOS, the right-edge spinner on number).
+   * With preflight gone from the consumer, this is the only line that
+   * normalizes the rendering across browsers. */
+  appearance: none;
+  -webkit-appearance: none;
+
+  /* === Box model === */
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  border: 1px solid var(--pharos-color-neutral-200);
+  border-radius: var(--pharos-radius-md);
+  background-color: var(--pharos-color-base-white);
+  color: var(--pharos-color-neutral-900);
+
+  /* === Typography ===
+   * `font-family` and weight are explicit so the input does not inherit a
+   * system-ui fallback when it lives inside surfaces that haven't set the
+   * Pharos sans stack (e.g. inside a `<dialog>` rendered to the top layer).
+   * The size variants below override `font-size` and the `padding-inline`. */
+  font-family: var(--pharos-font-family-sans);
+  font-size: var(--pharos-font-size-sm);
+  font-weight: var(--pharos-font-weight-regular);
+  line-height: 1.25;
+
+  /* === Transitions === */
+  transition-property: border-color, box-shadow;
+  transition-duration: var(--pharos-duration-normal);
+  transition-timing-function: var(--pharos-easing-out);
+}
+
+.input::placeholder {
+  color: var(--pharos-color-neutral-500);
+  /* Some Linux/Chromium builds dim placeholders to ~54% by default; the
+   * explicit `opacity: 1` keeps the rendered tone equal to the token. */
+  opacity: 1;
+}
+
+.input:hover:not(:disabled):not([readonly]):not([aria-invalid='true']) {
+  border-color: var(--pharos-color-neutral-300);
+}
+
+.input:focus-visible {
+  outline: none;
+  border-color: var(--pharos-color-primary-600);
+  /* Two-stop box-shadow mirrors the Button focus ring: an inner halo in the
+   * surface color separates the ring from the input fill, and the outer
+   * stop is the brand accent. Same tokens as Button so the system has a
+   * single focus look. */
+  box-shadow:
+    0 0 0 2px var(--pharos-color-base-white),
+    0 0 0 4px var(--pharos-color-primary-600);
+}
+
+.input:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--pharos-color-semantic-error-fg);
+}
+
+.input[aria-invalid='true']:focus-visible {
+  border-color: var(--pharos-color-semantic-error-fg);
+  box-shadow:
+    0 0 0 2px var(--pharos-color-base-white),
+    0 0 0 4px var(--pharos-color-semantic-error-fg);
+}
+
+/* === Sizes ===
+ *
+ * Heights match the Button grid exactly — the system has one vertical
+ * rhythm across pressable controls and form fields, so an `<Input size>`
+ * sits flush next to a `<Button size>` on the same row. Horizontal padding
+ * follows the same scale Button uses; font-size hops to `base` (16px) at
+ * `lg` because larger controls usually pair with prominent layouts where
+ * the body 14px starts to feel undersized. */
+
+.sizeSm {
+  height: var(--pharos-spacing-8);
+  padding: 0 var(--pharos-spacing-3);
+  font-size: var(--pharos-font-size-sm);
+}
+
+.sizeMd {
+  height: var(--pharos-spacing-10);
+  padding: 0 var(--pharos-spacing-4);
+  font-size: var(--pharos-font-size-sm);
+}
+
+.sizeLg {
+  height: var(--pharos-spacing-12);
+  padding: 0 var(--pharos-spacing-6);
+  font-size: var(--pharos-font-size-base);
+}

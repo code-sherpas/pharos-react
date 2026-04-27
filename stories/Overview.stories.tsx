@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Button } from '../src/components/Button';
 import { Badge } from '../src/components/Badge';
+import { Input } from '../src/components/Input';
 
 /**
  * Multi-component gallery. One story per published component family, grouped
@@ -64,6 +65,22 @@ function BadgeShowcase() {
   );
 }
 
+function InputShowcase() {
+  return (
+    <div className="storybook-overview-row" style={{ gap: '0.75rem' }}>
+      <Input aria-label="default" placeholder="Default" style={{ width: 200 }} />
+      <Input aria-label="readonly" readOnly defaultValue="Read-only" style={{ width: 200 }} />
+      <Input
+        aria-label="invalid"
+        aria-invalid="true"
+        defaultValue="invalid@"
+        style={{ width: 200 }}
+      />
+      <Input aria-label="disabled" disabled placeholder="Disabled" style={{ width: 200 }} />
+    </div>
+  );
+}
+
 function Overview() {
   return (
     <div className="storybook-overview">
@@ -81,6 +98,9 @@ function Overview() {
         </Showcase>
         <Showcase name="Badge">
           <BadgeShowcase />
+        </Showcase>
+        <Showcase name="Input">
+          <InputShowcase />
         </Showcase>
       </Section>
     </div>
