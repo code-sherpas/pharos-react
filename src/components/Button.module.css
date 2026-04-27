@@ -141,13 +141,17 @@
 .secondary {
   background-color: var(--pharos-color-base-white);
   color: var(--pharos-color-neutral-900);
-  border: 1px solid var(--pharos-color-neutral-200);
+  /* `neutral-500` clears WCAG 1.4.11 (Non-text Contrast, 3:1 against the
+   * surrounding surface). See Input.module.css for the full rationale and
+   * the cross-DS comparison; Button secondary, Input and Badge outline
+   * share the same border tone so the system has one accessible boundary
+   * intensity across primitives. */
+  border: 1px solid var(--pharos-color-neutral-500);
   --button-focus-ring: var(--pharos-color-primary-600);
 }
 
 .secondary:hover {
   background-color: var(--pharos-color-neutral-50);
-  border-color: var(--pharos-color-neutral-300);
 }
 
 .secondary:active {

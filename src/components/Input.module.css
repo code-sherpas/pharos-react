@@ -23,7 +23,13 @@
   box-sizing: border-box;
   width: 100%;
   margin: 0;
-  border: 1px solid var(--pharos-color-neutral-200);
+  /* `neutral-500` lands the resting border at ~5.4:1 contrast against a
+   * white surface, clearing WCAG 1.4.11 (Non-text Contrast, 3:1 for UI
+   * component boundaries). The shadcn / Radix Themes / Mantine default
+   * sits around oklch 92% (~1.3:1) and fails the requirement; Pharos
+   * deliberately diverges to comply. Carbon `border-strong-01` (#8d8d8d)
+   * and Adobe Spectrum's outline tone are at the same intensity. */
+  border: 1px solid var(--pharos-color-neutral-500);
   border-radius: var(--pharos-radius-md);
   background-color: var(--pharos-color-base-white);
   color: var(--pharos-color-neutral-900);
@@ -49,10 +55,6 @@
   /* Some Linux/Chromium builds dim placeholders to ~54% by default; the
    * explicit `opacity: 1` keeps the rendered tone equal to the token. */
   opacity: 1;
-}
-
-.input:hover:not(:disabled):not([readonly]):not([aria-invalid='true']) {
-  border-color: var(--pharos-color-neutral-300);
 }
 
 .input:focus-visible {

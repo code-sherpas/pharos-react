@@ -15,6 +15,88 @@ Sources, in priority order (see `AGENTS.md`):
 Tiebreaker when two canonical sources agree on a name: pick the shorter, more
 generic one.
 
+## Cross-cutting: control border intensity (WCAG 1.4.11)
+
+Every Pharos primitive that draws a 1px boundary around an interactive
+surface — `Input`, `Button intent="secondary"`, `Badge variant="outline"` —
+uses the same resting border color: `--pharos-color-neutral-500`
+(oklch 52.78%, ≈ `#6b6b6b`).
+
+### Why neutral-500
+
+WCAG 2.2 success criterion 1.4.11 (Non-text Contrast) requires **3:1**
+against the adjacent surface for the visual information that identifies
+a UI component. Against a white surface:
+
+| Token         | sRGB approx | Contrast vs `#fff` | Passes 3:1?    |
+| ------------- | ----------- | ------------------ | -------------- |
+| `neutral-200` | `#efefef`   | ~1.07:1            | ✗              |
+| `neutral-300` | `#d9dadc`   | ~1.32:1            | ✗              |
+| `neutral-400` | `#c1c1c1`   | ~1.86:1            | ✗              |
+| `neutral-500` | `#6b6b6b`   | ~5.41:1            | ✓              |
+| `neutral-600` | `#3c3c3c`   | ~10.5:1            | ✓ (overweight) |
+
+The luminance threshold for 3:1 against white sits around oklch 65 %
+(≈ `#959595`), which falls between our `neutral-400` and `neutral-500`.
+The closest token that clears the threshold is `neutral-500`, and it
+matches the precedent of accessibility-first systems:
+
+- IBM Carbon: `border-strong-01` ≈ `#8d8d8d`
+- Adobe Spectrum: outline tone ≈ `#959595`
+- US Web Design System: input borders at `#565c65` (slightly darker)
+
+Most "small primitive" libraries (shadcn, Radix Themes, Mantine) sit
+around oklch 92 % (≈ 1.3:1) and do **not** meet 1.4.11. Pharos
+deliberately diverges from that majority to comply.
+
+### Visual consequence
+
+The shift from `neutral-200/300` to `neutral-500` is perceptible: the
+primitives stop "floating" on the surface and read as clearly outlined
+controls — closer to Carbon / Spectrum, further from shadcn's minimal
+look. Three places carry the change:
+
+- `Input` resting border (lands at `neutral-500` from day one).
+- `Button intent="secondary"` (was `neutral-200`, now `neutral-500`).
+  Hover stops shifting the border tone — the background change is
+  enough to express the state, and a darker hover would push past the
+  3:1 minimum without benefit.
+- `Badge variant="outline"` (was `neutral-300`, now `neutral-500`).
+
+### Why no `border-width` token
+
+Border **width** stays at a hard-coded `1px` across every primitive. The
+"small primitive" school (shadcn / Mantine / Radix Themes / MUI) does
+not tokenize width — `1px` is universal and varying it adds API surface
+without solving real problems. The "comprehensive token" school
+(Polaris, Primer, Adobe Spectrum) does tokenize it; Pharos sides with
+the first school because the visibility complaint is a contrast issue,
+not a width one. If a future state needs a thicker boundary (e.g. an
+"emphasis" outlined variant), a token gets added then.
+
+### Why no semantic alias yet
+
+A semantic alias such as `--pharos-color-border-control` was considered
+and deferred. The three primitives that need the value share it
+explicitly through `neutral-500`, which keeps the dependency graph
+visible: every consumer (CSS Module, Storybook, Alexandria adopter) can
+trace the border tone back to the palette without an extra
+indirection. The alias becomes worth its weight when a fourth primitive
+needs the same tone or when the resting tone needs to change without a
+palette migration. Until then, direct token use is simpler.
+
+### Impact on Alexandria
+
+Alexandria's `formFieldBaseClasses` currently use `border-supporting-base`
+(the legacy alias for `#efefef`, equivalent to our `neutral-200`). At
+Input adoption time the wrapper renders Pharos's `<Input>`, so the
+border tone shifts to `neutral-500` for every form field that flows
+through the canonical alias. The change is a deliberate visual
+divergence and gets logged in `docs/migration-log.md` of
+`alexandria-web-application` as part of the Input adoption PR. Button
+secondary call-sites already in production absorb the same shift in
+the next pharos-react release that this border change ships in.
+
 ## Button
 
 Canonical name: **`Button`** (shadcn/ui, Base UI, ARIA APG — unanimous).
