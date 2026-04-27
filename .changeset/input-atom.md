@@ -29,3 +29,18 @@ plus the existing `<FormFieldMessage>` — the same incremental pattern
 used for `Pill → Badge`, so the 11 call-sites under
 `@/web-application-src/common/components/form/Input` keep their current
 prop surface.
+
+This release also normalises the resting border of every outlined
+primitive to `--pharos-color-neutral-500`, which clears WCAG 1.4.11
+(Non-text Contrast, 3:1 against the surface). Three components carry
+the deliberate visual shift:
+
+- `Input` — lands at `neutral-500` from day one.
+- `Button intent="secondary"` — was `neutral-200`, now `neutral-500`;
+  hover no longer shifts the border tone (background change is
+  enough to express the state).
+- `Badge variant="outline"` — was `neutral-300`, now `neutral-500`.
+
+The cross-DS rationale, the contrast math, and the visual trade-off
+live in `NAMING-decisions.md` under "Cross-cutting: control border
+intensity (WCAG 1.4.11)".

@@ -45,7 +45,11 @@
 .outline {
   background: transparent;
   color: var(--pharos-color-neutral-900);
-  border-color: var(--pharos-color-neutral-300);
+  /* `neutral-500` clears WCAG 1.4.11 (Non-text Contrast, 3:1 against the
+   * surrounding surface) and matches the resting border of Input and
+   * Button secondary so the system has one accessible boundary intensity
+   * across primitives. See `Input.module.css` for the cross-DS rationale. */
+  border-color: var(--pharos-color-neutral-500);
 }
 
 .success {
