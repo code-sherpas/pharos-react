@@ -1,0 +1,129 @@
+/* Textarea.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). The build emits hashed
+ * class names (`Textarea_textarea__xxxx`) into `dist/styles.css`; the runtime
+ * JS references them through the `styles` object imported by Textarea.tsx.
+ *
+ * Every visual value comes from a `--pharos-*` token. No hex, no Tailwind,
+ * no preflight. Hover / focus-visible / invalid / disabled states are
+ * authored with native CSS pseudo-classes and the `[aria-invalid="true"]`
+ * attribute selector — the component does not own any "error mode" state
+ * itself; it reflects what the consumer puts on the DOM.
+ *
+ * The chrome (border, radius, focus ring, invalid ring, disabled opacity)
+ * is identical to `Input.module.css` so the two atoms read as siblings of
+ * the same form-control family. The two genuine differences are:
+ *  - `min-height` instead of fixed `height` (textareas grow with content).
+ *  - `resize: vertical` (state-of-the-art shadcn default; consumer can
+ *    override via `style.resize` if needed).
+ */
+
+.textarea {
+  /* Strip the user-agent textarea chrome. With preflight gone from the
+   * consumer, this is the only line that normalizes the rendering across
+   * browsers. */
+  appearance: none;
+  -webkit-appearance: none;
+
+  /* === Box model === */
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  /* `neutral-500` lands the resting border at ~5.4:1 contrast against a
+   * white surface, clearing WCAG 1.4.11 (Non-text Contrast, 3:1 for UI
+   * component boundaries). Same tone Input uses; the form-control family
+   * shares the resting border. */
+  border: 1px solid var(--pharos-color-neutral-500);
+  border-radius: var(--pharos-radius-md);
+  background-color: var(--pharos-color-base-white);
+  color: var(--pharos-color-neutral-900);
+
+  /* === Layout ===
+   * `resize: vertical` matches shadcn / Mantine / Radix Themes — the user
+   * can drag the bottom edge to grow the textarea but cannot stretch it
+   * horizontally (which would break form layouts). Consumers can opt out
+   * via `style={{ resize: 'none' }}` if needed. */
+  resize: vertical;
+
+  /* === Typography ===
+   * `font-family` and weight are explicit so the textarea does not inherit
+   * a system-ui fallback when it lives inside surfaces that haven't set the
+   * Pharos sans stack. Line-height 1.5 is more legible than Input's 1.25
+   * because users frequently paste multi-line content here. */
+  font-family: var(--pharos-font-family-sans);
+  font-size: var(--pharos-font-size-sm);
+  font-weight: var(--pharos-font-weight-regular);
+  line-height: 1.5;
+
+  /* === Transitions === */
+  transition-property: border-color, box-shadow;
+  transition-duration: var(--pharos-duration-normal);
+  transition-timing-function: var(--pharos-easing-out);
+}
+
+.textarea::placeholder {
+  color: var(--pharos-color-neutral-500);
+  opacity: 1;
+}
+
+.textarea:focus-visible {
+  outline: none;
+  border-color: var(--pharos-color-primary-600);
+  /* Two-stop box-shadow mirrors Input + Button focus rings: an inner halo
+   * in the surface color separates the ring from the textarea fill, and
+   * the outer stop is the brand accent. Same tokens as Input so the
+   * system has a single focus look across every form control. */
+  box-shadow:
+    0 0 0 2px var(--pharos-color-base-white),
+    0 0 0 4px var(--pharos-color-primary-600);
+}
+
+.textarea:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+  /* Dragging the resize handle on a disabled control is jarring; mirror
+   * `cursor: not-allowed` by removing the affordance entirely. */
+  resize: none;
+}
+
+.textarea[aria-invalid='true'] {
+  border-color: var(--pharos-color-semantic-error-fg);
+}
+
+.textarea[aria-invalid='true']:focus-visible {
+  border-color: var(--pharos-color-semantic-error-fg);
+  box-shadow:
+    0 0 0 2px var(--pharos-color-base-white),
+    0 0 0 4px var(--pharos-color-semantic-error-fg);
+}
+
+/* === Sizes ===
+ *
+ * Inline padding matches Input exactly so a textarea sits flush next to an
+ * input of the same size (no horizontal jog when stacked). Vertical padding
+ * is set explicitly because textareas don't have the fixed-height that lets
+ * Input use vertical centring. `min-height` is sized to ~3-4 lines of body
+ * text at the corresponding font-size; `resize: vertical` lets the user
+ * grow it past that.
+ *
+ * Font-size hops to `base` (16px) at `lg` for the same reason Input does:
+ * larger controls usually pair with prominent layouts where 14px feels
+ * undersized. */
+
+.sizeSm {
+  min-height: var(--pharos-spacing-16);
+  padding: var(--pharos-spacing-2) var(--pharos-spacing-3);
+  font-size: var(--pharos-font-size-sm);
+}
+
+.sizeMd {
+  min-height: var(--pharos-spacing-20);
+  padding: var(--pharos-spacing-2-5) var(--pharos-spacing-4);
+  font-size: var(--pharos-font-size-sm);
+}
+
+.sizeLg {
+  min-height: var(--pharos-spacing-24);
+  padding: var(--pharos-spacing-3) var(--pharos-spacing-6);
+  font-size: var(--pharos-font-size-base);
+}
