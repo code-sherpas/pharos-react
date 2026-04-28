@@ -12,6 +12,8 @@ export { Input, inputVariants } from './components/Input';
 export type { InputProps } from './components/Input';
 export { Textarea, textareaVariants } from './components/Textarea';
 export type { TextareaProps } from './components/Textarea';
+export { Spinner, spinnerVariants } from './components/Spinner';
+export type { SpinnerProps } from './components/Spinner';
 export { Separator } from './components/Separator';
 export type { SeparatorProps } from './components/Separator';
 export {
