@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-vite';
 import { Button } from '../src/components/Button';
 import { Badge } from '../src/components/Badge';
 import { Input } from '../src/components/Input';
+import { Separator } from '../src/components/Separator';
 
 /**
  * Multi-component gallery. One story per published component family, grouped
@@ -81,6 +82,25 @@ function InputShowcase() {
   );
 }
 
+function SeparatorShowcase() {
+  return (
+    <div
+      className="storybook-overview-row"
+      style={{ flexDirection: 'column', alignItems: 'stretch', gap: '0.5rem', width: 320 }}
+    >
+      <span style={{ fontSize: 'var(--pharos-font-size-sm)' }}>Section A</span>
+      <Separator />
+      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', height: 24 }}>
+        <span style={{ fontSize: 'var(--pharos-font-size-sm)' }}>Left</span>
+        <Separator orientation="vertical" />
+        <span style={{ fontSize: 'var(--pharos-font-size-sm)' }}>Right</span>
+      </div>
+      <Separator decorative={false} />
+      <span style={{ fontSize: 'var(--pharos-font-size-sm)' }}>Section B</span>
+    </div>
+  );
+}
+
 function Overview() {
   return (
     <div className="storybook-overview">
@@ -101,6 +121,9 @@ function Overview() {
         </Showcase>
         <Showcase name="Input">
           <InputShowcase />
+        </Showcase>
+        <Showcase name="Separator">
+          <SeparatorShowcase />
         </Showcase>
       </Section>
     </div>

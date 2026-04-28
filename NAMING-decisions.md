@@ -15,14 +15,34 @@ Sources, in priority order (see `AGENTS.md`):
 Tiebreaker when two canonical sources agree on a name: pick the shorter, more
 generic one.
 
-## Cross-cutting: control border intensity (WCAG 1.4.11)
+## Cross-cutting: border intensity hierarchy
+
+Pharos expresses a deliberate three-level hierarchy of border tones,
+mapped to the **role the boundary plays in the UI** rather than to a
+visual style:
+
+| Role                                          | Token                        | Approx contrast vs white | Examples                                                        |
+| --------------------------------------------- | ---------------------------- | ------------------------ | --------------------------------------------------------------- |
+| **Interactive control** (D10)                 | `--pharos-color-neutral-500` | ~5.41:1                  | `Input`, `Button intent="secondary"`, `Badge variant="outline"` |
+| **Container surface, emphasised**             | `--pharos-color-neutral-300` | ~1.32:1                  | `Card variant="outlined"` (planned)                             |
+| **Container surface, subtle / divider** (D12) | `--pharos-color-neutral-200` | ~1.07:1                  | `Card variant="default"` (planned), `Separator`                 |
+
+Reading top-to-bottom: **interactive things have the strongest
+boundary; non-interactive things have a soft boundary**. This is the
+state-of-the-art split (Carbon `border-strong` / `border-subtle`,
+Adobe Spectrum, Polaris, Material 3 `outline` / `outline-variant`)
+and the resolution to the post-Input visual disonance that triggered
+D12 — Inputs no longer "stand out wrongly", they stand out
+**deliberately** because they carry the focal-control role in the
+hierarchy.
+
+### Strong tier — `neutral-500` (D10, 2026-04-27)
 
 Every Pharos primitive that draws a 1px boundary around an interactive
-surface — `Input`, `Button intent="secondary"`, `Badge variant="outline"` —
-uses the same resting border color: `--pharos-color-neutral-500`
+surface uses the same resting border color: `--pharos-color-neutral-500`
 (oklch 52.78%, ≈ `#6b6b6b`).
 
-### Why neutral-500
+#### Why neutral-500
 
 WCAG 2.2 success criterion 1.4.11 (Non-text Contrast) requires **3:1**
 against the adjacent surface for the visual information that identifies
@@ -49,7 +69,7 @@ Most "small primitive" libraries (shadcn, Radix Themes, Mantine) sit
 around oklch 92 % (≈ 1.3:1) and do **not** meet 1.4.11. Pharos
 deliberately diverges from that majority to comply.
 
-### Visual consequence
+#### Visual consequence
 
 The shift from `neutral-200/300` to `neutral-500` is perceptible: the
 primitives stop "floating" on the surface and read as clearly outlined
@@ -63,7 +83,7 @@ look. Three places carry the change:
   3:1 minimum without benefit.
 - `Badge variant="outline"` (was `neutral-300`, now `neutral-500`).
 
-### Why no `border-width` token
+#### Why no `border-width` token
 
 Border **width** stays at a hard-coded `1px` across every primitive. The
 "small primitive" school (shadcn / Mantine / Radix Themes / MUI) does
@@ -74,7 +94,7 @@ the first school because the visibility complaint is a contrast issue,
 not a width one. If a future state needs a thicker boundary (e.g. an
 "emphasis" outlined variant), a token gets added then.
 
-### Why no semantic alias yet
+#### Why no semantic alias yet
 
 A semantic alias such as `--pharos-color-border-control` was considered
 and deferred. The three primitives that need the value share it
@@ -85,7 +105,7 @@ indirection. The alias becomes worth its weight when a fourth primitive
 needs the same tone or when the resting tone needs to change without a
 palette migration. Until then, direct token use is simpler.
 
-### Impact on Alexandria
+#### Impact on Alexandria
 
 Alexandria's `formFieldBaseClasses` currently use `border-supporting-base`
 (the legacy alias for `#efefef`, equivalent to our `neutral-200`). At
@@ -96,6 +116,58 @@ divergence and gets logged in `docs/migration-log.md` of
 `alexandria-web-application` as part of the Input adoption PR. Button
 secondary call-sites already in production absorb the same shift in
 the next pharos-react release that this border change ships in.
+
+### Subtle tier — `neutral-200` (D12, 2026-04-27)
+
+Every Pharos primitive that draws a 1px boundary around a non-interactive
+surface — currently `Separator`, with `Card variant="default"`
+following in the next release — uses `--pharos-color-neutral-200`
+(oklch 95.21%, ≈ `#efefef`).
+
+#### Why neutral-200
+
+WCAG 1.4.11 (Non-text Contrast) does **not** apply to non-interactive
+container boundaries or to decorative dividers — the success criterion
+targets visual information that identifies a UI component or its
+state, neither of which a separator or a card surface qualifies as.
+The right tone is therefore the one that reads as a soft partition
+without competing for visual attention with the interactive controls
+sitting on top of it. Across DSes that are explicit about this
+hierarchy:
+
+- IBM Carbon: `border-subtle: #e0e0e0` (~oklch 92%)
+- Adobe Spectrum: gray-200
+- Polaris: `--p-color-border` (~oklch 92%)
+- Material 3: `outline-variant`
+
+All of them sit at the same intensity Pharos's `neutral-200` lands.
+
+#### Why a stronger `outlined` tier exists too
+
+Some surfaces benefit from a deliberately more visible boundary —
+emphasis cards, callout panels — without ever being interactive.
+Those use `--pharos-color-neutral-300` (~1.32:1), exposed as
+`Card variant="outlined"` when the Card atom ships. Reusing the
+`neutral-500` strong-tier tone for this would over-state the
+container as if it were interactive, breaking the hierarchy.
+
+#### Why no semantic alias yet
+
+Same reasoning as the strong tier: the three primitives that share
+the subtle tone reference `neutral-200` directly so the dependency
+graph stays visible. Aliases like `--pharos-color-border-subtle`
+or `--pharos-color-border-control` enter the system when a fourth
+consumer of either tone appears.
+
+#### Visual consequence
+
+After both Separator and Card ship and Alexandria adopts them, the
+running app expresses three readable border levels: subtle (`neutral-200`)
+for separators and most card surfaces; emphasized (`neutral-300`) for
+outlined cards; strong (`neutral-500`) for every interactive control.
+The Input that previously read as "out of place" now reads as
+deliberately the strongest-bounded element on the page, because the
+hierarchy is finally expressed coherently across primitives.
 
 ## Button
 
@@ -472,3 +544,117 @@ call-sites under the canonical alias absorb the swap transparently.
 The local Input wrapper is preserved (same pattern used for `Pill`
 → `Badge` wrappers); a follow-up PR removes it once the `<Field>`
 molecule lands.
+
+## Separator
+
+Canonical name: **`Separator`** (shadcn/ui, Radix Themes, ARIA APG).
+Material's `Divider` is rejected as the canonical name because the
+ARIA role is `separator` and the closer match wins (regla "shadcn >
+Base UI > ARIA APG" — naming priority in `AGENTS.md`).
+
+Public API:
+
+```ts
+<Separator orientation="horizontal | vertical" decorative={true | false} />
+```
+
+Defaults: `orientation="horizontal"`, `decorative={true}`. Native
+`<div>` props pass through (`id`, `className`, `aria-label`, `style`,
+data attributes). No `tone` axis on the atom — see "Why no tone axis"
+below.
+
+### Why a single subtle border tone (Decision D12)
+
+Border tone is `--pharos-color-neutral-200` (~1.07:1 vs white).
+**WCAG 1.4.11 (Non-text Contrast) does not apply** — the success
+criterion targets visual information that identifies a UI component
+or its state, and a separator is neither a UI component nor a state
+indicator. Carbon (`border-subtle: #e0e0e0`), Adobe Spectrum
+(gray-200), Polaris (`--p-color-border`) and Material 3
+(`outline-variant`) all sit at the same intensity for dividers, for
+the same reason.
+
+The matching tone is what produces the system-wide visual hierarchy
+that D12 codifies: **interactive controls (`Input`, `Button
+secondary`, `Badge outline`) carry the strong `neutral-500` border
+that clears WCAG 1.4.11; non-interactive surfaces (Separator, Card)
+carry the subtle `neutral-200` border**. After both sides of the
+hierarchy ship, the previously-flagged "Input desentona" problem
+resolves: the Input reads as deliberately the focal interactive
+element, not as visually inconsistent.
+
+### Why no `tone` axis
+
+Adding `tone="subtle | default | strong"` was considered and
+deferred. Reasons:
+
+- shadcn / Radix Themes / Mantine all ship a single-tone Separator.
+  No precedent in canonical sources for a tone axis.
+- The two real use-cases for a "stronger" divider (between major
+  page sections; around an emphasis container) are better served by
+  a different primitive — `Card variant="outlined"` for the
+  container case, `<Section>` (future) for the page-level partition
+  case. A tone axis on Separator would invite consumers to reach
+  for it before the right primitive exists.
+- A Separator with three tones doubles as a colour selector for
+  decorative chrome — outside the atom's responsibility.
+
+If a real call-site appears that genuinely needs a stronger
+separator and no other primitive fits, a `tone` axis can be added
+without breaking the current API (default stays `subtle`).
+
+### Why we inline the `<div role>` rather than depend on `@radix-ui/react-separator`
+
+Radix's Separator is a thin wrapper (~5 lines) over `<div role="...">`
+
+- `aria-orientation`. Pulling it in would add a peer dependency for a
+  component that has no internal state, no portal, no focus management
+  — nothing that justifies an extra runtime. The non-negotiable rule
+  "do not re-export `@radix-ui/*` directly" still applies; inlining
+  avoids both the re-export and the dependency.
+
+### `decorative` semantics
+
+- `decorative={true}` (default) → `role="none"`. Assistive tech
+  ignores the node. Use for visual chrome (a faint line between two
+  paragraphs, between flex-row items, etc.).
+- `decorative={false}` → `role="separator"`. Use when the line
+  carries a logical partition that screen readers should announce
+  (e.g. between two groups inside a menu, between two sections of a
+  long form).
+
+For semantic separators, `aria-orientation` follows the ARIA APG
+spec: it defaults to `horizontal`, so the attribute is omitted on
+horizontal separators and emitted only on vertical ones — same
+approach as Radix and shadcn.
+
+### Mapping from Alexandria
+
+Alexandria has no canonical `Separator` component today; dividers
+are spread across Tailwind utilities and ad-hoc elements:
+
+| Alexandria pattern                                                     | Pharos equivalent  | Notes                                                                                                                                                                                                                                                                                                                                                                   |
+| ---------------------------------------------------------------------- | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `<hr />` (5 occurrences)                                               | `<Separator />`    | Drop-in. The atom resets the user-agent margin so spacing has to come from the layout (flex/margin), as it should.                                                                                                                                                                                                                                                      |
+| `border-t` / `border-b` Tailwind utilities used as standalone dividers | `<Separator />`    | Only when the border is genuinely a divider line, not a side of a Card. Borders on container surfaces stay in the Card primitive. Recon: 74 `border-t`/`border-b` usages in Alexandria; the swap audit during the adoption PR triages container-vs-divider per call-site.                                                                                               |
+| `<div className="h-px bg-..." />` (1 occurrence)                       | `<Separator />`    | Same drop-in.                                                                                                                                                                                                                                                                                                                                                           |
+| `AssessmentReviewSeparator`, `BreadcrumbSeparator`, `DotSeparatorIcon` | stay in Alexandria | Domain-specific composites: `AssessmentReviewSeparator` carries assessment vocabulary, `BreadcrumbSeparator` is a chevron icon between breadcrumb segments, `DotSeparatorIcon` is a bullet glyph. None of them is a 1px line with the `separator` ARIA contract; they are presentational widgets that consume `<Separator>` only if they need to compose with the atom. |
+
+### Deliberate divergences from Alexandria at migration time
+
+- **Border tone moves to `neutral-200` (token-driven) from whatever
+  Tailwind class was in place at each call-site** (`border-supporting-base`,
+  `border-grey`, `bg-supporting-base`, etc.). Visual tone is
+  essentially identical (~oklch 95-97%); the change is system
+  coherence, not appearance.
+- **Self-resetting margin**. The atom strips the user-agent
+  `<hr>` margin so spacing is the consumer's responsibility. Some
+  call-sites that relied on the implicit `<hr>` margin will need
+  explicit `margin` or a wrapping flex `gap` after the swap. This
+  is intentional — predictability of layout is worth the one-time
+  audit.
+
+Adoption is incremental: when Separator ships, an Alexandria PR
+swaps the standalone divider call-sites discovered in the recon
+above. Cards and panel borders stay until `Card` ships (next atom);
+domain-specific separators stay in their bounded contexts forever.
