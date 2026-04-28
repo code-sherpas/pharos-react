@@ -1,0 +1,97 @@
+/* Spinner.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). The build emits hashed
+ * class names (`Spinner_spinner__xxxx`) into `dist/styles.css`; the runtime
+ * JS references them through the `styles` object imported by Spinner.tsx.
+ *
+ * The Spinner is intentionally minimal: a `<span role="status">` that
+ * inherits its colour from the parent via `currentColor`. There is no
+ * `variant` / `tone` axis — the consumer chooses the colour by setting
+ * `color` on the parent (or by overriding via `className`). This matches
+ * the shadcn / Radix Themes / Mantine pattern.
+ */
+
+@keyframes pharos-spinner-spin {
+  /* Single full rotation. Authored as a uniquely-named keyframe (prefixed
+   * `pharos-spinner-`) so it cannot collide with consumer keyframes. The
+   * `from`/`to` form is two-line and clear; using `100%` would compile to
+   * the same output. */
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.spinner {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* `currentColor` makes the Spinner inherit the parent's text colour by
+   * default, so `<Button intent="primary"><Spinner /></Button>` works out
+   * of the box (the Button's white text colour cascades into the SVG's
+   * `stroke="currentColor"`). */
+  color: currentColor;
+  /* Vertical alignment with surrounding inline content (e.g. text inside a
+   * Button label). Without this, the spinner sits a couple of pixels low
+   * because the SVG box's baseline is its bottom edge. */
+  vertical-align: middle;
+  /* The animation lives on the icon, not the wrapper, so a consumer that
+   * targets the wrapper for layout (margin, gap-as-flex-child) does not
+   * accidentally inherit the spin transform. */
+}
+
+.icon {
+  width: 100%;
+  height: 100%;
+  animation: pharos-spinner-spin var(--pharos-duration-slow, 1s) linear infinite;
+}
+
+/* Respect the user's reduced-motion preference. The animation slows down
+ * dramatically rather than disappearing; some assistive interactions
+ * still need a "this is in progress" visual cue, so we keep movement but
+ * make it gentler. Same compromise Radix Themes uses. */
+@media (prefers-reduced-motion: reduce) {
+  .icon {
+    animation-duration: 4s;
+  }
+}
+
+/* === Sizes ===
+ *
+ * Heights align with the form-control grid so a Spinner sits flush inside
+ * a Button / Input / Textarea of the same size. The visual diameter of the
+ * SVG itself fills the wrapper (`width: 100%; height: 100%` on the icon),
+ * so the wrapper size IS the spinner size. */
+
+.sizeSm {
+  width: var(--pharos-spacing-4); /* 16 px */
+  height: var(--pharos-spacing-4);
+}
+
+.sizeMd {
+  width: var(--pharos-spacing-5); /* 20 px */
+  height: var(--pharos-spacing-5);
+}
+
+.sizeLg {
+  width: var(--pharos-spacing-6); /* 24 px */
+  height: var(--pharos-spacing-6);
+}
+
+/* Visually-hidden utility for the screen-reader label. Identical to the
+ * Tailwind `sr-only` recipe — preserved as a local utility because Pharos
+ * does not ship Tailwind in `dist/` (Decision D9). */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
