@@ -658,3 +658,120 @@ Adoption is incremental: when Separator ships, an Alexandria PR
 swaps the standalone divider call-sites discovered in the recon
 above. Cards and panel borders stay until `Card` ships (next atom);
 domain-specific separators stay in their bounded contexts forever.
+
+## Card
+
+Canonical name: **`Card`** (shadcn/ui, Radix Themes, Polaris, MUI,
+Material 3 — unanimous).
+
+Public API:
+
+```ts
+<Card variant="default | elevated | outlined">
+  <CardHeader>
+    <CardTitle>Title</CardTitle>
+    <CardDescription>Description</CardDescription>
+  </CardHeader>
+  <CardContent>{children}</CardContent>
+  <CardFooter>{actions}</CardFooter>
+</Card>
+```
+
+Defaults: `variant="default"`. Every slot (`CardHeader`, `CardTitle`,
+`CardDescription`, `CardContent`, `CardFooter`) is exported as an
+individual component and can be omitted — an empty Card or a
+content-only Card is equally valid.
+
+### Why three variants
+
+Single-variant Card (shadcn's default shape) is too thin for the
+adoption story Alexandria has. The repo today carries three distinct
+container patterns that need to map cleanly:
+
+- **Subtle bordered cards** (~85 % of Alexandria's container surfaces).
+  Match `variant="default"` — `--pharos-color-neutral-200` border,
+  no shadow.
+- **Lifted cards** with a soft shadow (modal inner surfaces, important
+  callouts). Match `variant="elevated"` — `--pharos-shadow-md`, no
+  border. The token is annotated in `pharos-tokens` as "Default
+  elevation for cards at rest", which is exactly this case.
+- **Emphasised bordered cards** that should read as more deliberate
+  containers without crossing into "interactive". Match
+  `variant="outlined"` — `--pharos-color-neutral-300` border, no
+  shadow. The middle tier of the border-intensity hierarchy (D12).
+
+Three variants stay well under the cardinal rule "Variants, not
+sub-components" — they are three intensities of the same primitive,
+not three different components.
+
+### Why `CardHeader / Title / Description / Content / Footer` as individual exports
+
+shadcn's Card uses the same shape and Pharos matches it for naming
+parity. The slot pattern is preferable to a single `<Card>` with
+prop-based content (`title`, `description`, `actions`) because:
+
+- Consumers can **omit** any slot. A content-only Card or a Card with
+  only Header is a common and natural variant — encoding it as
+  optional slot props would either bloat the API surface or force
+  defaults that fight specific layouts.
+- Consumers can **interleave** non-slot content. Many Alexandria
+  cards have a `<Separator>` between Header and Content, or two
+  Content blocks separated by another piece of UI. The slot pattern
+  composes naturally; props would not.
+- Slot styling stays decoupled from Card's variant. Header padding,
+  Title typography, Footer flex layout never change across the three
+  variants — keeping them as separate components avoids needing to
+  re-style for each variant.
+
+### Why `CardTitle` is a `<div>` and not an `<h3>`
+
+shadcn renders CardTitle as a `<div>`, leaving the document outline
+(`<h2>`, `<h3>`, etc.) as the consumer's responsibility. Pharos
+matches: an atom should not impose semantic heading structure when
+the consumer has more context about where the card lives in the
+overall heading hierarchy. If a caller needs a heading, they wrap or
+spread their own `<h2>` element with the Title's class — or use the
+ARIA pattern of `role="heading"` + `aria-level={N}` on the Title
+itself.
+
+`CardDescription` defaults to a `<p>` because that _is_ the
+canonical semantic and consumers virtually never want it different.
+
+### Mapping from Alexandria
+
+Alexandria has multiple "card-like" components. The migration is
+incremental:
+
+| Alexandria pattern                                                      | Pharos equivalent                                                                                    | Notes                                                                                                                                                                                                                         |
+| ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `web-application/src/common/components/card/` (generic Card components) | `<Card variant="default">`                                                                           | Default variant covers the bordered no-shadow case which dominates Alexandria. The local generic Card components likely become thin wrappers (or get deleted) at adoption time depending on how much domain logic they carry. |
+| Bespoke `<div className="bg-white border border-supporting-base ...">`  | `<Card variant="default">` (sometimes `<CardContent>` only when the wrapper is a content-only block) | A high-frequency pattern. Recon during the adoption PR identifies which call-sites need full slots vs only `<CardContent>`.                                                                                                   |
+| `<div className="bg-white shadow-md ...">` (modal cards, callouts)      | `<Card variant="elevated">`                                                                          | Elevated tier. Replaces ad-hoc `shadow-md` / `shadow-sm` Tailwind utilities with the tokenised `--pharos-shadow-md`.                                                                                                          |
+| Card-like containers with a more visible border                         | `<Card variant="outlined">`                                                                          | Where Alexandria deliberately darkens the border (`border-supporting-dark`, `border-grey`) for emphasis without making the surface interactive. Becomes the `neutral-300` tier.                                               |
+| Domain cards (`AssessmentTemplateCard`, `RoleCard`, course cards, etc.) | stay in Alexandria, internally compose `<Card>`                                                      | Domain wrappers that carry vocabulary (status, route, action) keep their identity and just consume the Pharos primitive underneath. Same incremental pattern used for `Pill` → `Badge`.                                       |
+
+### Deliberate divergences from Alexandria at migration time
+
+- **Border tone normalisation**. `default` cards land at
+  `neutral-200`, matching Carbon `border-subtle` / Spectrum gray-200
+  / Polaris border. Most Alexandria cards already sit at
+  `border-supporting-base` (≈ `neutral-200`), so the change is
+  essentially tonal coherence. `outlined` cards (where Alexandria
+  used `border-supporting-dark` ≈ `neutral-300`) absorb the
+  intentionally stronger tier.
+- **Shadow tokenisation**. Where Alexandria used `shadow-md` /
+  `shadow-sm` Tailwind utilities, the elevated variant resolves
+  through `--pharos-shadow-md`. The numeric values align with
+  Tailwind's defaults the tokens were extracted from, so the diff is
+  zero pixels at adoption time.
+- **Header / Footer padding from a token grid**. Alexandria's
+  bespoke `p-6 pt-4 pb-6` patterns become the consistent
+  `var(--pharos-spacing-6)` rhythm across every Card. Some specific
+  call-sites with tighter padding will adopt with `style` overrides
+  until a reduced-padding variant proves necessary.
+
+Adoption ships in the same Alexandria PR as Separator (single PR per
+the master plan §"Estrategia"). After merge, the running app
+expresses three readable border levels — subtle (separator + default
+card), emphasised (outlined card), strong (interactive controls) —
+and the previously-flagged "Input desentona" disonance resolves.

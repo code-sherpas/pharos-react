@@ -1,0 +1,100 @@
+/* Card.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). Hashed into
+ * `dist/styles.css`. The variant tones land on the border-intensity
+ * hierarchy from D12: `default` and `elevated` carry the subtle tier,
+ * `outlined` carries the emphasised tier. None of them reach the
+ * strong tier reserved for interactive controls.
+ */
+
+.card {
+  /* === Surface === */
+  background-color: var(--pharos-color-base-white);
+  border-radius: var(--pharos-radius-2xl);
+  /* Default to no border / no shadow at the base level — variants opt
+   * into one or the other. Keeping the base neutral means a consumer
+   * that overrides via `className` does not have to fight defaults. */
+  border: 0 solid transparent;
+
+  /* === Layout ===
+   * Cards default to vertical stacking of their slots (Header / Content /
+   * Footer). The slots themselves carry their own padding so the Card
+   * never imposes a global padding that would conflict with full-bleed
+   * media headers. */
+  display: flex;
+  flex-direction: column;
+  gap: var(--pharos-spacing-6);
+
+  /* === Typography ===
+   * Set the body baseline for the card so `<CardTitle>` and
+   * `<CardDescription>` can size relatively if a future caller wants. */
+  font-family: var(--pharos-font-family-sans);
+  color: var(--pharos-color-neutral-900);
+
+  /* === Transitions === */
+  transition-property: border-color, box-shadow;
+  transition-duration: var(--pharos-duration-normal);
+  transition-timing-function: var(--pharos-easing-out);
+}
+
+/* === Variants === */
+
+.default {
+  border: 1px solid var(--pharos-color-neutral-200);
+}
+
+.elevated {
+  border: 0 solid transparent;
+  box-shadow: var(--pharos-shadow-md);
+}
+
+.outlined {
+  border: 1px solid var(--pharos-color-neutral-300);
+}
+
+/* === Slots ===
+ *
+ * Every slot is a styled `<div>` (CardTitle stays a `<div>` like shadcn,
+ * so the consumer picks the semantic heading level). Padding is consistent
+ * across the three slots — the consumer composes them inside `<Card>`
+ * without thinking about layout details. */
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pharos-spacing-1-5);
+  padding: var(--pharos-spacing-6) var(--pharos-spacing-6) 0;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--pharos-font-size-base);
+  font-weight: var(--pharos-font-weight-semibold);
+  line-height: 1.25;
+  color: var(--pharos-color-neutral-900);
+}
+
+.description {
+  margin: 0;
+  font-size: var(--pharos-font-size-sm);
+  font-weight: var(--pharos-font-weight-regular);
+  line-height: 1.5;
+  color: var(--pharos-color-neutral-500);
+}
+
+.content {
+  /* Header padding-top + Footer padding-bottom already provide the
+   * vertical breathing room. Content itself only carries inline padding;
+   * its vertical rhythm comes from the parent `gap`. When the card has
+   * no Header/Footer, Content's lack of vertical padding means the card
+   * is content-only with the card-level `gap` collapsing to zero — the
+   * consumer applies their own padding via `style` or `className`. */
+  padding: 0 var(--pharos-spacing-6);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  gap: var(--pharos-spacing-3);
+  padding: 0 var(--pharos-spacing-6) var(--pharos-spacing-6);
+}

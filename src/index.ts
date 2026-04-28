@@ -12,4 +12,21 @@ export { Input, inputVariants } from './components/Input';
 export type { InputProps } from './components/Input';
 export { Separator } from './components/Separator';
 export type { SeparatorProps } from './components/Separator';
+export {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+  cardVariants,
+} from './components/Card';
+export type {
+  CardProps,
+  CardHeaderProps,
+  CardTitleProps,
+  CardDescriptionProps,
+  CardContentProps,
+  CardFooterProps,
+} from './components/Card';
 export { cn } from './lib/cn';

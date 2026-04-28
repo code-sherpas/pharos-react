@@ -3,6 +3,14 @@ import { Button } from '../src/components/Button';
 import { Badge } from '../src/components/Badge';
 import { Input } from '../src/components/Input';
 import { Separator } from '../src/components/Separator';
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+  CardFooter,
+} from '../src/components/Card';
 
 /**
  * Multi-component gallery. One story per published component family, grouped
@@ -82,6 +90,31 @@ function InputShowcase() {
   );
 }
 
+function CardShowcase() {
+  return (
+    <div className="storybook-overview-row" style={{ alignItems: 'stretch', gap: '0.75rem' }}>
+      {(['default', 'elevated', 'outlined'] as const).map((variant) => (
+        <Card key={variant} variant={variant} style={{ width: 200 }}>
+          <CardHeader>
+            <CardTitle style={{ textTransform: 'capitalize' }}>{variant}</CardTitle>
+            <CardDescription>Variant {variant}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p style={{ margin: 0, fontSize: 'var(--pharos-font-size-sm)' }}>
+              Body content sample.
+            </p>
+          </CardContent>
+          <CardFooter>
+            <Button intent="ghost" size="sm">
+              Action
+            </Button>
+          </CardFooter>
+        </Card>
+      ))}
+    </div>
+  );
+}
+
 function SeparatorShowcase() {
   return (
     <div
@@ -124,6 +157,9 @@ function Overview() {
         </Showcase>
         <Showcase name="Separator">
           <SeparatorShowcase />
+        </Showcase>
+        <Showcase name="Card">
+          <CardShowcase />
         </Showcase>
       </Section>
     </div>
