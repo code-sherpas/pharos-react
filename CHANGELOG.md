@@ -1,5 +1,92 @@
 # @code-sherpas/pharos-react
 
+## 0.7.0
+
+### Minor Changes
+
+- b1680e6: Add `Card` atom with the slot family `CardHeader`, `CardTitle`,
+  `CardDescription`, `CardContent`, `CardFooter`.
+
+  Public API:
+
+  ```tsx
+  <Card variant="default | elevated | outlined">
+    <CardHeader>
+      <CardTitle>Title</CardTitle>
+      <CardDescription>Description</CardDescription>
+    </CardHeader>
+    <CardContent>{children}</CardContent>
+    <CardFooter>{actions}</CardFooter>
+  </Card>
+  ```
+
+  Three variants on the border-intensity hierarchy (Decision D12):
+  - `default` — subtle border `--pharos-color-neutral-200`, no shadow.
+    ~85 % of Alexandria's container surfaces map here.
+  - `elevated` — soft shadow `--pharos-shadow-md`, no border. For
+    surfaces that should lift off the canvas (modal inner surfaces,
+    callouts).
+  - `outlined` — emphasised border `--pharos-color-neutral-300`, no
+    shadow. The middle tier — deliberately more visible than `default`
+    but still non-interactive, so it never reaches the strong
+    `neutral-500` reserved for `Input` / `Button intent="secondary"` /
+    `Badge variant="outline"` (D10).
+
+  Sub-components are exported as individual primitives, the same
+  pattern shadcn uses. Every slot is optional; an empty Card or a
+  content-only Card is equally valid. `CardTitle` renders as a `<div>`
+  on purpose — atoms do not impose document-outline semantics; the
+  consumer wraps in `<h2>` / `<h3>` or sets `role="heading"` +
+  `aria-level` themselves.
+
+  This release closes the second half of the post-Input visual
+  disonance fix: `Separator` (this same release) and `Card`
+  (`variant="default"`) share the subtle `neutral-200` tone, so once
+  Alexandria adopts both, the running app expresses three readable
+  boundary levels — subtle (separator + default card), emphasised
+  (outlined card), strong (interactive controls). The Input that
+  previously read as "out of place" reads as deliberately the focal
+  interactive element.
+
+  Cross-DS rationale and Alexandria mapping live in
+  `NAMING-decisions.md` under "Card".
+
+- a6a1319: Add `Separator` atom — visual or semantic divider between two regions.
+
+  Public API:
+
+  ```tsx
+  <Separator orientation="horizontal | vertical" decorative={true | false} />
+  ```
+
+  Defaults: `orientation="horizontal"`, `decorative={true}`. Native
+  `<div>` props pass through unchanged.
+
+  The atom is the first realisation of **Decision D12** (subtle borders
+  for non-interactive surfaces). Resting tone is
+  `--pharos-color-neutral-200`, the same intensity Carbon `border-subtle`,
+  Adobe Spectrum gray-200 and Polaris use for dividers. WCAG 1.4.11 does
+  not apply (a separator is not a UI component or a state indicator), so
+  the strong `neutral-500` reserved for interactive controls (Input,
+  Button secondary, Badge outline — D10) deliberately stays out of this
+  primitive.
+
+  When `decorative={true}` (default) the element is `role="none"` and
+  ignored by assistive tech. When `decorative={false}` it becomes
+  `role="separator"` and, for vertical separators, exposes
+  `aria-orientation="vertical"` (per the ARIA APG spec, the attribute is
+  omitted on horizontal separators because that is the role's default).
+
+  The cross-DS rationale, the contrast math and the three-level border
+  hierarchy that lands with this release live in `NAMING-decisions.md`
+  under "Cross-cutting: border intensity hierarchy".
+
+  Adoption note: the upcoming Alexandria PR audits the ~80 ad-hoc divider
+  call-sites (`<hr>` + `border-t`/`border-b` + `<div className="h-px ..." />`)
+  and swaps the standalone divider patterns to `<Separator>`. Tailwind
+  borders that are actually a side of a Card surface stay on the
+  container until `Card` ships next.
+
 ## 0.6.0
 
 ### Minor Changes
