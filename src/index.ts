@@ -10,4 +10,6 @@ export { Badge, badgeVariants } from './components/Badge';
 export type { BadgeProps } from './components/Badge';
 export { Input, inputVariants } from './components/Input';
 export type { InputProps } from './components/Input';
+export { Separator } from './components/Separator';
+export type { SeparatorProps } from './components/Separator';
 export { cn } from './lib/cn';

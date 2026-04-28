@@ -1,0 +1,37 @@
+/* Separator.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). Hashed into
+ * `dist/styles.css` like the rest of pharos-react. The token of the
+ * border colour comes from D12 (subtle borders for non-interactive
+ * surfaces): a Separator is decorative or semantic but never an
+ * interactive control, so WCAG 1.4.11 (3:1) does not apply and the
+ * resting tone stays at `neutral-200` — same intensity Carbon
+ * `border-subtle`, Adobe Spectrum gray-200 and Polaris use for
+ * dividers.
+ */
+
+.separator {
+  /* `flex-shrink: 0` keeps a vertical Separator at 1px wide inside flex
+   * rows that would otherwise compress it to zero. shadcn does the same
+   * via the Tailwind `shrink-0` utility; we hard-code it because every
+   * Separator wants this behaviour and there is no axis where dropping
+   * it would be useful. */
+  flex-shrink: 0;
+  background-color: var(--pharos-color-neutral-200);
+  /* Reset any user-agent margin (notably the default `<hr>` margin) when
+   * the Separator is rendered as a `<div>`. A consumer that wants
+   * spacing controls it from the outside via flex / margin / padding,
+   * not via implicit user-agent rules. */
+  margin: 0;
+  border: 0;
+}
+
+.horizontal {
+  width: 100%;
+  height: 1px;
+}
+
+.vertical {
+  height: 100%;
+  width: 1px;
+}
