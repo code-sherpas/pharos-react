@@ -6,6 +6,8 @@
 
 export { Button, buttonVariants } from './components/Button';
 export type { ButtonProps } from './components/Button';
+export { IconButton, iconButtonVariants } from './components/IconButton';
+export type { IconButtonProps } from './components/IconButton';
 export { Badge, badgeVariants } from './components/Badge';
 export type { BadgeProps } from './components/Badge';
 export { Input, inputVariants } from './components/Input';
