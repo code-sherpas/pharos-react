@@ -775,3 +775,215 @@ the master plan §"Estrategia"). After merge, the running app
 expresses three readable border levels — subtle (separator + default
 card), emphasised (outlined card), strong (interactive controls) —
 and the previously-flagged "Input desentona" disonance resolves.
+
+## IconButton
+
+Canonical name: **`IconButton`** (Material 3, MUI, Chakra UI, Radix
+Themes, IBM Carbon — unanimous among the DSes that ship a dedicated
+atom). Mantine ships the same concept under the name `ActionIcon`;
+shadcn / Polaris fold it into the Button / `<Button size="icon">`
+pattern. Pharos goes with the dedicated atom — see "Why a dedicated
+atom (and not `<Button size="icon">`)" below.
+
+Public API:
+
+```ts
+<IconButton
+  intent="primary | secondary | ghost | destructive"  // mirrors Button
+  size="sm | md | lg"                                   // 32 / 40 / 48 square
+  aria-label={string}                                   // required (or aria-labelledby)
+  isLoading?={boolean}                                  // swaps icon for <Spinner size={size}/>
+  disabled?={boolean}
+  type="button | submit | reset"                        // defaults to "button"
+  render?={ReactElement}                                // Base UI useRender; same as Button
+>
+  <Icon />  {/* Lucide icon (D4); single direct <svg> child */}
+</IconButton>
+```
+
+Defaults: `intent="ghost"`, `size="md"`. The intent default differs
+from Button (which defaults to `primary`) because the dominant
+icon-only call-site is a low-emphasis affordance (close, dismiss,
+toolbar action) — defaulting to a filled black circle would surprise
+the consumer. `aria-label` (or `aria-labelledby`) is enforced at the
+type level via a discriminated union: an IconButton without an
+accessible name is a TypeScript error, not a runtime warning.
+
+### Why a dedicated atom (and not `<Button size="icon">`)
+
+The naming priority in `AGENTS.md` is shadcn > Base UI > ARIA APG.
+shadcn does not ship an `IconButton` atom — its convention is
+`<Button size="icon">`. Pharos still chooses a dedicated atom under
+the cardinal rule "state-of-the-art > Alexandria, and where
+state-of-the-art is split, weigh the consensus":
+
+- **Six of eight** top-tier DSes ship `IconButton` (or its synonym
+  `ActionIcon`) as a dedicated atom: Material 3, MUI, Chakra UI,
+  Mantine, Radix Themes, IBM Carbon. Only shadcn and Polaris fold it
+  into Button. The consensus is the dedicated atom.
+- **Accessibility is enforceable at compile time.** `aria-label`
+  becomes a required prop (discriminated union with
+  `aria-labelledby`). Folded into Button via `size="icon"`, the same
+  contract becomes runtime-only — Chakra emits a console warning,
+  Mantine documents `VisuallyHidden`, but neither blocks a missing
+  label from shipping. WCAG 4.1.2 compliance moves from "remember to
+  pass it" to "the type system blocks the build".
+- **Semantic constraints differ.** IconButton is **square** (width
+  = height), Button is rectangular with text-based padding. Folding
+  `size="icon"` into the Button axis would force every Button size
+  variant to optionally override its layout — more API surface for
+  the same component, with no win.
+- **shadcn's choice optimises for Tailwind utility-first authoring.**
+  Adding a `size="icon"` variant in Tailwind is one extra CVA entry
+  with `size-10 p-0`. In CSS Modules the cost of a separate atom is
+  zero — duplicated CSS is essentially the Button rules minus padding,
+  plus a `> svg` size rule. The ergonomic argument that pulls shadcn
+  toward `size="icon"` does not apply to Pharos.
+
+The dedicated-atom decision is registered as **D13 (2026-04-30)**.
+
+### Why mirror Button's `intent` axis (and not Material's "filled / tonal / outlined / standard")
+
+Material 3's IconButton exposes four visual variants: `Standard`,
+`Filled`, `Filled Tonal`, `Outlined`. MUI extends with a `color` axis
+on top. Chakra exposes six variants × eight sizes. The combinatorial
+surface area is large because those DSes treat IconButton as an
+independent thing.
+
+Pharos consolidates: `intent` is the same prop with the same four
+values as Button (`primary | secondary | ghost | destructive`), and
+the visual treatment is an implementation detail of each intent. Reading
+across the system stays one-axis: every interactive control answers
+the question "what does this action mean?" with the same vocabulary.
+The mapping is exact — `primary` is filled neutral-900, `secondary`
+is bordered (the Material `Outlined` equivalent), `ghost` is
+transparent (the Material `Standard` equivalent), `destructive` is
+filled red. No tonal tier; if a low-emphasis filled variant becomes
+necessary, it lands as a fifth intent rather than a second axis.
+
+### Why `rounded-full` (circle)
+
+Square dimensions plus `border-radius: var(--pharos-radius-full)`
+yields a perfect circle. The choice matches:
+
+- **Material 3** Standard / Filled / Filled Tonal IconButtons (default
+  shape is circular).
+- **MUI** IconButton (default shape is circular).
+- **Mantine** ActionIcon (default `radius: "xl"` ≈ circular).
+- **Alexandria's existing wrappers**: `CloseButtonCircle`,
+  `NextCircleButton`, `PreviousCircleButton` are already circular.
+
+Square / rounded-rectangle IconButtons exist (Carbon, Polaris-style
+toolbars), but the circle is the dominant convention in modern DSes
+and matches the Pharos-wide pill language: Button is fully rounded,
+Badge is fully rounded, IconButton inherits the same `--pharos-radius-full`
+token. Internal coherence over per-atom shape exploration.
+
+### Why `sm / md / lg = 32 / 40 / 48 px` square
+
+Heights match Button's grid exactly via `--pharos-spacing-8 / 10 / 12`.
+An IconButton next to a Button of the same size sits flush — same
+height, same vertical centre. The icon SVG inside scales 16 / 20 / 24
+(via `--pharos-spacing-4 / 5 / 6`), matching Spinner's size grid so
+`<IconButton isLoading>` keeps the visual diameter identical to the
+resting icon state.
+
+The `> svg` direct-child selector sizes Lucide icons that ship with
+hardcoded `width="24" height="24"`. The selector is direct-child on
+purpose: Spinner renders `<span><svg/></span>`, so the rule does not
+double-size its inner SVG. Consumers wrapping an icon in a custom
+component remain responsible for sizing it — same contract shadcn
+documents on its `[&_svg]:size-X` pattern.
+
+### Why `isLoading` lives on the atom (and Button's does not)
+
+Button does **not** ship an `isLoading` prop today; the documented
+composition for a loading Button is `<Button disabled><Spinner /><span>Saving</span></Button>`
+(see `Spinner.stories.tsx` "InsideButton"). The same composition
+works for IconButton, but the icon-only case is materially worse
+without an `isLoading` shorthand:
+
+- The consumer has to **swap** the icon for the Spinner conditionally
+  (icon while idle, Spinner while loading), which means two render
+  branches inside the JSX of every async icon button.
+- The accessible name needs the same treatment: aria-label="Saving…"
+  vs aria-label="Save" depending on state.
+
+By wiring `isLoading` into the atom: the consumer keeps a single
+`children={<Icon />}`, the atom swaps the slot, sets `disabled`,
+exposes `aria-busy="true"`, and the consumer's call-site stays one-shape
+across loading and resting states. The Spinner already shipped
+(`0.9.0`); the cost of consuming it from inside IconButton is zero
+(no new dependency, no new CSS).
+
+Button stays without `isLoading` for now because Alexandria's
+`AsyncLoadingButton` wrappers compose the loading state at the
+domain layer. If a future Button consumer pattern justifies it, it
+gets added then under the same Spinner-swap contract.
+
+### Why no integrated `Tooltip`
+
+IBM Carbon mandates an integrated tooltip on IconButton ("a tooltip
+is always required with text explaining what the icon button would
+do if clicked"). Pharos diverges: Tooltip is a separate atom (not yet
+shipped). Reasoning:
+
+- `aria-label` already satisfies WCAG 4.1.2 (Name, Role, Value) —
+  the tooltip on hover is a UX nicety, not an accessibility
+  requirement.
+- Coupling Tooltip into IconButton imports the entire Tooltip
+  positioning runtime for every IconButton call-site, even those
+  that do not need a tooltip (close button on a modal already
+  labelled "Close" by context).
+- Composition stays explicit: the consumer wraps `<Tooltip><IconButton/></Tooltip>`
+  when they want the hover affordance. Same pattern shadcn / Radix
+  Themes / Mantine document.
+
+### Why no `selected` / toggle state in v1
+
+Material 3 adds `selected` to IconButton for toggle UX (favorite,
+mute, pin). Pharos defers it: no Alexandria call-site exercises the
+toggle pattern today, and adding it pre-emptively is designing for a
+hypothetical future requirement. Adding it later is non-breaking —
+the `selected` prop is additive.
+
+### Mapping from Alexandria
+
+The IconButton release pairs with an Alexandria adoption PR that
+collapses the icon-only button family.
+
+| Alexandria component                        | Pharos equivalent                                                         | Notes                                                                                                                               |
+| ------------------------------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `CloseButton`                               | `<IconButton intent="ghost" aria-label="Close"><X/></IconButton>`         | Inline X icon in a transparent surface — the most common close-affordance shape.                                                    |
+| `CloseButtonCircle`                         | `<IconButton intent="secondary" aria-label="Close"><X/></IconButton>`     | Bordered circle (`neutral-500` border via D10). Distinguishes from `CloseButton` by carrying its own visible boundary on the page.  |
+| `NextCircleButton` / `PreviousCircleButton` | `<IconButton intent="secondary" aria-label="..."><Chevron/></IconButton>` | Navigation pair — same bordered chrome. `render={<Link to="..."/>}` when the navigation goes through a router.                      |
+| `AsyncLoadingButton` (icon-only call-sites) | `<IconButton isLoading={...} aria-label="..."><Icon/></IconButton>`       | The loading-icon-button case folds into the atom's built-in `isLoading`. Composite call-sites that mix label + icon stay on Button. |
+
+### Deliberate divergences from Alexandria at migration time
+
+- **`aria-label` becomes mandatory at the type level.** Alexandria's
+  wrappers accept optional `aria-label` and rely on convention. The
+  Pharos atom errors at compile time without one. Adoption PRs add
+  the label where missing — most call-sites already pass it; the
+  audit catches the rest.
+- **Border tone normalises to `neutral-500` for `secondary`.**
+  Alexandria's circle buttons border at `neutral-300` /
+  `border-supporting-base`. Pharos lifts them to the WCAG 1.4.11
+  strong-tier (~5.4:1 vs white) so an IconButton border reads as
+  deliberately the focal interactive element on the page — the same
+  shift Input / Button-secondary / Badge-outline already absorbed in
+  earlier adoption PRs.
+- **Heights move to the 8px grid (32 / 40 / 48 px).** Alexandria's
+  circle buttons sit at one-off pixel sizes (`w-[32px]`,
+  `w-[44px]`). Pharos absorbs them into the standard scale — the
+  ≤2px deltas are imperceptible and the grid alignment pays off
+  next to other controls.
+
+Adoption is incremental: when this IconButton ships to npm, an
+Alexandria PR replaces every `CloseButton` / `CloseButtonCircle` /
+`Next/PreviousCircleButton` instance with the mappings above. The
+async-loading icon-button cluster (`AsyncLoadingButton` /
+`PublishButton` / `UnpublishButton` / `AddButton`) folds into the
+atom's `isLoading` in the same PR or the next, depending on how much
+state-ownership refactor each call-site needs. Cases that require
+JSX-tree restructuring beyond the swap stay deferred to Phase 6.

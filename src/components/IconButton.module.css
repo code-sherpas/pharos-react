@@ -1,0 +1,178 @@
+/* IconButton.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). The build emits hashed
+ * class names (`IconButton_button__xxxx`) into `dist/styles.css`; the runtime
+ * JS references them through the `styles` object imported by IconButton.tsx.
+ *
+ * Square dimensions across every size — the wrapper width matches the
+ * height, so the rounded-full radius produces a perfect circle (matches
+ * Material 3 / MUI / Mantine ActionIcon transparent variant). Icon child
+ * SVGs are sized via the `> svg` direct-child selector so a Lucide icon
+ * does not need explicit `size` props on the consumer side.
+ */
+
+.button {
+  /* Strip native button rendering. Same rationale as Button.module.css —
+   * platform-specific drawing only adds variance without value. */
+  appearance: none;
+  -webkit-appearance: none;
+
+  /* === Box model ===
+   * `padding: 0` plus equal width / height gives the square that the
+   * `border-radius: var(--pharos-radius-full)` turns into a circle. Hard
+   * `flex-shrink: 0` so the IconButton keeps its dimensions inside a flex
+   * row (toolbar, header) where surrounding labels could otherwise force
+   * it to compress. */
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  border: 0 solid transparent;
+  border-radius: var(--pharos-radius-full);
+  flex-shrink: 0;
+
+  /* === Layout === */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* === Interactivity === */
+  user-select: none;
+  cursor: pointer;
+  background-color: transparent;
+  color: inherit;
+  font-family: var(--pharos-font-family-sans);
+
+  /* === Transitions === */
+  transition-property: color, background-color, border-color, box-shadow;
+  transition-duration: var(--pharos-duration-normal);
+  transition-timing-function: var(--pharos-easing-out);
+}
+
+.button:focus-visible {
+  outline: none;
+  /* Two-stop box-shadow mirrors the Button focus ring so a row of mixed
+   * Buttons + IconButtons share a single focus look. */
+  box-shadow:
+    0 0 0 2px var(--pharos-color-base-white),
+    0 0 0 4px var(--icon-button-focus-ring, var(--pharos-color-primary-600));
+}
+
+.button:disabled {
+  pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* === Intents ===
+ *
+ * Same palette as Button (D-cardinal: state-of-the-art coherence first,
+ * Alexandria adapts). `ghost` is the most common icon-button case
+ * (toolbars, close buttons, action icons), but the four intents stay
+ * available for the rare deliberate emphasis (primary "send" icon,
+ * destructive "delete" icon, secondary bordered circle navigation). */
+
+.primary {
+  background-color: var(--pharos-color-neutral-900);
+  color: var(--pharos-color-base-white);
+  --icon-button-focus-ring: var(--pharos-color-primary-600);
+}
+
+.primary:hover {
+  background-color: var(--pharos-color-neutral-700);
+}
+
+.primary:active {
+  background-color: var(--pharos-color-neutral-950);
+}
+
+.secondary {
+  background-color: var(--pharos-color-base-white);
+  color: var(--pharos-color-neutral-900);
+  /* `neutral-500` clears WCAG 1.4.11 (Non-text Contrast, 3:1 vs surface).
+   * Same border tone Button secondary / Input / Badge outline use — the
+   * three-tier border hierarchy (D10) treats every interactive control
+   * the same way. */
+  border: 1px solid var(--pharos-color-neutral-500);
+  --icon-button-focus-ring: var(--pharos-color-primary-600);
+}
+
+.secondary:hover {
+  background-color: var(--pharos-color-neutral-50);
+}
+
+.secondary:active {
+  background-color: var(--pharos-color-neutral-100);
+}
+
+.ghost {
+  background-color: transparent;
+  color: var(--pharos-color-neutral-900);
+  --icon-button-focus-ring: var(--pharos-color-primary-600);
+}
+
+.ghost:hover {
+  background-color: var(--pharos-color-neutral-100);
+}
+
+.ghost:active {
+  background-color: var(--pharos-color-neutral-200);
+}
+
+.destructive {
+  background-color: var(--pharos-color-semantic-error-fg);
+  color: var(--pharos-color-semantic-error-on);
+  --icon-button-focus-ring: var(--pharos-color-semantic-error-fg);
+}
+
+.destructive:hover {
+  background-color: var(--pharos-color-semantic-error-fg-hover);
+}
+
+.destructive:active {
+  background-color: var(--pharos-color-semantic-error-fg-active);
+}
+
+/* === Sizes ===
+ *
+ * Square dimensions match the Button height grid so an IconButton + Button
+ * pair on the same row sit flush (32 / 40 / 48 px). Direct-child `> svg`
+ * sizing forces a passed Lucide icon (which renders with hardcoded
+ * width/height="24") to fill the icon slot proportionally — 16 / 20 / 24
+ * matching the Spinner sizes so `<IconButton isLoading>` looks identical
+ * in size to the resting icon state.
+ *
+ * `> svg` (direct child) is deliberate: Spinner renders a `<span>` wrapper
+ * around its own SVG and sizes itself via `size={resolvedSize}`, so the
+ * rule does not need to (and should not) double-size the spinner SVG.
+ * Consumers wrapping an icon in a custom component remain responsible for
+ * sizing — same contract shadcn / Mantine document. */
+
+.sizeSm {
+  width: var(--pharos-spacing-8); /* 32 px */
+  height: var(--pharos-spacing-8);
+}
+
+.sizeSm > svg {
+  width: var(--pharos-spacing-4); /* 16 px */
+  height: var(--pharos-spacing-4);
+}
+
+.sizeMd {
+  width: var(--pharos-spacing-10); /* 40 px */
+  height: var(--pharos-spacing-10);
+}
+
+.sizeMd > svg {
+  width: var(--pharos-spacing-5); /* 20 px */
+  height: var(--pharos-spacing-5);
+}
+
+.sizeLg {
+  width: var(--pharos-spacing-12); /* 48 px */
+  height: var(--pharos-spacing-12);
+}
+
+.sizeLg > svg {
+  width: var(--pharos-spacing-6); /* 24 px */
+  height: var(--pharos-spacing-6);
+}

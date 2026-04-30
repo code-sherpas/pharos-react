@@ -16,18 +16,24 @@ import {
   buttonVariants,
   Badge,
   badgeVariants,
+  IconButton,
+  iconButtonVariants,
   cn,
   type ButtonProps,
   type BadgeProps,
+  type IconButtonProps,
 } from '../dist/index.js';
 
 const _button: typeof Button = Button;
 const _buttonVariants: typeof buttonVariants = buttonVariants;
 const _badge: typeof Badge = Badge;
 const _badgeVariants: typeof badgeVariants = badgeVariants;
+const _iconButton: typeof IconButton = IconButton;
+const _iconButtonVariants: typeof iconButtonVariants = iconButtonVariants;
 const _cn: typeof cn = cn;
 const _buttonProps: ButtonProps = { intent: 'primary', size: 'md' };
 const _badgeProps: BadgeProps = { variant: 'success', children: 'ok' };
+const _iconButtonProps: IconButtonProps = { intent: 'ghost', size: 'md', 'aria-label': 'Close' };
 
 // Touch the bindings so the file is not flagged as unused.
 export const _smoke = [
@@ -35,7 +41,10 @@ export const _smoke = [
   _buttonVariants,
   _badge,
   _badgeVariants,
+  _iconButton,
+  _iconButtonVariants,
   _cn,
   _buttonProps,
   _badgeProps,
+  _iconButtonProps,
 ];
