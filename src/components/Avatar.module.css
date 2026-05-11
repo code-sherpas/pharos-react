@@ -24,7 +24,17 @@
    * shape. `flex-shrink: 0` prevents the avatar from collapsing inside
    * a flex row (typical in stacks and people lists). `overflow: hidden`
    * clips the inner `<img>` to the shape — the same approach Radix /
-   * Base UI document. */
+   * Base UI document.
+   *
+   * `position: relative` anchors the absolutely-positioned image so it
+   * stacks on top of the fallback. Without this the image and the
+   * fallback would compete as siblings of the same flex container, and
+   * during the loading window both would render at `width: 100%` —
+   * shrinking to 50/50 inside the avatar (visible as a split chrome
+   * until the image paints). Layering the image on top keeps the
+   * fallback as the single flex item that centres its content, and
+   * the image fades in over it once the browser decodes the pixels. */
+  position: relative;
   box-sizing: border-box;
   flex-shrink: 0;
   display: inline-flex;
@@ -98,9 +108,16 @@
  *
  * The img fills the root completely with `object-fit: cover` so a
  * non-square portrait crops to the avatar shape without distortion.
- * `display: block` strips the inline-baseline gap. */
+ * `position: absolute` lifts the image out of the flex flow so it can
+ * stack on top of the fallback during the load window — without this
+ * the two would split the root's width 50/50 because each carries
+ * `width: 100%` (visible as a fractured chrome on size=lg, story
+ * grids, and any docs page that renders multiple Avatars before the
+ * images decode). */
 
 .image {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
