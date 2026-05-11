@@ -35,4 +35,11 @@ export type {
   CardContentProps,
   CardFooterProps,
 } from './components/Card';
+export { Avatar, AvatarImage, AvatarFallback, AvatarGroup } from './components/Avatar';
+export type {
+  AvatarProps,
+  AvatarImageProps,
+  AvatarFallbackProps,
+  AvatarGroupProps,
+} from './components/Avatar';
 export { cn } from './lib/cn';
