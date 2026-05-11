@@ -1,0 +1,188 @@
+/* Avatar.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). Compound:
+ * `Avatar` (root), `AvatarImage`, `AvatarFallback`, `AvatarGroup`. The
+ * build emits hashed class names (`Avatar_root__xxxx`) into
+ * `dist/styles.css`; the runtime JS references them through the
+ * `styles` object imported by Avatar.tsx.
+ *
+ * Sizes (D14): 3 named (sm / md / lg = 32 / 40 / 48 px) aligned to the
+ * IconButton height grid. Consumers needing a one-off (a 108px profile
+ * picture, a 20px stack avatar) pass `size={number}` and the runtime
+ * sets `width` / `height` inline — same escape pattern Mantine /
+ * Ant Design ship. The `--pharos-avatar-overlap` CSS variable cascades
+ * to AvatarGroup so the negative margin scales with the chosen size.
+ *
+ * Shape: `circle` (default) via `border-radius: full`; `square` via
+ * `radius-md`. The atom does not impose a breakpoint-conditional
+ * shape — that is the consumer's call.
+ */
+
+.root {
+  /* === Box model ===
+   * Square dimensions with `border-radius` doing the circle/rounded
+   * shape. `flex-shrink: 0` prevents the avatar from collapsing inside
+   * a flex row (typical in stacks and people lists). `overflow: hidden`
+   * clips the inner `<img>` to the shape — the same approach Radix /
+   * Base UI document. */
+  box-sizing: border-box;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  /* === Visual baseline ===
+   * Neutral surface behind the fallback so the slot reads as a defined
+   * shape even before the image (or text) renders. `color: inherit`
+   * lets icons inside Fallback pick the parent's text colour. */
+  background-color: var(--pharos-color-neutral-100);
+  color: var(--pharos-color-neutral-700);
+  font-family: var(--pharos-font-family-sans);
+  font-weight: 500;
+  line-height: 1;
+  user-select: none;
+
+  /* Default overlap step for grouped avatars. The size classes below
+   * override it so the negative margin scales with the avatar. */
+  --pharos-avatar-overlap: calc(var(--pharos-spacing-2) * -1); /* -8px */
+}
+
+/* === Shape === */
+
+.shapeCircle {
+  border-radius: var(--pharos-radius-full);
+}
+
+.shapeSquare {
+  /* Matches the `Card` outlined corner radius family — squared avatars
+   * (org logos, product icons) sit consistently next to cards on the
+   * same surface. */
+  border-radius: var(--pharos-radius-md);
+}
+
+/* === Sizes ===
+ *
+ * Named sizes match the IconButton grid (32 / 40 / 48 px). Initials
+ * type scale follows the body 14 / 20 rhythm (D3): sm shrinks to 12 px,
+ * md / lg sit at 14 / 16 px. The fallback `font-size` is set on
+ * `.root` so the text reflows correctly when the consumer passes an
+ * inline-style override.
+ *
+ * Each size also pegs the `--pharos-avatar-overlap` so AvatarGroup
+ * pulls the next sibling proportionally — ~20% of the avatar diameter,
+ * the same ratio MUI / Chakra / Mantine ship by default. */
+
+.sizeSm {
+  width: var(--pharos-spacing-8); /* 32 px */
+  height: var(--pharos-spacing-8);
+  font-size: 0.75rem; /* 12 px */
+  --pharos-avatar-overlap: calc(var(--pharos-spacing-2) * -0.75); /* -6 px */
+}
+
+.sizeMd {
+  width: var(--pharos-spacing-10); /* 40 px */
+  height: var(--pharos-spacing-10);
+  font-size: 0.875rem; /* 14 px */
+  --pharos-avatar-overlap: calc(var(--pharos-spacing-2) * -1); /* -8 px */
+}
+
+.sizeLg {
+  width: var(--pharos-spacing-12); /* 48 px */
+  height: var(--pharos-spacing-12);
+  font-size: 1rem; /* 16 px */
+  --pharos-avatar-overlap: calc(var(--pharos-spacing-2) * -1.25); /* -10 px */
+}
+
+/* === Image ===
+ *
+ * The img fills the root completely with `object-fit: cover` so a
+ * non-square portrait crops to the avatar shape without distortion.
+ * `display: block` strips the inline-baseline gap. */
+
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* Hairline border-radius inheritance to keep clipping crisp under
+   * sub-pixel rendering — `overflow: hidden` on the root handles the
+   * clip but the inner `<img>` repeating the radius prevents a
+   * one-pixel halo on some browsers. */
+  border-radius: inherit;
+}
+
+/* === Fallback === */
+
+.fallback {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  /* Inherit the typography baked into the root via `.sizeX`. */
+  font: inherit;
+  color: inherit;
+}
+
+/* The Fallback owns a direct-child `> svg` sizing rule for icon-only
+ * fallbacks (e.g. `<UserIcon/>`). Icons render at ~60% of the avatar
+ * diameter — matching the Material 3 / MUI default when an Avatar
+ * falls back to its generic person silhouette. */
+
+.sizeSm .fallback > svg {
+  width: var(--pharos-spacing-5); /* 20 px ≈ 62.5% of 32 */
+  height: var(--pharos-spacing-5);
+}
+
+.sizeMd .fallback > svg {
+  width: var(--pharos-spacing-6); /* 24 px = 60% of 40 */
+  height: var(--pharos-spacing-6);
+}
+
+.sizeLg .fallback > svg {
+  width: var(--pharos-spacing-7); /* 28 px ≈ 58% of 48 */
+  height: var(--pharos-spacing-7);
+}
+
+/* === Group ===
+ *
+ * Stack avatars with negative left margin. The first child sits flush;
+ * each subsequent child slides under the previous one. The `ring` is
+ * applied as a `box-shadow` (not `border`) so it does not shrink the
+ * avatar's content box — same trick Tailwind UI / MUI use. The ring
+ * colour reads from a CSS var so the consumer can match the
+ * surrounding surface (e.g. a card with a tinted background). */
+
+.group {
+  display: inline-flex;
+  align-items: center;
+  /* Direction control: `flex-direction: row-reverse` would reverse
+   * stacking order; we keep the default and let the consumer pass
+   * children in the order they prefer. The first-rendered child sits
+   * on top of the stack because z-index increases via :nth-child
+   * below. */
+}
+
+.group > .root {
+  /* The ring fills the gap that the negative margin opens between
+   * stacked avatars so each silhouette reads as a separate shape.
+   * `--pharos-avatar-group-ring` defaults to white (the page surface);
+   * a consumer with a tinted backdrop overrides it. */
+  box-shadow: 0 0 0 2px var(--pharos-avatar-group-ring, var(--pharos-color-base-white));
+  /* Position relative + z-index lets the box-shadow ring sit above
+   * the next sibling so the gap stays visible. */
+  position: relative;
+}
+
+.group > .root + .root {
+  margin-left: var(--pharos-avatar-overlap);
+}
+
+/* === Loading status data attributes ===
+ *
+ * The Image element exposes `data-pharos-loading` while it transitions
+ * through `idle` → `loaded` / `error`. The Fallback reads the same
+ * attribute on the root via context (no CSS selector needed, but the
+ * data attribute remains queryable from e2e tests). */

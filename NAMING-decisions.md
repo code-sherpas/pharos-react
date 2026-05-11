@@ -987,3 +987,163 @@ async-loading icon-button cluster (`AsyncLoadingButton` /
 atom's `isLoading` in the same PR or the next, depending on how much
 state-ownership refactor each call-site needs. Cases that require
 JSX-tree restructuring beyond the swap stay deferred to Phase 6.
+
+## Avatar (D14, 2026-05-11)
+
+Compound atom composed of `Avatar` (root), `AvatarImage`,
+`AvatarFallback`, and `AvatarGroup`. State-of-the-art validation
+ahead of the decision showed Avatar as a dedicated atom in 8 of 10
+top-tier DS — shadcn / Radix Primitives / Base UI / MUI / Chakra /
+Mantine / Ant Design / Polaris — and the two that do not ship it in
+core (Material 3, Carbon) delegate to their implementer library
+(MUI, `@carbon/ibm-products`) which does. The cardinal-rule bar (6/8)
+clears easily, so Avatar becomes a Pharos atom and Alexandria's
+existing patterns (15+ `<Image rounded-full>` call-sites,
+`AvatarList`, `PeopleList`, `PersonView`, `UserAvatar`,
+`ProfileSummary`) adopt it.
+
+### Why a compound, not a flat component
+
+The flat shape (MUI / Polaris / Ant Design) bakes a `name` prop, a
+`children` slot for icons, and a `src` prop into a single component,
+then implements the fallback chain (image → initials → icon)
+internally. The compound shape (shadcn / Radix / Base UI / Chakra)
+exposes `Image` and `Fallback` as discrete parts so the consumer
+composes the fallback content (text, icon, default PNG) directly.
+Pharos picks the compound shape for three reasons:
+
+1. **Same composition principle as the form-control atoms (D11).**
+   Input and Textarea do not bake `helperText` or `error` slots —
+   the consumer composes label + message externally. Avatar treating
+   `Fallback` the same way keeps the atom set internally consistent.
+2. **No naming heuristics inside the atom.** A `name` prop that
+   derives initials would have to decide what to do with "María del
+   Carmen Pérez García" (4 tokens? 2? first + last?), with empty
+   names, with single-word labels. Pushing initial computation to the
+   consumer side keeps the atom free of policy.
+3. **Composition is non-breaking.** A future "default user
+   silhouette" can ship as an exported icon the consumer drops into
+   `AvatarFallback`. The atom never has to renegotiate which
+   placeholder is "the default".
+
+### Sizes: 3 named + numeric escape
+
+Named sizes match the IconButton / Button height grid:
+
+| Size | Width / Height | Initials font-size | Group overlap (negative margin) |
+| ---- | -------------- | ------------------ | ------------------------------- |
+| `sm` | 32 px          | 12 px              | -6 px                           |
+| `md` | 40 px          | 14 px              | -8 px                           |
+| `lg` | 48 px          | 16 px              | -10 px                          |
+
+`size={number}` writes `width` / `height` inline for one-off cases
+(profile-picture 108 px in `ProfileSummary` / `UserProfileBox`;
+compact 20 px stacks in `AvatarList`). The numeric path skips the
+size CSS class, so the `> svg` icon auto-sizing rule does not apply
+— numeric Avatars rely on the consumer for icon dimensions, the same
+tradeoff Mantine / Ant Design document for their `size={number}`
+escape.
+
+### Shape: circle default, square for orgs / products
+
+Two shapes. Circle (default) clips to a perfect circle via
+`border-radius: full`; square uses the `radius-md` token so an org or
+product avatar harmonises with the Card corner family on the same
+surface. Alexandria's `request-access/page.tsx` (100 px org logo) is
+the canonical square use-case.
+
+The breakpoint-conditional shape Alexandria's `AvatarList` and
+`PeopleList` ship today (`rounded-full` on mobile, `rounded-cs-md`
+on `xl`) does **not** become an atom feature — it is a consumer-side
+visual choice the wrapper applies after adoption. The atom exposes
+the two shapes; consumers branch on breakpoints if they need that
+divergence.
+
+### AvatarGroup ships in v1 because Alexandria already stacks avatars
+
+Initial reading of state-of-the-art (5 of 8 DS expose
+`AvatarGroup` — MUI, Chakra, Mantine, Ant Design, shadcn extended)
+suggested deferring the group to v2 as additive. The Alexandria
+audit reversed that: `AvatarList` and `PeopleList` already render
+stacks with negative margin, z-index, and "+N" overflow badge.
+Shipping Avatar without `AvatarGroup` would force those wrappers
+to re-implement stack mechanics around an atom that does not
+understand them. v1 includes the group.
+
+Group features in v1:
+
+- `max` caps visible avatars; the surplus collapses into a final
+  `+N` Avatar with accessible name `{N} more`.
+- `size` / `shape` cascade to Avatar children that omit those props
+  (consumer can override per-Avatar if needed).
+- Stacking uses `--pharos-avatar-overlap` (set by the size class) so
+  negative margin scales with the avatar diameter.
+- The ring around stacked avatars is a `box-shadow`, not a
+  `border` — `--pharos-avatar-group-ring` defaults to the page's
+  `base-white`; consumers on a tinted surface override the variable
+  inline.
+
+The group does not expose `total` / `renderSurplus` props in v1.
+Adding them is additive when a call-site emerges (e.g. an
+"and 12 more" tooltip on the overflow badge); until then, the
+default `+N` suffices for every Alexandria stack audited.
+
+### What v1 deliberately leaves out
+
+- **No status badge primitive.** Material 3 / shadcn extended /
+  Chakra all wire a status badge (online / busy / DND) on top of
+  the avatar. Pharos defers it: no Alexandria call-site exercises
+  the status indicator today. When it appears, the path is
+  composition (Avatar + a Badge primitive with positioning support)
+  rather than a coupled `AvatarBadge` slot.
+- **No `name` → initials prop.** Composition stays explicit (see
+  the rationale above).
+- **No color / variant axis.** Mantine offers a
+  `color="initials"` mode that derives a background tint from the
+  name. Pharos keeps a single neutral surface for the fallback —
+  same minimal palette shadcn / Radix / Polaris ship. Consumers
+  that want a per-user tint pass `style={{ background: ... }}` on
+  the Avatar root or the Fallback.
+
+### Mapping from Alexandria
+
+The Avatar release pairs with a future adoption PR in
+`alexandria-web-application` covering the people-rendering surface.
+
+| Alexandria component / pattern                                                                                       | Pharos equivalent                                                                                  | Notes                                                                                                                                               |
+| -------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `common/components/people/AvatarList.tsx` (overlapping mini-stack, 20 px)                                            | `<AvatarGroup size={20} max={N}>` with `<Avatar><AvatarImage/><AvatarFallback/></Avatar>` children | Numeric `size={20}` keeps the 5-per-row compact stack. The wrapper continues to expose the `AvatarList` API while delegating to Pharos internally.  |
+| `common/components/people/PeopleList.tsx` (overlapping list, 32 px)                                                  | `<AvatarGroup size="sm" max={N}>`                                                                  | Drop-in stack; the existing border on overlapped items is replaced by the Pharos `box-shadow` ring.                                                 |
+| `common/components/people/PersonView.tsx`                                                                            | `<Avatar size="sm" shape={overrideShape}>` with composition                                        | Tooltip + name + description stay in the wrapper. The breakpoint-conditional `rounded-cs-md` becomes a consumer-side choice via `shape`.            |
+| `dashboard-layout-components/UserMenu.tsx`, `MobileHeader.tsx`                                                       | `<Avatar size="md">`                                                                               | 40 px header identity. `MobileHeader`'s initials-when-no-image fallback collapses naturally into `<AvatarFallback>{firstName[0]}</AvatarFallback>`. |
+| `user-management/UserManagementComponents/UserAvatar.tsx`                                                            | `<Avatar size={36}>`                                                                               | Numeric escape for the 36 px legacy size. The wrapper stays for the row layout; only the photo slot moves to Pharos.                                |
+| `user-management/ProfileSummary.tsx`, `dashboard/UserProfile/UserProfileBox.tsx`                                     | `<Avatar size={108}>` / `<Avatar size={56}>`                                                       | Numeric escape for profile-picture sizes.                                                                                                           |
+| Assessment headers / tables (`AssessmentReportHeader`, `RevieweeTable`, `ForkedAssessmentCard`, `ModifyRevieweeRow`) | `<Avatar size="sm">` / `<Avatar size="md">`                                                        | 32 / 40 / 44 px → snap to `sm` / `md`. The 44 px outlier in `ForkedAssessmentCard` rounds to `md` (40 px); the ≤4 px delta is imperceptible.        |
+| `teams/TeamMembers.tsx`                                                                                              | `<Avatar size="md">`                                                                               | 40 px member link card.                                                                                                                             |
+| `request-access/page.tsx` (org logo 100 px / owner 40 px)                                                            | `<Avatar size={100} shape="square">` / `<Avatar size="md">`                                        | The org logo justifies `shape="square"` — non-person entity.                                                                                        |
+
+### Deliberate divergences from Alexandria at migration time
+
+- **Breakpoint-conditional shape becomes consumer-side.** Pharos
+  does not bake a `mobile: circle, desktop: square` switch into the
+  atom. Wrappers that want that behaviour branch on a media query
+  and pass `shape` accordingly — the same way shadcn / Radix avatars
+  leave breakpoint shape decisions to the consumer.
+- **Stack ring replaces `border-light-grey border-[0.4px]`.** The
+  Pharos `box-shadow` ring renders identically without the
+  off-by-fraction width. Stacks read as cleanly separated silhouettes
+  on every surface.
+- **Initials path becomes explicit.** Alexandria's
+  `MobileHeader.tsx` is the only call-site shipping an initials
+  fallback today (every other surface falls back to a
+  `user-avatar.png` placeholder). The atom does not derive initials
+  automatically — when an adoption PR wants the initials path, it
+  calls a tiny consumer helper inside `<AvatarFallback>`.
+
+Adoption is incremental: when this Avatar ships to npm, a single
+Alexandria PR can swap `AvatarList`, `PeopleList`, `PersonView`,
+`UserAvatar`, header / menu identity, assessment tables, and the
+team / access surfaces one bounded context per wave. The
+profile-summary / user-profile-box pair sits in its own wave because
+it carries the numeric escape (108 px) and benefits from a focused
+visual review.
