@@ -11,6 +11,7 @@ import {
   CardContent,
   CardFooter,
 } from '../src/components/Card';
+import { Avatar, AvatarImage, AvatarFallback, AvatarGroup } from '../src/components/Avatar';
 
 /**
  * Multi-component gallery. One story per published component family, grouped
@@ -115,6 +116,54 @@ function CardShowcase() {
   );
 }
 
+function AvatarShowcase() {
+  return (
+    <div className="storybook-overview-row" style={{ gap: '1.25rem', alignItems: 'center' }}>
+      <Avatar>
+        <AvatarImage src="https://i.pravatar.cc/96?img=12" alt="Ada Lovelace" />
+        <AvatarFallback>AL</AvatarFallback>
+      </Avatar>
+      <Avatar shape="square">
+        <AvatarFallback>
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <rect x="3" y="3" width="18" height="18" rx="2" />
+            <path d="M9 22V12h6v10" />
+          </svg>
+        </AvatarFallback>
+      </Avatar>
+      <Avatar>
+        <AvatarFallback>JD</AvatarFallback>
+      </Avatar>
+      <AvatarGroup size="sm" max={3}>
+        <Avatar>
+          <AvatarImage src="https://i.pravatar.cc/96?img=32" alt="Grace" />
+          <AvatarFallback>GH</AvatarFallback>
+        </Avatar>
+        <Avatar>
+          <AvatarImage src="https://i.pravatar.cc/96?img=47" alt="Margaret" />
+          <AvatarFallback>MH</AvatarFallback>
+        </Avatar>
+        <Avatar>
+          <AvatarImage src="https://i.pravatar.cc/96?img=58" alt="Joan" />
+          <AvatarFallback>JC</AvatarFallback>
+        </Avatar>
+        <Avatar>
+          <AvatarImage src="https://i.pravatar.cc/96?img=68" alt="Karen" />
+          <AvatarFallback>KS</AvatarFallback>
+        </Avatar>
+      </AvatarGroup>
+    </div>
+  );
+}
+
 function SeparatorShowcase() {
   return (
     <div
@@ -160,6 +209,9 @@ function Overview() {
         </Showcase>
         <Showcase name="Card">
           <CardShowcase />
+        </Showcase>
+        <Showcase name="Avatar">
+          <AvatarShowcase />
         </Showcase>
       </Section>
     </div>
