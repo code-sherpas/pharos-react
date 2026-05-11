@@ -11,6 +11,9 @@ import {
   CardContent,
   CardFooter,
 } from '../src/components/Card';
+import { Textarea } from '../src/components/Textarea';
+import { Spinner } from '../src/components/Spinner';
+import { IconButton } from '../src/components/IconButton';
 import { Avatar, AvatarImage, AvatarFallback, AvatarGroup } from '../src/components/Avatar';
 
 /**
@@ -116,6 +119,82 @@ function CardShowcase() {
   );
 }
 
+function TextareaShowcase() {
+  return (
+    <div className="storybook-overview-row" style={{ gap: '0.75rem', alignItems: 'flex-start' }}>
+      <Textarea aria-label="default" placeholder="Default" style={{ width: 200 }} rows={3} />
+      <Textarea
+        aria-label="readonly"
+        readOnly
+        defaultValue="Read-only content"
+        style={{ width: 200 }}
+        rows={3}
+      />
+      <Textarea
+        aria-label="invalid"
+        aria-invalid="true"
+        defaultValue="invalid@"
+        style={{ width: 200 }}
+        rows={3}
+      />
+      <Textarea
+        aria-label="disabled"
+        disabled
+        placeholder="Disabled"
+        style={{ width: 200 }}
+        rows={3}
+      />
+    </div>
+  );
+}
+
+function SpinnerShowcase() {
+  return (
+    <div className="storybook-overview-row" style={{ gap: '1.5rem', alignItems: 'center' }}>
+      <Spinner size="sm" />
+      <Spinner size="md" />
+      <Spinner size="lg" />
+    </div>
+  );
+}
+
+const CloseGlyph = () => (
+  <svg
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M18 6 6 18" />
+    <path d="m6 6 12 12" />
+  </svg>
+);
+
+function IconButtonShowcase() {
+  return (
+    <div className="storybook-overview-row" style={{ gap: '0.75rem', alignItems: 'center' }}>
+      <IconButton intent="primary" aria-label="Send (primary)">
+        <CloseGlyph />
+      </IconButton>
+      <IconButton intent="secondary" aria-label="Close (secondary)">
+        <CloseGlyph />
+      </IconButton>
+      <IconButton intent="ghost" aria-label="Close (ghost)">
+        <CloseGlyph />
+      </IconButton>
+      <IconButton intent="destructive" aria-label="Delete (destructive)">
+        <CloseGlyph />
+      </IconButton>
+      <IconButton intent="ghost" aria-label="Saving" isLoading>
+        <CloseGlyph />
+      </IconButton>
+    </div>
+  );
+}
+
 function AvatarShowcase() {
   return (
     <div className="storybook-overview-row" style={{ gap: '1.25rem', alignItems: 'center' }}>
@@ -204,11 +283,20 @@ function Overview() {
         <Showcase name="Input">
           <InputShowcase />
         </Showcase>
+        <Showcase name="Textarea">
+          <TextareaShowcase />
+        </Showcase>
         <Showcase name="Separator">
           <SeparatorShowcase />
         </Showcase>
         <Showcase name="Card">
           <CardShowcase />
+        </Showcase>
+        <Showcase name="Spinner">
+          <SpinnerShowcase />
+        </Showcase>
+        <Showcase name="IconButton">
+          <IconButtonShowcase />
         </Showcase>
         <Showcase name="Avatar">
           <AvatarShowcase />
