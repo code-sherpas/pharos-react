@@ -30,6 +30,20 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # `pnpm install` triggers the `postinstall` script, which regenerates
+      # `.pharos-tokens.fingerprint` from the resolved `pharos-tokens`
+      # contents in `node_modules/`. If the committed fingerprint disagrees
+      # with reality (developer forgot to commit it after a dep bump), this
+      # step fails the build and prints a precise remediation message.
+      # Required for the `chromaui/action` step in chromatic.yml to trust
+      # the fingerprint as a TurboSnap external.
+      - name: Verify pharos-tokens fingerprint is current
+        run: |
+          if ! git diff --exit-code .pharos-tokens.fingerprint; then
+            echo "::error file=.pharos-tokens.fingerprint::pharos-tokens fingerprint is stale. Run \`pnpm install\` locally and commit the updated .pharos-tokens.fingerprint."
+            exit 1
+          fi
+
       - name: Build
         run: pnpm build
 
