@@ -56,8 +56,7 @@
     "changeset": "changeset",
     "release": "pnpm build && changeset publish",
     "prepublishOnly": "pnpm build",
-    "prepare": "husky",
-    "postinstall": "bash scripts/snapshot-pharos-tokens.sh"
+    "prepare": "husky && bash scripts/snapshot-pharos-tokens.sh"
   },
   "lint-staged": {
     "*.{ts,tsx,js,mjs,cjs,json,md,mdx,css,yml,yaml}": "prettier --write"
