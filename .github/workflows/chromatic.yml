@@ -90,21 +90,19 @@ jobs:
           # cannot merge with un-reviewed Chromatic changes (enforced
           # via branch protection on this repo).
           autoAcceptChanges: main
-          # TurboSnap (`onlyChanged: true`) is off for now. It chains
-          # snapshots across builds via the previous build's baseline, and
-          # can't detect content changes inside a consumed CSS package —
-          # `@code-sherpas/pharos-tokens/css` is side-effect-imported from
-          # `src/styles/index.css`, and its contents change with every
-          # pharos-tokens release without any file tracked by git being
-          # touched. Attempting to register it as `externals` doesn't help:
-          # TurboSnap diffs against the git tree, and `node_modules/` is
-          # not in it. The symptom: axe violations fixed upstream (e.g.
-          # darkening `error.fg` to pass WCAG AA 4.5:1) never cleared
-          # because old pixel snapshots were reused.
-          #
-          # At the current scale (~10 stories) the snapshot quota hit of a
-          # full rebuild on every push is negligible. Revisit once we have
-          # 50+ stories: at that point either cache the pharos-tokens
-          # `dist/styles.css` content-hash into a git-tracked file so
-          # TurboSnap can detect it, or use a dedicated TurboSnap-aware
-          # integration.
+          # TurboSnap: rebuild only the stories whose transitive dependency
+          # graph in the *git tree* has changed. The historical hazard
+          # (silent stale snapshots when `@code-sherpas/pharos-tokens`
+          # released a new CSS without any pharos-react source file being
+          # touched) is now covered by the `externals` glob below: the
+          # `postinstall` script writes `.pharos-tokens.fingerprint` from
+          # the resolved package contents; a pharos-tokens release that
+          # changes any byte of its publish directory mutates the hash;
+          # CI's `verify-fingerprint` step (ci.yml) blocks any PR whose
+          # committed fingerprint disagrees with `node_modules/`. With
+          # those guard rails TurboSnap can be trusted to invalidate the
+          # whole baseline whenever the fingerprint moves, so stale-token
+          # snapshots cannot ship.
+          onlyChanged: true
+          externals: |
+            .pharos-tokens.fingerprint
