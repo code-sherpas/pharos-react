@@ -4,12 +4,43 @@ name: Chromatic
 # visual regressions are caught before merge. The first build was seeded
 # locally; subsequent builds run here with CHROMATIC_PROJECT_TOKEN from
 # repo secrets.
+#
+# Snapshot quota lives under a budget (free tier 5000 / OSS tier 7500 per
+# month). Two filters keep CI from spending snapshots on changes that
+# cannot affect the visual output:
+#
+#   - `paths-ignore` skips Chromatic when the only modified files are docs,
+#     changelogs, changesets, or the PR-only `dependabot-auto-merge.yml`.
+#     None of these touch the published bundle or any story.
+#
+#   - The job's top-level `if:` skips Chromatic for Dependabot-authored PRs.
+#     The auto-merge workflow already covers low-risk dev-dep bumps; running
+#     Chromatic on every patch bump of vite/eslint/prettier/etc. spends ~67
+#     snapshots per PR × 2 (PR + merge to main) without ever changing the
+#     pixel output. Major bumps still go through manual review, where a
+#     visual check is done locally before merge.
 
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.mdx'
+      - '.changeset/**'
+      - 'CHANGELOG.md'
+      - 'LICENSE'
+      - '.github/dependabot.yml'
+      - '.github/workflows/dependabot-auto-merge.yml'
   pull_request:
     branches: [main]
+    paths-ignore:
+      - '**/*.md'
+      - '**/*.mdx'
+      - '.changeset/**'
+      - 'CHANGELOG.md'
+      - 'LICENSE'
+      - '.github/dependabot.yml'
+      - '.github/workflows/dependabot-auto-merge.yml'
 
 permissions:
   contents: read
@@ -21,6 +52,11 @@ concurrency:
 jobs:
   chromatic:
     name: Publish Storybook
+    # Dependabot PRs do not change visuals (dev-deps only after the
+    # auto-merge filter, runtime-dep bumps still receive a manual review
+    # which a maintainer runs Chromatic against locally if needed). Skipping
+    # them here saves the snapshot quota for human-authored PRs.
+    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
