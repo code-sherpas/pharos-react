@@ -1,3 +1,20 @@
+'use client';
+
+/* The `'use client'` directive at the top of this file is load-bearing.
+ * Avatar runs `createContext(...)` three times at module top level (shape /
+ * loading / group). Without the directive, Next.js evaluates the module in
+ * its build-time RSC analysis pass, where React is wired in a way that
+ * makes `createContext` blow up with
+ * `TypeError: (0 , c.createContext) is not a function` during page-data
+ * collection. The directive marks the module as client-only in the
+ * published bundle (esbuild / Vite preserve the banner verbatim) and the
+ * RSC analysis stops at the import boundary.
+ *
+ * The other Pharos atoms (Button / Spinner / etc.) do not need this
+ * because their hook calls happen inside the component body, not at module
+ * scope — module evaluation is side-effect free for them.
+ */
+
 import {
   createContext,
   useCallback,
