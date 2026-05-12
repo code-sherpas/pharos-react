@@ -6,19 +6,17 @@ name: Chromatic
 # repo secrets.
 #
 # Snapshot quota lives under a budget (free tier 5000 / OSS tier 7500 per
-# month). Two filters keep CI from spending snapshots on changes that
-# cannot affect the visual output:
+# month). A `paths-ignore` filter keeps Chromatic from spending snapshots
+# on changes that cannot affect the visual output (docs, changelogs,
+# changesets, dependabot config, the auto-merge workflow). None of these
+# touch the published bundle or any story.
 #
-#   - `paths-ignore` skips Chromatic when the only modified files are docs,
-#     changelogs, changesets, or the PR-only `dependabot-auto-merge.yml`.
-#     None of these touch the published bundle or any story.
-#
-#   - The job's top-level `if:` skips Chromatic for Dependabot-authored PRs.
-#     The auto-merge workflow already covers low-risk dev-dep bumps; running
-#     Chromatic on every patch bump of vite/eslint/prettier/etc. spends ~67
-#     snapshots per PR × 2 (PR + merge to main) without ever changing the
-#     pixel output. Major bumps still go through manual review, where a
-#     visual check is done locally before merge.
+# Dependabot PRs continue to run Chromatic on purpose: a future PR is
+# expected to re-enable TurboSnap with a content-hash fingerprint of
+# `pharos-tokens`, after which a Dependabot bump that does not change the
+# fingerprint will skip every snapshot anyway, and the rare bump that
+# does change it (typically a pharos-tokens release) still wants a
+# visual check.
 
 on:
   push:
@@ -52,11 +50,6 @@ concurrency:
 jobs:
   chromatic:
     name: Publish Storybook
-    # Dependabot PRs do not change visuals (dev-deps only after the
-    # auto-merge filter, runtime-dep bumps still receive a manual review
-    # which a maintainer runs Chromatic against locally if needed). Skipping
-    # them here saves the snapshot quota for human-authored PRs.
-    if: github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
