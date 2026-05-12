@@ -33,6 +33,19 @@ export default defineConfig({
         '@base-ui/react',
         /^@base-ui\/react\//,
       ],
+      output: {
+        // Bundle banner that marks the published ESM module as client-only.
+        // Avatar (D14) calls `createContext` at module top level; without
+        // this directive, Next.js evaluates the module during RSC
+        // build-time analysis and fails with
+        // `TypeError: (0 , c.createContext) is not a function` while
+        // collecting page data. The whole library shipping as client-only
+        // matches what every React DS does (MUI, Chakra, Radix, shadcn).
+        // The atoms that have no hooks (Card / Separator) lose
+        // server-render-ability as a side effect — acceptable; consumers
+        // were never asked to render them as Server Components anyway.
+        banner: "'use client';",
+      },
     },
     cssCodeSplit: false,
     sourcemap: true,
