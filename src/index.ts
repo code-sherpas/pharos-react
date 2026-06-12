@@ -42,4 +42,22 @@ export type {
   AvatarFallbackProps,
   AvatarGroupProps,
 } from './components/Avatar';
+export {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
+  DropdownMenuGroup,
+} from './components/DropdownMenu';
+export type {
+  DropdownMenuProps,
+  DropdownMenuTriggerProps,
+  DropdownMenuContentProps,
+  DropdownMenuItemProps,
+  DropdownMenuSeparatorProps,
+  DropdownMenuLabelProps,
+  DropdownMenuGroupProps,
+} from './components/DropdownMenu';
 export { cn } from './lib/cn';

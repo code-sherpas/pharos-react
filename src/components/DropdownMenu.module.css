@@ -1,0 +1,119 @@
+/* DropdownMenu.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). Hashed into
+ * `dist/styles.css`. Styles the floating surface (`.content`), the
+ * action rows (`.item`, with a `destructive` tone), the structural
+ * parts (`.separator`, `.label`, `.group`), and the open/close
+ * transition driven by Base UI's `data-*` state attributes.
+ *
+ * No `z-index` is set here: Base UI renders the menu through a
+ * `Portal` appended to the end of `<body>`, so the popup naturally
+ * stacks above in-flow content. A `--pharos-z-index-*` token is a
+ * known follow-up for when overlapping overlays (Popover, Sheet) land
+ * and a shared stacking scale becomes necessary. */
+
+/* === Floating surface (Menu.Popup) === */
+.content {
+  box-sizing: border-box;
+  min-width: 12rem;
+  padding: var(--pharos-spacing-1);
+
+  background-color: var(--pharos-color-base-white);
+  border: 1px solid var(--pharos-color-neutral-200);
+  border-radius: var(--pharos-radius-md);
+  box-shadow: var(--pharos-shadow-lg);
+
+  font-family: var(--pharos-font-family-sans);
+  color: var(--pharos-color-neutral-900);
+
+  /* Open/close transition keyed off Base UI's `data-starting-style` /
+   * `data-ending-style`. The popup fades and lifts a few pixels from
+   * the anchored side — the same motion shadcn / Radix ship. */
+  transform-origin: var(--transform-origin);
+  transition-property: opacity, transform;
+  transition-duration: var(--pharos-duration-fast);
+  transition-timing-function: var(--pharos-easing-out);
+}
+
+.content[data-starting-style],
+.content[data-ending-style] {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+/* === Action row (Menu.Item) === */
+.item {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--pharos-spacing-2);
+  width: 100%;
+  padding: var(--pharos-spacing-1-5) var(--pharos-spacing-2);
+
+  border-radius: var(--pharos-radius-sm);
+  font-size: var(--pharos-font-size-sm);
+  font-weight: var(--pharos-font-weight-medium);
+  line-height: 1.25;
+  color: var(--pharos-color-neutral-700);
+
+  cursor: default;
+  user-select: none;
+  outline: none;
+  scroll-margin: var(--pharos-spacing-1);
+
+  transition-property: background-color, color;
+  transition-duration: var(--pharos-duration-fast);
+  transition-timing-function: var(--pharos-easing-out);
+}
+
+/* Base UI marks the active row (keyboard navigation or pointer, when
+ * `highlightItemOnHover` is on) with `data-highlighted`. A single
+ * highlight state covers both pointer hover and arrow-key focus, so
+ * the menu reads identically whichever input drives it. */
+.item[data-highlighted] {
+  background-color: var(--pharos-color-neutral-100);
+  color: var(--pharos-color-neutral-900);
+}
+
+.item[data-disabled] {
+  color: var(--pharos-color-neutral-500);
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Icons composed inside the row inherit the row colour and size to the
+ * text cap height, matching the IconButton `> svg` convention. */
+.item > svg {
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+}
+
+/* === Destructive tone ===
+ * shadcn ships a `destructive` variant on DropdownMenuItem; Alexandria
+ * has several delete / remove actions (career-ladder delete, lesson
+ * delete, RemoveBox) that map onto it. The error foreground darkens on
+ * highlight the same way the destructive Button does. */
+.itemDestructive {
+  color: var(--pharos-color-semantic-error-fg);
+}
+
+.itemDestructive[data-highlighted] {
+  background-color: var(--pharos-color-semantic-error-bg);
+  color: var(--pharos-color-semantic-error-fg-hover);
+}
+
+/* === Separator (Menu.Separator) === */
+.separator {
+  height: 1px;
+  margin: var(--pharos-spacing-1) calc(var(--pharos-spacing-1) * -1);
+  background-color: var(--pharos-color-neutral-200);
+}
+
+/* === Group label (Menu.GroupLabel) === */
+.label {
+  padding: var(--pharos-spacing-1-5) var(--pharos-spacing-2);
+  font-size: var(--pharos-font-size-sm);
+  font-weight: var(--pharos-font-weight-semibold);
+  color: var(--pharos-color-neutral-500);
+}
