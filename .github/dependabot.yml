@@ -9,6 +9,14 @@ updates:
     directory: '/' # Location of package manifests
     schedule:
       interval: 'daily'
+    groups:
+      # react and react-dom must carry the exact same version — a lone
+      # bump of either one fails every test with React's
+      # version-mismatch error (see PR #72).
+      react:
+        patterns:
+          - 'react'
+          - 'react-dom'
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: 'github-actions'
     directory: '/'
