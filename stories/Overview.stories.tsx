@@ -15,6 +15,13 @@ import { Textarea } from '../src/components/Textarea';
 import { Spinner } from '../src/components/Spinner';
 import { IconButton } from '../src/components/IconButton';
 import { Avatar, AvatarImage, AvatarFallback, AvatarGroup } from '../src/components/Avatar';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from '../src/components/DropdownMenu';
 
 /**
  * Multi-component gallery. One story per published component family, grouped
@@ -262,6 +269,25 @@ function SeparatorShowcase() {
   );
 }
 
+function DropdownMenuShowcase() {
+  // Overlays render through a Portal, so the gallery shows the trigger at
+  // rest — the open menu (items, destructive tone, sides) lives in the
+  // dedicated DropdownMenu stories that Chromatic snapshots individually.
+  return (
+    <div className="storybook-overview-row" style={{ gap: '0.75rem', alignItems: 'center' }}>
+      <DropdownMenu>
+        <DropdownMenuTrigger render={<Button intent="secondary">Actions</Button>} />
+        <DropdownMenuContent>
+          <DropdownMenuItem>Rename</DropdownMenuItem>
+          <DropdownMenuItem>Duplicate</DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem variant="destructive">Delete</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
+  );
+}
+
 function Overview() {
   return (
     <div className="storybook-overview">
@@ -300,6 +326,9 @@ function Overview() {
         </Showcase>
         <Showcase name="Avatar">
           <AvatarShowcase />
+        </Showcase>
+        <Showcase name="DropdownMenu">
+          <DropdownMenuShowcase />
         </Showcase>
       </Section>
     </div>

@@ -1147,3 +1147,88 @@ team / access surfaces one bounded context per wave. The
 profile-summary / user-profile-box pair sits in its own wave because
 it carries the numeric escape (108 px) and benefits from a focused
 visual review.
+
+## DropdownMenu (D15, 2026-06-12)
+
+Action menu anchored to a trigger. Wraps Base UI's `Menu.*` parts,
+which implement the ARIA APG **menu-button** pattern: `role="menu"` /
+`menuitem`, roving focus, arrow-key navigation, typeahead, and
+Escape-to-close with focus return to the trigger.
+
+### Why a separate atom from Popover (and not one configurable overlay)
+
+A cross-DS survey ahead of the decision showed **7 of 8 top-tier design
+systems expose Popover and DropdownMenu/Menu as separate public atoms**
+— shadcn, Radix, Base UI, MUI, Chakra, Mantine, Ant Design all separate
+them; only Polaris composes (and polaris-react is deprecated). The
+reason is an accessibility contract that does not merge:
+
+- **DropdownMenu** = menu-button (APG): `role="menu"` / `menuitem`,
+  roving focus, arrow keys, typeahead, Escape. For **commands**.
+- **Popover** = disclosure/dialog (APG): Tab navigates inside, no menu
+  roles. For **free-form anchored content** (forms, navigation links).
+
+Putting `role="menu"` around arbitrary content breaks screen-reader
+expectations, so a single "configurable overlay" cannot satisfy both.
+Base UI mirrors this split exactly (`Menu.*` vs `Popover.*`), so Pharos
+wraps the matching primitive per atom. D15 ships `DropdownMenu`; a
+`Popover` atom is deferred to its own decision (no consumer needs it
+until the MobileHeader user panel is adopted).
+
+### Why shadcn naming (`DropdownMenu`, not Base UI's `Menu`)
+
+Canonical-naming order (shadcn > Base UI > ARIA APG) puts shadcn's
+`DropdownMenu` first. The compound parts follow shadcn too:
+`DropdownMenuTrigger / Content / Item / Separator / Label / Group`. The
+`Content` part collapses Base UI's `Portal` + `Positioner` + `Popup`
+into one element exposing `side` / `align` / `sideOffset` — the same
+ergonomic shadcn applies over Radix's three-part positioner.
+
+### What v1 deliberately leaves out
+
+- **No `CheckboxItem` / `RadioItem`.** No Alexandria call-site selects
+  state from a menu today (the LanguageSelector is a Listbox → future
+  `Select` atom, not a menu). Additive when a call-site appears.
+- **No submenus (`SubmenuRoot` / `SubmenuTrigger`).** No nested menus
+  in the audit.
+- **No `LinkItem`.** Navigation-as-menu-item is not exercised; a row
+  that navigates can pass `render` on a plain `Item` if needed.
+- **No `z-index` token.** Base UI renders through a Portal appended to
+  `<body>`, so the popup stacks above in-flow content without one. A
+  `--pharos-z-index-*` scale is a known follow-up for when overlapping
+  overlays (Popover, Sheet) land.
+
+### `destructive` item variant
+
+`DropdownMenuItem` carries a `variant: 'default' | 'destructive'` axis
+(shadcn ships the same). Alexandria has several delete / remove actions
+(`ManageCareerLadderMenu` delete, `LessonCardContextMenu` delete,
+`RemoveBox`) that map onto it; the destructive row uses the error
+foreground that darkens on highlight, matching the destructive Button.
+
+### Mapping from Alexandria
+
+The DropdownMenu release pairs with a future adoption PR covering the
+28 overlay touchpoints the audit found. Alexandria centralises them in
+a generic `ContextMenu.tsx` wrapper (kebab `MoreIcon` + `@headlessui`
+Popover, manual repositioning, `z-index: 9999`).
+
+| Alexandria component / pattern                                                                 | Pharos equivalent                                                                                | Notes                                                                                                                       |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| `common/components/ContextMenu.tsx` (kebab trigger + action slots) — 14 call-sites             | `<DropdownMenu>` + `<DropdownMenuTrigger render={<IconButton><MoreIcon/></IconButton>}>` + items | The kebab trigger composes the IconButton (D13) via `render`. Each action becomes a `<DropdownMenuItem>`.                   |
+| `common/components/PopoverPanel.tsx` (manual repositioning base)                               | Deleted at adoption — Base UI's Positioner replaces the manual `getBoundingClientRect` logic     | The `z-index: 9999` and overflow-detection quirks go away; Base UI handles collision avoidance.                             |
+| delete / remove actions inside ContextMenu (`ManageCareerLadderMenu`, `LessonCardContextMenu`) | `<DropdownMenuItem variant="destructive">`                                                       | The destructive tone replaces ad-hoc red styling.                                                                           |
+| `MobileHeader.tsx` user panel (avatar → identity + LanguageSelector + logout)                  | Deferred to a `Popover` atom                                                                     | Free-form content (embedded LanguageSelector navigation), not a command menu — disclosure/dialog contract, not menu-button. |
+| `LanguageSelector`, `Select`, `SearchSelect` (Listbox)                                         | Future `Select` / `Combobox` atom                                                                | Not a menu — selection control. Out of D15 scope.                                                                           |
+
+### Deliberate divergences from Alexandria at migration time
+
+- **`role="menu"` semantics replace a styled Popover.** Alexandria's
+  ContextMenu is a `@headlessui` Popover with buttons inside — no menu
+  roles, no roving focus, no typeahead. The Pharos DropdownMenu brings
+  the full menu-button keyboard contract. This is a deliberate
+  accessibility upgrade, not a visual-only swap.
+- **Base UI Positioner replaces manual repositioning.** The
+  `PopoverPanel` `getBoundingClientRect` + `requestAnimationFrame`
+  overflow logic and the `z-index: 9999` are dropped in favour of Base
+  UI's collision avoidance.
