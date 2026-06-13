@@ -1,0 +1,233 @@
+/* Select.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). Hashed into
+ * `dist/styles.css`. Styles the trigger (which shares the Input chrome so a
+ * Select sits flush next to an Input on the same form row), the floating
+ * listbox surface, and the option rows.
+ *
+ * The trigger border tone is `neutral-500` for the same WCAG 1.4.11 reason
+ * Input uses it (D10): a Select trigger is an interactive control boundary,
+ * so it must clear the 3:1 non-text contrast bar. The popup surface chrome
+ * (white, subtle `neutral-200` border, large shadow, fade-and-scale motion)
+ * is deliberately identical to DropdownMenu and Popover — every anchored
+ * overlay reads as the same surface family.
+ *
+ * Anchor-width: the popup takes `min-width: var(--anchor-width)` so the
+ * listbox is never narrower than the trigger that opened it. Base UI sets
+ * `--anchor-width` on the Positioner; it cascades to the Popup. This is the
+ * affordance that was missing from Popover v1 and forced the picker
+ * call-sites to be deferred to this atom.
+ *
+ * No `z-index` here — Base UI portals the popup to the end of `<body>`, so it
+ * stacks above in-flow content. A shared `--pharos-z-index-*` scale is the
+ * same known follow-up DropdownMenu and Popover carry. */
+
+/* === Trigger (Select.Trigger) ===
+ * Same chrome as Input: white fill, `neutral-500` resting border, brand
+ * focus ring. Laid out as a row so the value grows and the chevron pins to
+ * the trailing edge. */
+.trigger {
+  appearance: none;
+  -webkit-appearance: none;
+
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pharos-spacing-2);
+  width: 100%;
+  margin: 0;
+
+  border: 1px solid var(--pharos-color-neutral-500);
+  border-radius: var(--pharos-radius-md);
+  background-color: var(--pharos-color-base-white);
+  color: var(--pharos-color-neutral-900);
+
+  font-family: var(--pharos-font-family-sans);
+  font-size: var(--pharos-font-size-sm);
+  font-weight: var(--pharos-font-weight-regular);
+  line-height: 1.25;
+  text-align: start;
+  cursor: default;
+
+  transition-property: border-color, box-shadow;
+  transition-duration: var(--pharos-duration-normal);
+  transition-timing-function: var(--pharos-easing-out);
+}
+
+.trigger:focus-visible {
+  outline: none;
+  border-color: var(--pharos-color-primary-600);
+  box-shadow:
+    0 0 0 2px var(--pharos-color-base-white),
+    0 0 0 4px var(--pharos-color-primary-600);
+}
+
+.trigger:disabled,
+.trigger[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.trigger[aria-invalid='true'] {
+  border-color: var(--pharos-color-semantic-error-fg);
+}
+
+.trigger[aria-invalid='true']:focus-visible {
+  border-color: var(--pharos-color-semantic-error-fg);
+  box-shadow:
+    0 0 0 2px var(--pharos-color-base-white),
+    0 0 0 4px var(--pharos-color-semantic-error-fg);
+}
+
+/* === Sizes ===
+ * Heights match the Input/Button grid exactly so a Select aligns with the
+ * other controls on a row. */
+.sizeSm {
+  height: var(--pharos-spacing-8);
+  padding: 0 var(--pharos-spacing-3);
+  font-size: var(--pharos-font-size-sm);
+}
+
+.sizeMd {
+  height: var(--pharos-spacing-10);
+  padding: 0 var(--pharos-spacing-4);
+  font-size: var(--pharos-font-size-sm);
+}
+
+.sizeLg {
+  height: var(--pharos-spacing-12);
+  padding: 0 var(--pharos-spacing-6);
+  font-size: var(--pharos-font-size-base);
+}
+
+/* === Value (Select.Value) ===
+ * Grows to fill the trigger and truncates rather than wrapping. The
+ * placeholder state is tinted with the same muted tone as Input's. */
+.value {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.value[data-placeholder] {
+  color: var(--pharos-color-neutral-500);
+}
+
+/* === Chevron (Select.Icon) ===
+ * Inline SVG sized to the control. Rotates when the popup is open. */
+.icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--pharos-color-neutral-500);
+  transition: transform var(--pharos-duration-fast) var(--pharos-easing-out);
+}
+
+.icon svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.icon[data-popup-open] {
+  transform: rotate(180deg);
+}
+
+/* === Floating surface (Select.Popup) === */
+.content {
+  box-sizing: border-box;
+  min-width: var(--anchor-width);
+  max-height: var(--available-height);
+  overflow-y: auto;
+  padding: var(--pharos-spacing-1);
+
+  background-color: var(--pharos-color-base-white);
+  border: 1px solid var(--pharos-color-neutral-200);
+  border-radius: var(--pharos-radius-md);
+  box-shadow: var(--pharos-shadow-lg);
+
+  font-family: var(--pharos-font-family-sans);
+  font-size: var(--pharos-font-size-sm);
+  color: var(--pharos-color-neutral-900);
+
+  outline: none;
+
+  transform-origin: var(--transform-origin);
+  transition-property: opacity, transform;
+  transition-duration: var(--pharos-duration-fast);
+  transition-timing-function: var(--pharos-easing-out);
+}
+
+.content[data-starting-style],
+.content[data-ending-style] {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+/* === Option (Select.Item) ===
+ * Row layout with the label growing and the selected-state check pinned to
+ * the trailing edge. Highlight tracks Base UI's `data-highlighted` (keyboard
+ * / pointer) the same way DropdownMenu items do. */
+.item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--pharos-spacing-2);
+
+  padding: var(--pharos-spacing-2) var(--pharos-spacing-3);
+  border-radius: var(--pharos-radius-sm);
+
+  color: var(--pharos-color-neutral-900);
+  cursor: default;
+  user-select: none;
+  outline: none;
+  scroll-margin: var(--pharos-spacing-1);
+}
+
+.item[data-highlighted] {
+  background-color: var(--pharos-color-neutral-100);
+}
+
+.item[data-disabled] {
+  color: var(--pharos-color-neutral-400);
+  pointer-events: none;
+}
+
+.itemText {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemIndicator {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--pharos-color-primary-600);
+}
+
+.itemIndicator svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* === Group + label (Select.Group / Select.GroupLabel) === */
+.label {
+  padding: var(--pharos-spacing-2) var(--pharos-spacing-3) var(--pharos-spacing-1);
+  font-size: var(--pharos-font-size-xs);
+  font-weight: var(--pharos-font-weight-semibold);
+  color: var(--pharos-color-neutral-600);
+}
+
+/* === Separator (Select.Separator) === */
+.separator {
+  height: 1px;
+  margin: var(--pharos-spacing-1) 0;
+  background-color: var(--pharos-color-neutral-200);
+}

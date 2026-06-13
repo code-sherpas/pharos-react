@@ -1335,3 +1335,131 @@ this atom, not the menu one.)
   does the opposite: its content is NOT turned into menuitems and the
   popup is a `role="dialog"`. Specs written against these call-sites
   must assert the dialog/disclosure contract, not the menu one.
+
+## Select + Combobox (D17, 2026-06-12)
+
+The selection family: **two atoms, split by interaction contract.**
+`Select` wraps Base UI's `Select.*` (the ARIA **listbox** pattern — a
+trigger button opens a `role="listbox"` of `role="option"` rows, no text
+input). `Combobox` wraps Base UI's `Combobox.*` (the APG **combobox**
+pattern — an `<input role="combobox">` that filters a popup listbox).
+Multi-select is a `multiple` axis on each root, **not** a third atom.
+
+### Cross-DS survey (what shaped the "two atoms, not one or three")
+
+A survey of shadcn, Base UI, Radix, React Aria, Ant Design, Mantine and
+MUI ahead of the decision found the modern/headless tier has converged:
+
+- **Two components, split by contract.** shadcn ships `Select` +
+  `Combobox`; Base UI ships `Select` + `Combobox` (+ `Autocomplete`);
+  Radix ships `Select` (no combobox primitive); React Aria ships
+  `Select` + `ComboBox`. ARIA APG defines the listbox and combobox
+  patterns separately. **shadcn, Base UI and APG agree on the two names
+  `Select` and `Combobox`** — maximum naming consensus, so Pharos ships
+  two atoms rather than Ant/MUI's "one component with a `searchable`
+  axis" (which fuses the listbox and combobox a11y contracts and reads
+  worse to screen readers).
+- **Multi-select is an axis, not an atom.** Base UI, shadcn, Radix-intent
+  and React Aria all model multi-select as `multiple` /
+  `selectionMode="multiple"` on the same component, not a separate
+  `MultiSelect`. Only Mantine promotes `MultiSelect` / `TagsInput` to
+  named components, and those are thin wrappers over one engine. Pharos
+  follows the majority: `multiple` on `Select.Root` / `Combobox.Root`.
+- **Free-text is the one place a 3rd atom could be justified** — typing a
+  value that is _not_ in the list (Base UI's `Autocomplete`, Mantine's
+  `TagsInput`). No known Alexandria call-site does this (every picker
+  filters a known set), so `Autocomplete` is deferred; the split-by-
+  contract precedent makes it additive when a free-text case appears.
+
+### Naming
+
+- **Select** follows shadcn (`Select / SelectTrigger / SelectValue /
+SelectContent / SelectItem / SelectGroup / SelectLabel /
+SelectSeparator`). `SelectTrigger` folds Base UI's `Trigger` + the
+  chevron `Icon`; `SelectContent` collapses `Portal` + `Positioner` +
+  `Popup` + `List` (the same `side` / `align` / `sideOffset` /
+  `alignOffset` vocabulary as DropdownMenu/Popover); `SelectItem` folds
+  `Item` + `ItemText` + the selected-state `ItemIndicator`. `SelectLabel`
+  maps to Base UI's `GroupLabel` (parallel to `DropdownMenuLabel` →
+  `Menu.GroupLabel`).
+- **Combobox** follows Base UI (`Combobox*`; shadcn has no canonical
+  primitive — it composes a Popover+Command recipe, so it does not win
+  the naming order for the parts). A combobox is inherently more
+  compositional than a select, so its chrome stays split: `ComboboxControl`
+  (single, wraps `InputGroup`) / `ComboboxChips` (multiple, wraps `Chips`)
+  own the bordered box; `ComboboxInput` is the bare field (wraps `Input`,
+  `role="combobox"`); `ComboboxTrigger` the chevron; `ComboboxClear` the
+  clear button; `ComboboxChip` / `ComboboxChipRemove` the selection chips.
+  `ComboboxContent` collapses `Portal` + `Positioner` + `Popup`, with
+  `ComboboxList` (accepts a `(item, index) => ReactNode` render function
+  over the filtered `items`) and `ComboboxEmpty` inside it.
+
+### Shared with the rest of the form-control family
+
+- **Escuela 1 (D11).** Neither atom owns label / helper / error message.
+  The consumer composes those; error state is the standard `aria-invalid`
+  attribute (the CSS reacts to `[aria-invalid="true"]` on the trigger /
+  control). Same rule as Input, Textarea.
+- **Input chrome + size grid.** The Select trigger and the Combobox
+  control share Input's chrome: `neutral-500` resting border (D10, WCAG
+  1.4.11 — these are interactive control boundaries), brand focus ring,
+  and the `sm`/`md`/`lg` height grid that matches Input and Button so a
+  selection control sits flush on a mixed form row.
+- **Anchor-width.** Both popups take `min-width: var(--anchor-width)` and
+  `max-height: var(--available-height)` from Base UI's Positioner (the
+  CSS vars are identical across `Select` and `Combobox`). The popup is
+  never narrower than the control. **This is the affordance Popover v1
+  lacked — the reason AddUsers/AddSkills were deferred to this atom.**
+- **Surface family + no `z-index` token.** The popup surface (white,
+  `neutral-200` border, `shadow-lg`, fade-and-scale motion) is identical
+  to DropdownMenu and Popover. Base UI portals to `<body>`, so no
+  `z-index` is set — same `--pharos-z-index-*` follow-up the other
+  overlays carry.
+
+### Close-on-select
+
+Single-select closes the popup on pick; multi-select keeps it open so
+selections accumulate. Base UI derives this from `multiple` and Pharos
+does not override it — matching shadcn, Base UI and React Aria. No
+`closeOnSelect` prop in v1.
+
+### What v1 deliberately leaves out (additive, non-breaking)
+
+- **`Autocomplete` (free-text entry).** Base UI's separate primitive; no
+  Alexandria call-site types values outside the option set. Deferred.
+- **`Arrow`, `Backdrop`, scroll-arrows (`ScrollUpArrow`/`ScrollDownArrow`),
+  `Collection`/`Row` virtualization, `Status`.** No current call-site
+  needs them; all additive via the compound API.
+- **A bundled `<Field>` molecule.** Label + message composition is the
+  future `Field` molecule (D11), not these atoms.
+
+### Mapping from Alexandria
+
+The release pairs with a future adoption PR (Alexandria is paused). The
+audit ahead of the decision split the call-sites cleanly by contract:
+
+| Alexandria component / pattern                                                                                  | Pharos equivalent                                           | Notes                                                                                                                                 |
+| --------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `common/components/form/Select/Select.tsx` (headlessui `Listbox`, single; trigger-width via `ResizeObserver`)   | `<Select>` + `SelectTrigger` + `SelectContent`              | Call-sites: `CategorySelector`, `CourseForm` visibility, `EditableLessonCardHeader`. `ResizeObserver` width logic → `--anchor-width`. |
+| `common/components/SearchSelect.tsx` (headlessui `Combobox`, single + filter)                                   | `<Combobox>` (single) + `ComboboxControl` + `ComboboxInput` | Call-site: `NoLinkedEntityNodeContent` (graphs). The `zoomFactor` width hack is reconsidered against `--anchor-width` at adoption.    |
+| `PlatformRoleSelector`, `TagSelector` (SearchSelect rendered N times to accumulate)                             | `<Combobox multiple>` with `ComboboxChips`                  | The "render the picker once per selected value" pattern collapses into the native `multiple` chips contract.                          |
+| **`AddUsers` (desktop) + `AddSkills`** (headlessui `PopoverPanel` + custom checkbox/search list, close-on-save) | `<Combobox multiple>` (chips) + `ComboboxContent`           | **The pickers deferred from Popover (D16).** Native `multiple` + filtering + `--anchor-width` replace the hand-rolled panel.          |
+| `LanguageSelector` (headlessui `Listbox`, `dropdown`/`collapsed` variants)                                      | `<Select>`                                                  | The `inline` variant is a `radiogroup`, not a select — stays as-is. The dropdown/collapsed variants map to Select.                    |
+| `ActionForm` priority (Listbox, custom `PriorityBadge` trigger), `TeamFilters` (Listbox, `width` prop)          | `<Select>` (custom `SelectValue` render)                    | Single-selects with a custom-rendered value — `SelectValue` accepts a render function.                                                |
+
+### Deliberate divergences from Alexandria at migration time
+
+- **`role="listbox"`/`option` (Select) and `role="combobox"` (Combobox)
+  replace headlessui's roles + manual `ResizeObserver`/`zoomFactor`
+  width and manual repositioning.** Base UI's Positioner handles
+  collision avoidance and `--anchor-width`.
+- **e2e selector caveat (same lesson as the menu migration).** Migrating
+  these pickers changes the trigger's accessible name and the option
+  roles — `input[role="combobox"]` stays for Combobox but the Select
+  trigger becomes a `role="combobox"` button (Base UI), and option rows
+  stay `role="option"`. Audit `create-course` / `edit-course` /
+  `edit-course-lessons` specs (they use `getByLabel("Category *")`,
+  `getByRole("option")`, `input[role="combobox"]`) at adoption time.
+- **`PopoverPanel.tsx` retires here.** Once AddUsers/AddSkills move to
+  `Combobox multiple`, the headlessui `PopoverPanel` wrapper they kept
+  alive (deferred from D16) has no consumers and is deleted.

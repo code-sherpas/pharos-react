@@ -76,4 +76,58 @@ export type {
   PopoverDescriptionProps,
   PopoverCloseProps,
 } from './components/Popover';
+export {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+  SelectGroup,
+  SelectLabel,
+  SelectSeparator,
+} from './components/Select';
+export type {
+  SelectProps,
+  SelectTriggerProps,
+  SelectValueProps,
+  SelectContentProps,
+  SelectItemProps,
+  SelectGroupProps,
+  SelectLabelProps,
+  SelectSeparatorProps,
+} from './components/Select';
+export {
+  Combobox,
+  ComboboxControl,
+  ComboboxChips,
+  ComboboxInput,
+  ComboboxTrigger,
+  ComboboxClear,
+  ComboboxChip,
+  ComboboxChipRemove,
+  ComboboxContent,
+  ComboboxList,
+  ComboboxItem,
+  ComboboxEmpty,
+  ComboboxGroup,
+  ComboboxGroupLabel,
+  ComboboxSeparator,
+} from './components/Combobox';
+export type {
+  ComboboxProps,
+  ComboboxControlProps,
+  ComboboxChipsProps,
+  ComboboxInputProps,
+  ComboboxTriggerProps,
+  ComboboxClearProps,
+  ComboboxChipProps,
+  ComboboxChipRemoveProps,
+  ComboboxContentProps,
+  ComboboxListProps,
+  ComboboxItemProps,
+  ComboboxEmptyProps,
+  ComboboxGroupProps,
+  ComboboxGroupLabelProps,
+  ComboboxSeparatorProps,
+} from './components/Combobox';
 export { cn } from './lib/cn';

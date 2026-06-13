@@ -1,0 +1,280 @@
+/* Combobox.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). Hashed into
+ * `dist/styles.css`. Styles the bordered control (single-select input group
+ * and multi-select chips container share the `.control` chrome), the chips,
+ * the floating listbox surface, and the option rows.
+ *
+ * The control border tone is `neutral-500` for the same WCAG 1.4.11 reason
+ * Input and Select use it (D10). The popup surface chrome and the option /
+ * group / separator styling mirror Select exactly — Select and Combobox are
+ * the two halves of the selection family and read as one system.
+ *
+ * Anchor-width: the popup takes `min-width: var(--anchor-width)` so the
+ * listbox is never narrower than the control. `max-height:
+ * var(--available-height)` clamps it to the viewport. Both vars come from
+ * Base UI's Positioner. */
+
+/* === Control (Combobox.InputGroup, single) and chips box (Combobox.Chips,
+ * multiple) — same bordered chrome === */
+.control {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--pharos-spacing-2);
+  width: 100%;
+
+  border: 1px solid var(--pharos-color-neutral-500);
+  border-radius: var(--pharos-radius-md);
+  background-color: var(--pharos-color-base-white);
+
+  transition-property: border-color, box-shadow;
+  transition-duration: var(--pharos-duration-normal);
+  transition-timing-function: var(--pharos-easing-out);
+}
+
+/* Lift the focus ring to the control when the inner input is focused, so the
+ * whole bordered box reads as the focused control (the input itself carries
+ * no border). */
+.control:focus-within {
+  border-color: var(--pharos-color-primary-600);
+  box-shadow:
+    0 0 0 2px var(--pharos-color-base-white),
+    0 0 0 4px var(--pharos-color-primary-600);
+}
+
+.control[aria-invalid='true'],
+.control:has([aria-invalid='true']) {
+  border-color: var(--pharos-color-semantic-error-fg);
+}
+
+/* The multi-select chips box wraps its chips and grows vertically. */
+.chips {
+  flex-wrap: wrap;
+  gap: var(--pharos-spacing-1);
+  padding: var(--pharos-spacing-1) var(--pharos-spacing-2);
+}
+
+/* === Bare input (Combobox.Input) ===
+ * Carries no border of its own — the surrounding `.control` / `.chips` box
+ * owns the chrome. Grows to fill the row. */
+.input {
+  appearance: none;
+  -webkit-appearance: none;
+
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: var(--pharos-color-neutral-900);
+
+  font-family: var(--pharos-font-family-sans);
+  font-size: var(--pharos-font-size-sm);
+  font-weight: var(--pharos-font-weight-regular);
+  line-height: 1.25;
+}
+
+.input::placeholder {
+  color: var(--pharos-color-neutral-500);
+  opacity: 1;
+}
+
+.input:disabled {
+  cursor: not-allowed;
+}
+
+/* Standalone single-select input gets the same padding/height grid as Input
+ * so it sits flush with other fields. */
+.inputSizeSm {
+  height: var(--pharos-spacing-8);
+  padding: 0 var(--pharos-spacing-3);
+}
+
+.inputSizeMd {
+  height: var(--pharos-spacing-10);
+  padding: 0 var(--pharos-spacing-4);
+}
+
+.inputSizeLg {
+  height: var(--pharos-spacing-12);
+  padding: 0 var(--pharos-spacing-6);
+  font-size: var(--pharos-font-size-base);
+}
+
+/* Inside the chips box the input is a flexible filler — no fixed height, it
+ * shares the row with the chips. */
+.chipsInput {
+  height: var(--pharos-spacing-7);
+  padding: 0 var(--pharos-spacing-1);
+  flex: 1 1 4rem;
+}
+
+/* === Trigger (chevron) and clear button === */
+.trigger,
+.clear {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: var(--pharos-spacing-6);
+  height: var(--pharos-spacing-6);
+  margin-inline-end: var(--pharos-spacing-1);
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: var(--pharos-color-neutral-500);
+  cursor: default;
+}
+
+.trigger svg,
+.clear svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+.trigger[data-popup-open] svg {
+  transform: rotate(180deg);
+  transition: transform var(--pharos-duration-fast) var(--pharos-easing-out);
+}
+
+/* === Chip (Combobox.Chip) === */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pharos-spacing-1);
+  padding: 0 var(--pharos-spacing-1) 0 var(--pharos-spacing-2);
+  height: var(--pharos-spacing-6);
+
+  border-radius: var(--pharos-radius-sm);
+  background-color: var(--pharos-color-neutral-100);
+  color: var(--pharos-color-neutral-900);
+  font-size: var(--pharos-font-size-xs);
+}
+
+.chip[data-highlighted] {
+  background-color: var(--pharos-color-neutral-200);
+}
+
+.chipRemove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--pharos-spacing-4);
+  height: var(--pharos-spacing-4);
+  padding: 0;
+  border: none;
+  border-radius: var(--pharos-radius-sm);
+  background: transparent;
+  color: var(--pharos-color-neutral-500);
+  cursor: default;
+}
+
+.chipRemove:hover {
+  color: var(--pharos-color-neutral-900);
+}
+
+.chipRemove svg {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+/* === Floating surface (Combobox.Popup) — mirrors Select === */
+.content {
+  box-sizing: border-box;
+  min-width: var(--anchor-width);
+  max-height: var(--available-height);
+  overflow-y: auto;
+  padding: var(--pharos-spacing-1);
+
+  background-color: var(--pharos-color-base-white);
+  border: 1px solid var(--pharos-color-neutral-200);
+  border-radius: var(--pharos-radius-md);
+  box-shadow: var(--pharos-shadow-lg);
+
+  font-family: var(--pharos-font-family-sans);
+  font-size: var(--pharos-font-size-sm);
+  color: var(--pharos-color-neutral-900);
+
+  outline: none;
+
+  transform-origin: var(--transform-origin);
+  transition-property: opacity, transform;
+  transition-duration: var(--pharos-duration-fast);
+  transition-timing-function: var(--pharos-easing-out);
+}
+
+.content[data-starting-style],
+.content[data-ending-style] {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+/* === Option (Combobox.Item) === */
+.item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--pharos-spacing-2);
+
+  padding: var(--pharos-spacing-2) var(--pharos-spacing-3);
+  border-radius: var(--pharos-radius-sm);
+
+  color: var(--pharos-color-neutral-900);
+  cursor: default;
+  user-select: none;
+  outline: none;
+  scroll-margin: var(--pharos-spacing-1);
+}
+
+.item[data-highlighted] {
+  background-color: var(--pharos-color-neutral-100);
+}
+
+.item[data-disabled] {
+  color: var(--pharos-color-neutral-400);
+  pointer-events: none;
+}
+
+.itemText {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.itemIndicator {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  color: var(--pharos-color-primary-600);
+}
+
+.itemIndicator svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* === Empty state (Combobox.Empty) === */
+.empty {
+  padding: var(--pharos-spacing-3);
+  color: var(--pharos-color-neutral-500);
+  text-align: center;
+}
+
+/* === Group + label + separator (mirror Select) === */
+.label {
+  padding: var(--pharos-spacing-2) var(--pharos-spacing-3) var(--pharos-spacing-1);
+  font-size: var(--pharos-font-size-xs);
+  font-weight: var(--pharos-font-weight-semibold);
+  color: var(--pharos-color-neutral-600);
+}
+
+.separator {
+  height: 1px;
+  margin: var(--pharos-spacing-1) 0;
+  background-color: var(--pharos-color-neutral-200);
+}
