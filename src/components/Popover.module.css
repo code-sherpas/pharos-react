@@ -1,0 +1,72 @@
+/* Popover.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). Hashed into
+ * `dist/styles.css`. Styles the floating surface (`.content`), the dialog
+ * labelling parts (`.title`, `.description`), and the open/close transition
+ * driven by Base UI's `data-*` state attributes.
+ *
+ * Unlike DropdownMenu, a Popover carries arbitrary content rather than a
+ * list of rows, so the surface uses a more generous block padding and a
+ * `max-width` to keep prose readable. The `.content` chrome (white surface,
+ * subtle border, large shadow, fade-and-scale motion) is intentionally
+ * identical to DropdownMenu — both are anchored overlays and should read as
+ * the same surface family.
+ *
+ * No `z-index` is set here: Base UI renders the popover through a `Portal`
+ * appended to the end of `<body>`, so it naturally stacks above in-flow
+ * content. A shared `--pharos-z-index-*` scale is a known follow-up for when
+ * overlapping overlays (Popover over DropdownMenu, Sheet) make a single
+ * stacking order necessary — the same note DropdownMenu carries. */
+
+/* === Floating surface (Popover.Popup) === */
+.content {
+  box-sizing: border-box;
+  max-width: 20rem;
+  padding: var(--pharos-spacing-4);
+
+  background-color: var(--pharos-color-base-white);
+  border: 1px solid var(--pharos-color-neutral-200);
+  border-radius: var(--pharos-radius-md);
+  box-shadow: var(--pharos-shadow-lg);
+
+  font-family: var(--pharos-font-family-sans);
+  font-size: var(--pharos-font-size-sm);
+  color: var(--pharos-color-neutral-900);
+
+  outline: none;
+
+  /* Open/close transition keyed off Base UI's `data-starting-style` /
+   * `data-ending-style`. The popup fades and lifts a few pixels from the
+   * anchored side — the same motion DropdownMenu / shadcn / Radix ship. */
+  transform-origin: var(--transform-origin);
+  transition-property: opacity, transform;
+  transition-duration: var(--pharos-duration-fast);
+  transition-timing-function: var(--pharos-easing-out);
+}
+
+.content[data-starting-style],
+.content[data-ending-style] {
+  opacity: 0;
+  transform: scale(0.96);
+}
+
+/* === Title (Popover.Title) ===
+ * The accessible name. Renders as <h2> but is sized as body-strong, not as
+ * a document heading — a popover title is a label, not page structure. */
+.title {
+  margin: 0;
+  font-size: var(--pharos-font-size-base);
+  font-weight: var(--pharos-font-weight-semibold);
+  line-height: 1.4;
+  color: var(--pharos-color-neutral-900);
+}
+
+/* === Description (Popover.Description) ===
+ * Supporting copy under the title. Sits a hair below the title with the
+ * muted foreground used for secondary text across the system. */
+.description {
+  margin: var(--pharos-spacing-1) 0 0;
+  font-size: var(--pharos-font-size-sm);
+  line-height: 1.5;
+  color: var(--pharos-color-neutral-600);
+}

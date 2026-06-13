@@ -60,4 +60,20 @@ export type {
   DropdownMenuLabelProps,
   DropdownMenuGroupProps,
 } from './components/DropdownMenu';
+export {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverTitle,
+  PopoverDescription,
+  PopoverClose,
+} from './components/Popover';
+export type {
+  PopoverProps,
+  PopoverTriggerProps,
+  PopoverContentProps,
+  PopoverTitleProps,
+  PopoverDescriptionProps,
+  PopoverCloseProps,
+} from './components/Popover';
 export { cn } from './lib/cn';

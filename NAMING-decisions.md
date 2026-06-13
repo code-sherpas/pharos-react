@@ -1232,3 +1232,106 @@ Popover, manual repositioning, `z-index: 9999`).
   `PopoverPanel` `getBoundingClientRect` + `requestAnimationFrame`
   overflow logic and the `z-index: 9999` are dropped in favour of Base
   UI's collision avoidance.
+
+## Popover (D16, 2026-06-12)
+
+Free-form content anchored to a trigger. Wraps Base UI's `Popover.*`
+parts, which implement the ARIA **dialog** pattern as a **non-modal**
+disclosure: `role="dialog"` on the popup, focus moves into it on open
+and returns to the trigger on close, Escape and outside-click dismiss
+it, and focus is NOT trapped (the rest of the page stays interactive).
+
+This is the sibling D15 deferred. The two atoms are intentionally
+distinct and share no machinery — D15 wraps `Menu.*` (menu-button), D16
+wraps `Popover.*` (disclosure/dialog). See the D15 § "Why a separate
+atom from Popover" for the cross-DS evidence (7 of 8 top-tier DSs
+separate them).
+
+### Cross-DS survey (what shaped the API)
+
+A survey ahead of the decision confirmed the naming and the part list:
+
+- **Naming.** Everyone except MUI converges on `Trigger` + a content
+  surface. shadcn calls the surface `Content`; Pharos already chose
+  `Content` for DropdownMenu, so D16 keeps it. The positioning
+  vocabulary `side` / `align` / `sideOffset` / `alignOffset` is shared
+  verbatim by shadcn, Radix and Base UI — adopted unchanged. (React
+  Aria's `placement`/`offset` and MUI's `anchorOrigin` are the minority
+  and do not win the canonical-naming order.)
+- **Minimal anatomy.** `Root` + `Trigger` + `Content` is the universal
+  floor (shadcn, Mantine, every DS). `Close` (Radix + Base UI ship it)
+  and `Title` / `Description` (Base UI ships them; shadcn added
+  `PopoverTitle`/`PopoverDescription`) are cheap, high-value extras that
+  reinforce the dialog-labelling contract, so v1 includes them.
+- **Non-modal default.** Base UI, Radix and shadcn all default Popover
+  to non-modal. D16 matches (`modal` defaults to `false`). React Aria's
+  modal-by-default is the outlier.
+
+### Why shadcn naming (`Popover`, not Base UI's parts)
+
+Canonical-naming order (shadcn > Base UI > ARIA APG) puts shadcn's
+`Popover*` first: `PopoverTrigger / Content / Title / Description /
+Close`. `PopoverContent` collapses Base UI's `Portal` + `Positioner` +
+`Popup` into one element exposing `side` / `align` / `sideOffset` /
+`alignOffset` — the same ergonomic the DropdownMenu applies, plus
+`alignOffset` (a popover's free-form content benefits from cross-axis
+nudging more than a menu does).
+
+### `align` defaults to `center` (not `start` like DropdownMenu)
+
+A menu opens flush to the trigger's start edge, so `DropdownMenuContent`
+defaults `align="start"`. A popover carries arbitrary content and reads
+better centred on the trigger — the shadcn / Radix / Base UI default.
+`PopoverContent` therefore defaults `align="center"`. `side` (`bottom`)
+and `sideOffset` (`8`) match DropdownMenu for surface-family
+consistency.
+
+### What v1 deliberately leaves out
+
+- **No `PopoverArrow`.** Base UI ships `Popover.Arrow`; no Alexandria
+  call-site needs a pointer today. Additive without a breaking change.
+- **No non-trigger `PopoverAnchor`.** Anchoring the popup to an element
+  other than the trigger (Radix `Anchor` / Base UI's `anchor` prop) is
+  what a future Combobox will want for its input field — deferred until
+  that atom lands.
+- **No modal `Backdrop` / `Viewport`.** The known consumers are all
+  non-modal; a modal Popover or multi-content transition is additive.
+- **No `z-index` token.** Same as DropdownMenu — Base UI portals to
+  `<body>`, so the popup stacks above in-flow content without one. The
+  shared `--pharos-z-index-*` scale remains the follow-up for when
+  overlays must stack over each other.
+
+### Mapping from Alexandria
+
+The Popover release pairs with a future adoption PR. The audit ahead of
+the decision found `@headlessui/react` is **not** retired by this atom —
+it remains pervasive (Listbox ×5, Combobox ×1, Disclosure ×10, Dialog
+×15, Tab, Switch). Popover retires only the headlessui **Popover**
+usage: the 3 call-sites below. (This corrects the D15 mapping note,
+which optimistically listed `PopoverPanel.tsx` under DropdownMenu —
+`PopoverPanel` is a disclosure wrapper holding forms, so it belongs to
+this atom, not the menu one.)
+
+| Alexandria component / pattern                                                       | Pharos equivalent                                                                   | Notes                                                                                                                                                             |
+| ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `common/components/PopoverPanel.tsx` (headlessui `Popover` + manual repositioning)   | `<Popover>` + `<PopoverTrigger>` + `<PopoverContent>`                               | The `getBoundingClientRect` + `requestAnimationFrame` overflow logic and any `z-index` go away — Base UI's Positioner handles collision avoidance.                |
+| `layout/MobileHeader.tsx` user panel (avatar → identity + LanguageSelector + logout) | `<PopoverTrigger render={<IconButton><Avatar/></IconButton>}>` + `<PopoverContent>` | Uses headlessui `Popover` directly (not the wrapper). Free-form content (embedded LanguageSelector navigation) — the disclosure/dialog contract is exactly right. |
+| `career-ladders/roles/AddUsers/AddUsers.tsx` + `dashboard/.../AddSkills.tsx`         | `<Popover>` with the add-form as `<PopoverContent>` children                        | Both render a small form in the panel via `PopoverPanel` — the canonical Popover case (arbitrary content, not commands).                                          |
+
+### Deliberate divergences from Alexandria at migration time
+
+- **`role="dialog"` semantics + focus management.** Alexandria's
+  `PopoverPanel` is a headlessui `Popover` with manual positioning and
+  no explicit dialog labelling. The Pharos Popover brings the disclosure
+  contract (focus into the popup on open, return to trigger on close,
+  `aria-labelledby` via `PopoverTitle`) — an accessibility upgrade, not
+  a visual-only swap.
+- **Base UI Positioner replaces manual repositioning.** Same as
+  DropdownMenu: the `getBoundingClientRect` + `requestAnimationFrame`
+  overflow logic and hard-coded `z-index` are dropped for Base UI's
+  collision avoidance.
+- **e2e selector caveat (inverse of the menu migration).** Migrating a
+  menu turned items into `role="menuitem"` and broke specs. A Popover
+  does the opposite: its content is NOT turned into menuitems and the
+  popup is a `role="dialog"`. Specs written against these call-sites
+  must assert the dialog/disclosure contract, not the menu one.
