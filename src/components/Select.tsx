@@ -37,28 +37,27 @@ import styles from './Select.module.css';
  * error state is conveyed through the standard `aria-invalid` attribute on
  * the trigger (the CSS reacts to `[aria-invalid="true"]`).
  *
- * **Pass `items` (a value→label map) whenever the value differs from its
+ * **Always pass `items` (a value→label map) when the value differs from its
  * label.** Base UI's `SelectValue` resolves the trigger label from the root's
  * `items` prop, NOT from the `SelectItem` children — those are the listbox
- * label + typeahead text. Picking an option with the pointer happens to
- * capture its label, but a **preset / controlled value** (the form case) has
- * no label to resolve and the trigger would show the raw value (e.g. the enum
- * `"organization"` instead of `"Organization"`). Provide `items` and the
- * trigger always matches the option, interactively or controlled.
+ * label + typeahead text. This holds for interactive selection too: without
+ * `items` the trigger shows the serialized raw value (the enum
+ * `"organization"`, not `"Organization"`). The idiomatic, drift-free pattern
+ * is a single options source that feeds both `items` and the rendered items.
  *
  * @example
- * <Select
- *   value={value}
- *   onValueChange={setValue}
- *   items={{ private: 'Private', organization: 'Organization', public: 'Public' }}
- * >
+ * const VISIBILITY = { private: 'Private', organization: 'Organization', public: 'Public' };
+ *
+ * <Select value={value} onValueChange={setValue} items={VISIBILITY}>
  *   <SelectTrigger aria-label="Visibility">
  *     <SelectValue placeholder="Select visibility" />
  *   </SelectTrigger>
  *   <SelectContent>
- *     <SelectItem value="private">Private</SelectItem>
- *     <SelectItem value="organization">Organization</SelectItem>
- *     <SelectItem value="public">Public</SelectItem>
+ *     {Object.entries(VISIBILITY).map(([v, label]) => (
+ *       <SelectItem key={v} value={v}>
+ *         {label}
+ *       </SelectItem>
+ *     ))}
  *   </SelectContent>
  * </Select>
  */

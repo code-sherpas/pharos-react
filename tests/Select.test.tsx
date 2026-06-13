@@ -70,15 +70,31 @@ describe('Select', () => {
     await waitFor(() => expect(screen.queryByRole('listbox')).not.toBeInTheDocument());
   });
 
-  it('reflects the selected value in the trigger', async () => {
+  it('reflects the selected option label in the trigger (with items)', async () => {
     const user = userEvent.setup();
-    renderSelect();
-
-    await user.click(screen.getByRole('combobox', { name: 'Visibility' }));
+    // Assert on the trigger's OWN text (the popup is portaled outside it, and
+    // a document-wide `getByText` would match the still-mounted hidden option
+    // rather than the trigger — a false positive). The label only resolves
+    // because `items` is provided: Base UI maps value→label there, not from
+    // the SelectItem children, for interactive selection too.
+    render(
+      <Select items={{ private: 'Private', organization: 'Organization', public: 'Public' }}>
+        <SelectTrigger aria-label="Visibility">
+          <SelectValue placeholder="Select visibility" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="private">Private</SelectItem>
+          <SelectItem value="organization">Organization</SelectItem>
+          <SelectItem value="public">Public</SelectItem>
+        </SelectContent>
+      </Select>,
+    );
+    const trigger = screen.getByRole('combobox', { name: 'Visibility' });
+    await user.click(trigger);
     await user.click(await screen.findByRole('option', { name: 'Public' }));
 
-    await waitFor(() => expect(screen.getByText('Public')).toBeInTheDocument());
-    expect(screen.queryByText('Select visibility')).not.toBeInTheDocument();
+    await waitFor(() => expect(trigger).toHaveTextContent('Public'));
+    expect(trigger).not.toHaveTextContent('Select visibility');
   });
 
   it('shows the option label (not the raw value) for a preset value via items', () => {

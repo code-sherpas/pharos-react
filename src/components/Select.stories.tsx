@@ -145,7 +145,7 @@ export const Grouped: Story = {
 /** Error state via the standard `aria-invalid` attribute on the trigger. */
 export const Invalid: Story = {
   render: () => (
-    <Select>
+    <Select items={VISIBILITY}>
       <SelectTrigger aria-label="Visibility" aria-invalid>
         <SelectValue placeholder="Select visibility" />
       </SelectTrigger>
@@ -159,7 +159,7 @@ export const Invalid: Story = {
 
 export const Disabled: Story = {
   render: () => (
-    <Select disabled>
+    <Select disabled items={VISIBILITY}>
       <SelectTrigger aria-label="Visibility">
         <SelectValue placeholder="Select visibility" />
       </SelectTrigger>

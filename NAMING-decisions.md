@@ -1416,16 +1416,20 @@ var(--anchor-width)` and `max-height: var(--available-height)` from Base
   form layout (CTO call, 2026-06-13). Consumers needing a wider panel
   override `width` via `className`. **This is the affordance Popover v1
   lacked — the reason AddUsers/AddSkills were deferred to this atom.**
-- **Trigger label resolution needs `items` (Base UI contract).** `Select`'s
-  trigger label comes from the root's `items` (value→label map) or
+- **Trigger label resolution always needs `items` (Base UI contract).**
+  `Select`'s trigger label comes from the root's `items` (value→label map) or
   `itemToStringLabel` — NOT from the `SelectItem` children (those are the
-  listbox label + typeahead). Pointer selection captures the clicked label,
-  but a **preset / controlled value** (the form case) without `items` shows
-  the serialized raw value (`"organization"` instead of `"Organization"`).
-  The atom does not paper over this (it would mean traversing children to
-  synthesise a map — fragile, breaks with dynamic/grouped items); instead the
-  JSDoc + examples pass `items` as the documented pattern. Combobox is less
-  exposed because its `items` filter source usually doubles as labels.
+  listbox label + typeahead). This holds for **interactive selection too**,
+  not just preset/controlled values: without `items` the trigger shows the
+  serialized raw value (`"organization"` instead of `"Organization"`). The
+  atom does not paper over this (synthesising a map by traversing children is
+  fragile — breaks with dynamic/grouped/async items); instead the idiomatic
+  pattern is a single options source feeding both `items` and the rendered
+  `SelectItem`s, which the JSDoc, examples and stories follow. Combobox is
+  less exposed because its `items` filter source usually doubles as labels.
+  (Divergence from Radix/shadcn, where `ItemText` auto-populates the trigger —
+  Base UI is data-driven, and per the cardinal rule Pharos follows its
+  contract rather than re-implementing label capture.)
 - **Surface family + no `z-index` token.** The popup surface (white,
   `neutral-200` border, `shadow-lg`, fade-and-scale motion) is identical
   to DropdownMenu and Popover. Base UI portals to `<body>`, so no
