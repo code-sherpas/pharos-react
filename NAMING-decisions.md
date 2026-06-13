@@ -1405,11 +1405,27 @@ SelectSeparator`). `SelectTrigger` folds Base UI's `Trigger` + the
   1.4.11 — these are interactive control boundaries), brand focus ring,
   and the `sm`/`md`/`lg` height grid that matches Input and Button so a
   selection control sits flush on a mixed form row.
-- **Anchor-width.** Both popups take `min-width: var(--anchor-width)` and
-  `max-height: var(--available-height)` from Base UI's Positioner (the
-  CSS vars are identical across `Select` and `Combobox`). The popup is
-  never narrower than the control. **This is the affordance Popover v1
+- **Anchor-width = fixed to the control.** Both popups take `width:
+var(--anchor-width)` and `max-height: var(--available-height)` from Base
+  UI's Positioner (the CSS vars are identical across `Select` and
+  `Combobox`). The popup **matches the control width exactly**; long options
+  truncate (`.itemText` ellipsis) rather than ballooning the panel wider than
+  the field. This is the Ant Design (`popupMatchSelectWidth`) / Mantine
+  (`width="target"`) / MUI / shadcn-combobox default — chosen over the
+  grow-to-content alternative (shadcn Select's `min-width`) for predictable
+  form layout (CTO call, 2026-06-13). Consumers needing a wider panel
+  override `width` via `className`. **This is the affordance Popover v1
   lacked — the reason AddUsers/AddSkills were deferred to this atom.**
+- **Trigger label resolution needs `items` (Base UI contract).** `Select`'s
+  trigger label comes from the root's `items` (value→label map) or
+  `itemToStringLabel` — NOT from the `SelectItem` children (those are the
+  listbox label + typeahead). Pointer selection captures the clicked label,
+  but a **preset / controlled value** (the form case) without `items` shows
+  the serialized raw value (`"organization"` instead of `"Organization"`).
+  The atom does not paper over this (it would mean traversing children to
+  synthesise a map — fragile, breaks with dynamic/grouped items); instead the
+  JSDoc + examples pass `items` as the documented pattern. Combobox is less
+  exposed because its `items` filter source usually doubles as labels.
 - **Surface family + no `z-index` token.** The popup surface (white,
   `neutral-200` border, `shadow-lg`, fade-and-scale motion) is identical
   to DropdownMenu and Popover. Base UI portals to `<body>`, so no

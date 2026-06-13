@@ -36,9 +36,11 @@ const meta: Meta<typeof Select> = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+const VISIBILITY = { private: 'Private', organization: 'Organization', public: 'Public' };
+
 export const Default: Story = {
   render: () => (
-    <Select>
+    <Select items={VISIBILITY}>
       <SelectTrigger aria-label="Visibility">
         <SelectValue placeholder="Select visibility" />
       </SelectTrigger>
@@ -54,7 +56,7 @@ export const Default: Story = {
 /** `defaultOpen` so Chromatic captures the popup surface and option states. */
 export const OpenListbox: Story = {
   render: () => (
-    <Select defaultOpen defaultValue="organization">
+    <Select defaultOpen defaultValue="organization" items={VISIBILITY}>
       <SelectTrigger aria-label="Visibility">
         <SelectValue placeholder="Select visibility" />
       </SelectTrigger>
@@ -72,7 +74,7 @@ export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
       {(['sm', 'md', 'lg'] as const).map((size) => (
-        <Select key={size}>
+        <Select key={size} items={{ a: 'Option A', b: 'Option B' }}>
           <SelectTrigger size={size} aria-label={`Size ${size}`}>
             <SelectValue placeholder={`Size ${size}`} />
           </SelectTrigger>
@@ -111,7 +113,15 @@ export const Multiple: Story = {
 
 export const Grouped: Story = {
   render: () => (
-    <Select defaultOpen>
+    <Select
+      defaultOpen
+      items={{
+        orange: 'Orange',
+        lemon: 'Lemon',
+        strawberry: 'Strawberry',
+        blueberry: 'Blueberry',
+      }}
+    >
       <SelectTrigger aria-label="Fruit">
         <SelectValue placeholder="Pick a fruit" />
       </SelectTrigger>

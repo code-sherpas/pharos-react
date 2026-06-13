@@ -81,6 +81,28 @@ describe('Select', () => {
     expect(screen.queryByText('Select visibility')).not.toBeInTheDocument();
   });
 
+  it('shows the option label (not the raw value) for a preset value via items', () => {
+    // Base UI resolves the trigger label from the root `items` map; a
+    // preset/controlled value has no captured label without it. With `items`
+    // the trigger shows "Organization", not the raw enum "organization".
+    render(
+      <Select
+        defaultValue="organization"
+        items={{ private: 'Private', organization: 'Organization', public: 'Public' }}
+      >
+        <SelectTrigger aria-label="Visibility">
+          <SelectValue placeholder="Select visibility" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="private">Private</SelectItem>
+          <SelectItem value="organization">Organization</SelectItem>
+          <SelectItem value="public">Public</SelectItem>
+        </SelectContent>
+      </Select>,
+    );
+    expect(screen.getByRole('combobox', { name: 'Visibility' })).toHaveTextContent('Organization');
+  });
+
   it('marks the trigger expanded state via aria-expanded', async () => {
     const user = userEvent.setup();
     renderSelect();

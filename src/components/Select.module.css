@@ -12,11 +12,14 @@
  * is deliberately identical to DropdownMenu and Popover — every anchored
  * overlay reads as the same surface family.
  *
- * Anchor-width: the popup takes `min-width: var(--anchor-width)` so the
- * listbox is never narrower than the trigger that opened it. Base UI sets
- * `--anchor-width` on the Positioner; it cascades to the Popup. This is the
- * affordance that was missing from Popover v1 and forced the picker
- * call-sites to be deferred to this atom.
+ * Anchor-width: the popup takes `width: var(--anchor-width)` so the listbox
+ * matches the trigger that opened it exactly — long options truncate (see
+ * `.itemText`) rather than ballooning the panel wider than the field, the
+ * Ant / Mantine / MUI / shadcn-combobox default. Base UI sets `--anchor-width`
+ * on the Positioner; it cascades to the Popup. This is the affordance that
+ * was missing from Popover v1 and forced the picker call-sites to be deferred
+ * to this atom. Consumers needing a wider panel override `width` via
+ * `className` per call-site.
  *
  * No `z-index` here — Base UI portals the popup to the end of `<body>`, so it
  * stacks above in-flow content. A shared `--pharos-z-index-*` scale is the
@@ -139,7 +142,7 @@
 /* === Floating surface (Select.Popup) === */
 .content {
   box-sizing: border-box;
-  min-width: var(--anchor-width);
+  width: var(--anchor-width);
   max-height: var(--available-height);
   overflow-y: auto;
   padding: var(--pharos-spacing-1);

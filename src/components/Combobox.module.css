@@ -10,10 +10,12 @@
  * group / separator styling mirror Select exactly — Select and Combobox are
  * the two halves of the selection family and read as one system.
  *
- * Anchor-width: the popup takes `min-width: var(--anchor-width)` so the
- * listbox is never narrower than the control. `max-height:
- * var(--available-height)` clamps it to the viewport. Both vars come from
- * Base UI's Positioner. */
+ * Anchor-width: the popup takes `width: var(--anchor-width)` so the listbox
+ * matches the control exactly — long options truncate (see `.itemText`)
+ * rather than ballooning wider than the field (the Ant / Mantine / MUI /
+ * shadcn-combobox default). `max-height: var(--available-height)` clamps it
+ * to the viewport. Both vars come from Base UI's Positioner. Consumers
+ * needing a wider panel override `width` via `className`. */
 
 /* === Control (Combobox.InputGroup, single) and chips box (Combobox.Chips,
  * multiple) — same bordered chrome === */
@@ -190,7 +192,7 @@
 /* === Floating surface (Combobox.Popup) — mirrors Select === */
 .content {
   box-sizing: border-box;
-  min-width: var(--anchor-width);
+  width: var(--anchor-width);
   max-height: var(--available-height);
   overflow-y: auto;
   padding: var(--pharos-spacing-1);
