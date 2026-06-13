@@ -32,9 +32,9 @@ import styles from './Combobox.module.css';
  * `ComboboxControl` / `ComboboxChips` own the bordered box, `ComboboxInput`
  * is the bare field, `ComboboxTrigger` the chevron. `ComboboxContent`
  * collapses `Portal` + `Positioner` + `Popup`; `ComboboxList` and
- * `ComboboxEmpty` sit inside it. The popup takes `min-width:
- * var(--anchor-width)` so it is never narrower than the control — the
- * affordance the picker call-sites needed.
+ * `ComboboxEmpty` sit inside it. The popup takes `width:
+ * var(--anchor-width)` so it matches the control width exactly (long options
+ * truncate) — the anchor-width affordance the picker call-sites needed.
  *
  * Per the form-control composition rule (Escuela 1, D11) the atom owns no
  * label / helper / error message; the consumer composes those and conveys
@@ -266,8 +266,8 @@ ComboboxChipRemove.displayName = 'ComboboxChipRemove';
 /**
  * The floating listbox surface. Collapses Base UI's `Portal` + `Positioner` +
  * `Popup`. Put `ComboboxEmpty` and `ComboboxList` inside it. Defaults: opens
- * below the control, aligned to its start edge, 8px away, at least as wide as
- * the control (`min-width: var(--anchor-width)`).
+ * below the control, aligned to its start edge, 8px away, and matches the
+ * control width (`width: var(--anchor-width)`).
  */
 export interface ComboboxContentProps extends ComponentProps<typeof BaseCombobox.Popup> {
   /**

@@ -29,16 +29,29 @@ import styles from './Select.module.css';
  * `Positioner` + `Popup` + `List` with `side` / `align` / `sideOffset`
  * props; `SelectItem` folds `Item` + `ItemText` + the selected-state
  * `ItemIndicator` — the same ergonomics shadcn exposes over Radix. The popup
- * takes `min-width: var(--anchor-width)` so it is never narrower than the
- * trigger.
+ * takes `width: var(--anchor-width)` so it matches the trigger width exactly
+ * (long options truncate; override `width` via `className` for a wider panel).
  *
  * Following the form-control composition rule (Escuela 1, D11), the atom owns
  * no label / helper / error message — the consumer composes those, and the
  * error state is conveyed through the standard `aria-invalid` attribute on
  * the trigger (the CSS reacts to `[aria-invalid="true"]`).
  *
+ * **Pass `items` (a value→label map) whenever the value differs from its
+ * label.** Base UI's `SelectValue` resolves the trigger label from the root's
+ * `items` prop, NOT from the `SelectItem` children — those are the listbox
+ * label + typeahead text. Picking an option with the pointer happens to
+ * capture its label, but a **preset / controlled value** (the form case) has
+ * no label to resolve and the trigger would show the raw value (e.g. the enum
+ * `"organization"` instead of `"Organization"`). Provide `items` and the
+ * trigger always matches the option, interactively or controlled.
+ *
  * @example
- * <Select value={value} onValueChange={setValue}>
+ * <Select
+ *   value={value}
+ *   onValueChange={setValue}
+ *   items={{ private: 'Private', organization: 'Organization', public: 'Public' }}
+ * >
  *   <SelectTrigger aria-label="Visibility">
  *     <SelectValue placeholder="Select visibility" />
  *   </SelectTrigger>
@@ -155,8 +168,8 @@ SelectValue.displayName = 'SelectValue';
  * The floating listbox. Collapses Base UI's `Portal` + `Positioner` +
  * `Popup` + `List` so the consumer positions it with the props that matter
  * at the call site. Defaults match the common select: opens below the
- * trigger, aligned to its start edge, 8px away, and at least as wide as the
- * trigger (`min-width: var(--anchor-width)`).
+ * trigger, aligned to its start edge, 8px away, and matches the trigger width
+ * (`width: var(--anchor-width)`).
  */
 export interface SelectContentProps extends ComponentProps<typeof BaseSelect.Popup> {
   /**
