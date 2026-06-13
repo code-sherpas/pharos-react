@@ -22,6 +22,13 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from '../src/components/DropdownMenu';
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverTitle,
+  PopoverDescription,
+} from '../src/components/Popover';
 
 /**
  * Multi-component gallery. One story per published component family, grouped
@@ -288,6 +295,23 @@ function DropdownMenuShowcase() {
   );
 }
 
+function PopoverShowcase() {
+  // Overlays render through a Portal, so the gallery shows the trigger at
+  // rest — the open panel (title, description, sides) lives in the dedicated
+  // Popover stories that Chromatic snapshots individually.
+  return (
+    <div className="storybook-overview-row" style={{ gap: '0.75rem', alignItems: 'center' }}>
+      <Popover>
+        <PopoverTrigger render={<Button intent="secondary">Open popover</Button>} />
+        <PopoverContent>
+          <PopoverTitle>Popover title</PopoverTitle>
+          <PopoverDescription>Free-form content under the dialog contract.</PopoverDescription>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}
+
 function Overview() {
   return (
     <div className="storybook-overview">
@@ -329,6 +353,9 @@ function Overview() {
         </Showcase>
         <Showcase name="DropdownMenu">
           <DropdownMenuShowcase />
+        </Showcase>
+        <Showcase name="Popover">
+          <PopoverShowcase />
         </Showcase>
       </Section>
     </div>
