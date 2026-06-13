@@ -29,6 +29,22 @@ import {
   PopoverTitle,
   PopoverDescription,
 } from '../src/components/Popover';
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from '../src/components/Select';
+import {
+  Combobox,
+  ComboboxControl,
+  ComboboxInput,
+  ComboboxTrigger,
+  ComboboxContent,
+  ComboboxList,
+  ComboboxItem,
+} from '../src/components/Combobox';
 
 /**
  * Multi-component gallery. One story per published component family, grouped
@@ -312,6 +328,57 @@ function PopoverShowcase() {
   );
 }
 
+const VISIBILITY = { private: 'Private', organization: 'Organization', public: 'Public' };
+
+function SelectShowcase() {
+  // Overlays render through a Portal, so the gallery shows the trigger at
+  // rest with a resolved value — the open listbox lives in the dedicated
+  // Select stories. `items` is what resolves the trigger label (Base UI
+  // contract); a controlled/preset value without it would show the raw value.
+  return (
+    <div className="storybook-overview-row" style={{ gap: '0.75rem', alignItems: 'center' }}>
+      <Select items={VISIBILITY} defaultValue="organization">
+        <SelectTrigger aria-label="Visibility" style={{ width: 200 }}>
+          <SelectValue placeholder="Select visibility" />
+        </SelectTrigger>
+        <SelectContent>
+          {Object.entries(VISIBILITY).map(([value, label]) => (
+            <SelectItem key={value} value={value}>
+              {label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+const COMBOBOX_FRUITS = ['Apple', 'Banana', 'Cherry', 'Mango'];
+
+function ComboboxShowcase() {
+  // Shown at rest (popup portaled); the open list + multi-select chips live in
+  // the dedicated Combobox stories.
+  return (
+    <div className="storybook-overview-row" style={{ gap: '0.75rem', alignItems: 'center' }}>
+      <Combobox items={COMBOBOX_FRUITS}>
+        <ComboboxControl style={{ width: 200 }}>
+          <ComboboxInput placeholder="Search fruit…" aria-label="Fruit" />
+          <ComboboxTrigger aria-label="Open" />
+        </ComboboxControl>
+        <ComboboxContent>
+          <ComboboxList>
+            {(item: string) => (
+              <ComboboxItem key={item} value={item}>
+                {item}
+              </ComboboxItem>
+            )}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
+    </div>
+  );
+}
+
 function Overview() {
   return (
     <div className="storybook-overview">
@@ -356,6 +423,12 @@ function Overview() {
         </Showcase>
         <Showcase name="Popover">
           <PopoverShowcase />
+        </Showcase>
+        <Showcase name="Select">
+          <SelectShowcase />
+        </Showcase>
+        <Showcase name="Combobox">
+          <ComboboxShowcase />
         </Showcase>
       </Section>
     </div>
