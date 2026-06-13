@@ -28,6 +28,13 @@
   border-radius: var(--pharos-radius-md);
   background-color: var(--pharos-color-base-white);
 
+  /* Set the Pharos sans stack on the box so everything inside it — chips,
+   * the input — shares one typography. Without this the chips fall back to
+   * the user-agent serif/system font (the bundle ships no global font), so
+   * they read in a different typeface than the input. Same reason Input sets
+   * font-family explicitly. */
+  font-family: var(--pharos-font-family-sans);
+
   transition-property: border-color, box-shadow;
   transition-duration: var(--pharos-duration-normal);
   transition-timing-function: var(--pharos-easing-out);
@@ -258,11 +265,22 @@
   height: 1rem;
 }
 
-/* === Empty state (Combobox.Empty) === */
+/* === Empty state (Combobox.Empty) ===
+ * Base UI keeps this element mounted even when there ARE results (it is a
+ * `role="status"` live region and must not be removed / `display:none`-d, or
+ * screen readers miss the "no results" announcement) — it only nulls its
+ * children. So when results exist the element is present but childless;
+ * `:not(:empty)` applies the padding only when a message is actually shown,
+ * collapsing the box to zero height otherwise. Without this the empty live
+ * region adds a block of padding above the list and the popup looks
+ * top-heavy / asymmetric against its bottom edge. */
 .empty {
-  padding: var(--pharos-spacing-3);
   color: var(--pharos-color-neutral-500);
   text-align: center;
+}
+
+.empty:not(:empty) {
+  padding: var(--pharos-spacing-3);
 }
 
 /* === Group + label + separator (mirror Select) === */
