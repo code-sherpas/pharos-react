@@ -293,13 +293,27 @@ export function SelectLabel({ className, ...rest }: SelectLabelProps) {
 
 SelectLabel.displayName = 'SelectLabel';
 
-/** A thin divider between groups of options. */
+/**
+ * A thin **decorative** divider between groups of options.
+ *
+ * Rendered `aria-hidden` with `role="none"`. Base UI's `Select.Separator`
+ * re-exports the generic `Separator`, which emits `role="separator"`. A
+ * `separator` is **not** a permitted child of the `listbox` role (its content
+ * model allows only `option` and `group`), so leaving it in the accessibility
+ * tree fails axe's `aria-required-children` (critical) on a grouped Select.
+ * The grouping is already conveyed semantically by `SelectGroup` (`role=
+ * "group"`) + `SelectLabel` (`aria-labelledby`), so the divider is purely
+ * visual — hiding it from the tree is the correct, drift-free fix (same as
+ * Radix / shadcn, whose select separators are `aria-hidden`).
+ */
 export type SelectSeparatorProps = ComponentProps<typeof BaseSelect.Separator>;
 
 export function SelectSeparator({ className, ...rest }: SelectSeparatorProps) {
   return (
     <BaseSelect.Separator
       data-pharos-slot="select-separator"
+      role="none"
+      aria-hidden
       className={cn(styles.separator, className)}
       {...rest}
     />
