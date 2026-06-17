@@ -109,6 +109,7 @@ export function PopoverContent({
   return (
     <BasePopover.Portal>
       <BasePopover.Positioner
+        className={styles.positioner}
         side={side}
         align={align}
         sideOffset={sideOffset}

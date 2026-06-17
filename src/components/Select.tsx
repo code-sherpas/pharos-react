@@ -217,6 +217,7 @@ export function SelectContent({
   return (
     <BaseSelect.Portal>
       <BaseSelect.Positioner
+        className={styles.positioner}
         alignItemWithTrigger={false}
         side={side}
         align={align}

@@ -21,9 +21,12 @@
  * to this atom. Consumers needing a wider panel override `width` via
  * `className` per call-site.
  *
- * No `z-index` here — Base UI portals the popup to the end of `<body>`, so it
- * stacks above in-flow content. A shared `--pharos-z-index-*` scale is the
- * same known follow-up DropdownMenu and Popover carry. */
+ * z-index lives on `.positioner` (see below). Base UI portals the popup to
+ * the end of `<body>`; that floats it above in-flow content, but not above a
+ * host-app overlay (drawer/modal) with its own z-index — and a z-index on the
+ * Popup is trapped by the Positioner's transform stacking context. The
+ * Positioner therefore carries `z-index: var(--pharos-z-index-popover, …)`,
+ * the shared scale Combobox / DropdownMenu / Popover all use now. */
 
 /* === Trigger (Select.Trigger) ===
  * Same chrome as Input: white fill, `neutral-500` resting border, brand
@@ -137,6 +140,21 @@
 
 .icon[data-popup-open] {
   transform: rotate(180deg);
+}
+
+/* === Positioner (Select.Positioner) ===
+ * z-index lives here, not on `.content` (the Popup). Base UI's Positioner
+ * anchors with `transform`, which creates a stacking context — so a z-index
+ * on the inner Popup is trapped inside it and cannot rise above a host-app
+ * overlay (e.g. a drawer with its own z-index). The z-index must sit on the
+ * Positioner itself.
+ *
+ * Sourced from `--pharos-z-index-popover` (no hardcoded value — NON-NEGOTIABLE
+ * rule 1). The fallback suits apps with no high z-index scale; an app whose
+ * own overlays sit higher (drawers, modals) raises every Pharos popup at once
+ * by overriding `--pharos-z-index-popover` in `:root`. */
+.positioner {
+  z-index: var(--pharos-z-index-popover, 1000);
 }
 
 /* === Floating surface (Select.Popup) === */

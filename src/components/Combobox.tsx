@@ -304,6 +304,7 @@ export function ComboboxContent({
   return (
     <BaseCombobox.Portal>
       <BaseCombobox.Positioner
+        className={styles.positioner}
         side={side}
         align={align}
         sideOffset={sideOffset}
