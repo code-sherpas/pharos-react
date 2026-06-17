@@ -58,6 +58,16 @@ const preview: Preview = {
     },
     a11y: {
       test: 'todo',
+      // Base UI wraps focus-trapping popups (the Select listbox, etc.) in
+      // focus-guard sentinels: `<span data-base-ui-focus-guard aria-hidden="true"
+      // tabindex="0">`. axe flags these as `aria-hidden-focus` (serious), but the
+      // aria-hidden + tabindex=0 combination is the intended focus-trap sentinel
+      // pattern (same as Radix / Floating UI / React Aria) — the span only catches
+      // Tab to wrap focus back into the popup, it never holds resting focus and is
+      // never announced. Exclude just these vendor nodes from the scan (matched by
+      // their Base-UI-specific attribute) so the rule keeps running on all real
+      // content. Revisit if a future Base UI release makes the guards tabindex=-1.
+      context: { exclude: [['[data-base-ui-focus-guard]']] },
     },
     // Belt-and-braces for Chromatic specifically: even with the loader
     // above, give the headless renderer a small extra window before the
