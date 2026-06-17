@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
 import {
@@ -10,6 +10,7 @@ import {
   SelectItem,
   SelectGroup,
   SelectLabel,
+  SelectSeparator,
 } from '../src/components/Select';
 
 /**
@@ -244,5 +245,40 @@ describe('Select', () => {
       'aria-invalid',
       'true',
     );
+  });
+
+  it('renders a group separator as decorative (aria-hidden, not a listbox child)', async () => {
+    const user = userEvent.setup();
+    render(
+      <Select>
+        <SelectTrigger aria-label="Fruit">
+          <SelectValue placeholder="Pick" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>Citrus</SelectLabel>
+            <SelectItem value="orange">Orange</SelectItem>
+          </SelectGroup>
+          <SelectSeparator />
+          <SelectGroup>
+            <SelectLabel>Berries</SelectLabel>
+            <SelectItem value="strawberry">Strawberry</SelectItem>
+          </SelectGroup>
+        </SelectContent>
+      </Select>,
+    );
+
+    await user.click(screen.getByRole('combobox', { name: 'Fruit' }));
+    const listbox = await screen.findByRole('listbox');
+
+    // A `separator` is not a permitted child of the `listbox` role (only
+    // `option` / `group`), so the divider must stay out of the a11y tree —
+    // otherwise axe's aria-required-children fails (critical). The grouping
+    // semantics live on SelectGroup/SelectLabel, not on the divider.
+    const separator = document.querySelector('[data-pharos-slot="select-separator"]');
+    expect(separator).not.toBeNull();
+    expect(separator).toHaveAttribute('aria-hidden', 'true');
+    expect(separator).toHaveAttribute('role', 'none');
+    expect(within(listbox).queryByRole('separator')).toBeNull();
   });
 });

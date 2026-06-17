@@ -16,3 +16,10 @@ the 8px `sideOffset`, matching the dominant web convention (shadcn
 `position="popper"`, Ant, Mantine) and — decisively — making `Select` consistent
 with `Combobox`, whose Base UI primitive has no item-alignment mode and always
 anchors adjacent. No public API change. D17 refinement; see NAMING-decisions § Select + Combobox.
+
+Also fixes a pre-existing critical a11y issue surfaced by the same change:
+`SelectSeparator` re-exported Base UI's generic `Separator` (`role="separator"`),
+which is not a permitted child of the `listbox` role and failed axe's
+`aria-required-children` on a grouped Select. It now renders decoratively
+(`aria-hidden`, `role="none"`) — the grouping semantics already live on
+`SelectGroup` / `SelectLabel`, matching Radix / shadcn.
