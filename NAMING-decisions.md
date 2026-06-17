@@ -1416,6 +1416,20 @@ var(--anchor-width)` and `max-height: var(--available-height)` from Base
   form layout (CTO call, 2026-06-13). Consumers needing a wider panel
   override `width` via `className`. **This is the affordance Popover v1
   lacked — the reason AddUsers/AddSkills were deferred to this atom.**
+- **Popup anchored below the trigger, never overlapping it (D17 refinement,
+  `0.14.1`).** Base UI's `Select.Positioner` defaults `alignItemWithTrigger`
+  to `true` — the native-`<select>` / macOS behaviour that floats the popup
+  _over_ the trigger to align the selected item under the pointer, and which
+  silently overrides `side` / `align` / `sideOffset` (it forces
+  `renderedSide = 'none'`). `SelectContent` forces it to `false`, so the
+  listbox opens **below the trigger** with the 8px `sideOffset`. Rationale:
+  (1) dominant web convention (shadcn `position="popper"`, Ant, Mantine — and
+  the Headless UI `Listbox` Alexandria is migrating from); (2) it keeps the
+  trigger box visible; (3) **consistency within the selection family** — Base
+  UI's `Combobox` primitive has no item-alignment mode and always anchors
+  adjacent, so without this the two atoms would float differently. Item-aligned
+  overlap (Radix / Base UI / MUI default) is the rejected alternative; if a
+  call-site ever needs it, expose `alignItemWithTrigger` additively then.
 - **Trigger label resolution always needs `items` (Base UI contract).**
   `Select`'s trigger label comes from the root's `items` (value→label map) or
   `itemToStringLabel` — NOT from the `SelectItem` children (those are the

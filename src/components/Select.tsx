@@ -169,6 +169,18 @@ SelectValue.displayName = 'SelectValue';
  * at the call site. Defaults match the common select: opens below the
  * trigger, aligned to its start edge, 8px away, and matches the trigger width
  * (`width: var(--anchor-width)`).
+ *
+ * `alignItemWithTrigger` is forced to `false`. Base UI's `Select.Positioner`
+ * defaults it to `true` — the native-`<select>` / macOS behaviour that floats
+ * the popup *over* the trigger to put the selected item under the pointer,
+ * and which silently overrides `side` / `align` / `sideOffset`
+ * (`renderedSide` becomes `'none'`). Pharos anchors the listbox **below the
+ * trigger** instead (D17 refinement): it is the dominant web convention
+ * (shadcn `position="popper"`, Ant, Mantine), it keeps the trigger box
+ * visible, and — decisively — it makes `Select` consistent with `Combobox`,
+ * whose Base UI primitive has no item-alignment mode and always anchors
+ * adjacent. With it off, the `side` / `align` / `sideOffset` props below
+ * actually take effect.
  */
 export interface SelectContentProps extends ComponentProps<typeof BaseSelect.Popup> {
   /**
@@ -205,6 +217,7 @@ export function SelectContent({
   return (
     <BaseSelect.Portal>
       <BaseSelect.Positioner
+        alignItemWithTrigger={false}
         side={side}
         align={align}
         sideOffset={sideOffset}
