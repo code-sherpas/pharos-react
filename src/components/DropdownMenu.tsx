@@ -94,7 +94,12 @@ export function DropdownMenuContent({
 }: DropdownMenuContentProps) {
   return (
     <Menu.Portal>
-      <Menu.Positioner side={side} align={align} sideOffset={sideOffset}>
+      <Menu.Positioner
+        className={styles.positioner}
+        side={side}
+        align={align}
+        sideOffset={sideOffset}
+      >
         <Menu.Popup
           data-pharos-slot="dropdown-menu-content"
           className={cn(styles.content, className)}

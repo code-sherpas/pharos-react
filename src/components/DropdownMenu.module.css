@@ -6,11 +6,27 @@
  * parts (`.separator`, `.label`, `.group`), and the open/close
  * transition driven by Base UI's `data-*` state attributes.
  *
- * No `z-index` is set here: Base UI renders the menu through a
- * `Portal` appended to the end of `<body>`, so the popup naturally
- * stacks above in-flow content. A `--pharos-z-index-*` token is a
- * known follow-up for when overlapping overlays (Popover, Sheet) land
- * and a shared stacking scale becomes necessary. */
+ * z-index lives on `.positioner` (see below). Base UI portals the menu to the
+ * end of `<body>`; that floats it above in-flow content, but not above a
+ * host-app overlay (drawer/modal) with its own z-index — and a z-index on the
+ * Popup is trapped by the Positioner's transform stacking context. The
+ * Positioner therefore carries `z-index: var(--pharos-z-index-popover, …)`,
+ * the shared scale Combobox / Select / Popover all use now. */
+
+/* === Positioner (Menu.Positioner) ===
+ * z-index lives here, not on `.content` (the Popup). Base UI's Positioner
+ * anchors with `transform`, which creates a stacking context — so a z-index
+ * on the inner Popup is trapped inside it and cannot rise above a host-app
+ * overlay (e.g. a drawer with its own z-index). The z-index must sit on the
+ * Positioner itself.
+ *
+ * Sourced from `--pharos-z-index-popover` (no hardcoded value — NON-NEGOTIABLE
+ * rule 1). The fallback suits apps with no high z-index scale; an app whose
+ * own overlays sit higher (drawers, modals) raises every Pharos popup at once
+ * by overriding `--pharos-z-index-popover` in `:root`. */
+.positioner {
+  z-index: var(--pharos-z-index-popover, 1000);
+}
 
 /* === Floating surface (Menu.Popup) === */
 .content {
