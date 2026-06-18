@@ -7,18 +7,47 @@ version: 2
 updates:
   - package-ecosystem: 'npm' # See documentation for possible values
     directory: '/' # Location of package manifests
+    # Weekly (was daily) + grouped to protect the Chromatic snapshot budget.
+    # A Dependabot bump always changes the lockfile, and a lockfile change
+    # defeats TurboSnap (Chromatic does a FULL rebuild of all ~89 stories,
+    # because a dependency change could affect any component). Daily +
+    # ungrouped meant ~6 separate PRs/day, each a full rebuild, plus a fresh
+    # full rebuild on every rebase of every open PR — the dominant snapshot
+    # drain. Weekly cadence + one grouped dev PR collapses that to roughly a
+    # single build per week. Chromatic still runs on these PRs (visual checks
+    # are NOT skipped); there are just far fewer of them.
     schedule:
-      interval: 'daily'
+      interval: 'weekly'
     groups:
       # react and react-dom must carry the exact same version — a lone
       # bump of either one fails every test with React's
-      # version-mismatch error (see PR #72).
+      # version-mismatch error (see PR #72). No update-types filter so they
+      # always move together, including on a major bump.
       react:
         patterns:
           - 'react'
           - 'react-dom'
+      # Collapse the dev-tooling churn (Storybook addons, Vite, Vitest,
+      # ESLint, the chromatic CLI, @types/*, etc.) into ONE weekly PR
+      # instead of one PR per package. One grouped PR = one Chromatic build
+      # instead of many. Majors stay ungrouped so a breaking bump is
+      # reviewed on its own. This keeps the dependabot-auto-merge workflow
+      # working: the group is dev-only + non-major, so it still matches its
+      # `dependency-type == direct:development && update-type != major` gate.
+      dev-dependencies:
+        dependency-type: 'development'
+        update-types:
+          - 'minor'
+          - 'patch'
   # Maintain dependencies for GitHub Actions
   - package-ecosystem: 'github-actions'
     directory: '/'
     schedule:
-      interval: 'daily'
+      interval: 'weekly'
+    # One grouped PR for all action bumps (these cost ~0 Chromatic snapshots
+    # — workflow files are not in the Storybook dependency graph — but
+    # grouping keeps the PR noise down).
+    groups:
+      github-actions:
+        patterns:
+          - '*'
