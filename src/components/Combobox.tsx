@@ -1,4 +1,12 @@
-import type { ComponentProps } from 'react';
+import {
+  type ComponentProps,
+  type Ref,
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from 'react';
 import { Combobox as BaseCombobox } from '@base-ui/react/combobox';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/cn';
@@ -63,10 +71,40 @@ export type ComboboxProps<
   Multiple extends boolean | undefined = false,
 > = BaseCombobox.Root.Props<Value, Multiple>;
 
+/**
+ * Lets `ComboboxChips` publish its DOM node so `ComboboxContent` can anchor
+ * the floating listbox to the control box instead of the bare input.
+ *
+ * Why this exists: Base UI resolves the popup anchor as
+ * `inputGroupElement ?? inputElement`. In single-select Pharos wraps Base UI's
+ * `InputGroup` (`ComboboxControl`), so the popup anchors to the full-width
+ * control. In multi-select Pharos uses `Combobox.Chips` (`ComboboxChips`) as
+ * the bordered box — and `Chips` does NOT register an `inputGroupElement`, so
+ * the anchor falls back to the `Input`, which floats at the end of the chip
+ * row. The popup then opens narrow and shifted right. Capturing the chips box
+ * here and passing it as the Positioner's `anchor` keeps the panel the full
+ * control width, left-aligned, regardless of where the input sits.
+ */
+interface ComboboxAnchorContextValue {
+  anchorElement: HTMLElement | null;
+  setAnchorElement: (element: HTMLElement | null) => void;
+}
+
+const ComboboxAnchorContext = createContext<ComboboxAnchorContextValue | null>(null);
+
 export function Combobox<Value, Multiple extends boolean | undefined = false>(
   props: ComboboxProps<Value, Multiple>,
 ) {
-  return <BaseCombobox.Root {...props} />;
+  const [anchorElement, setAnchorElement] = useState<HTMLElement | null>(null);
+  const anchorContext = useMemo<ComboboxAnchorContextValue>(
+    () => ({ anchorElement, setAnchorElement }),
+    [anchorElement],
+  );
+  return (
+    <ComboboxAnchorContext.Provider value={anchorContext}>
+      <BaseCombobox.Root {...props} />
+    </ComboboxAnchorContext.Provider>
+  );
 }
 
 Combobox.displayName = 'Combobox';
@@ -126,11 +164,26 @@ ComboboxControl.displayName = 'ComboboxControl';
  */
 export type ComboboxChipsProps = ComponentProps<typeof BaseCombobox.Chips>;
 
-export function ComboboxChips({ className, ...rest }: ComboboxChipsProps) {
+export function ComboboxChips({ className, ref, ...rest }: ComboboxChipsProps) {
+  const anchorContext = useContext(ComboboxAnchorContext);
+  // Publish the chips box as the popup anchor (see ComboboxAnchorContext)
+  // while still honouring any ref the consumer forwards.
+  const setRef = useCallback(
+    (element: HTMLDivElement | null) => {
+      anchorContext?.setAnchorElement(element);
+      if (typeof ref === 'function') {
+        ref(element);
+      } else if (ref) {
+        (ref as { current: HTMLDivElement | null }).current = element;
+      }
+    },
+    [anchorContext, ref],
+  );
   return (
     <BaseCombobox.Chips
       data-pharos-slot="combobox-chips"
       className={cn(styles.control, styles.chips, className)}
+      ref={setRef as Ref<HTMLDivElement>}
       {...rest}
     />
   );
@@ -301,10 +354,16 @@ export function ComboboxContent({
   children,
   ...rest
 }: ComboboxContentProps) {
+  const anchorContext = useContext(ComboboxAnchorContext);
+  // Anchor to the chips control box in multi-select (see
+  // ComboboxAnchorContext); single-select leaves this undefined so Base UI
+  // anchors to the `ComboboxControl` (InputGroup) as before.
+  const anchor = anchorContext?.anchorElement ?? undefined;
   return (
     <BaseCombobox.Portal>
       <BaseCombobox.Positioner
         className={styles.positioner}
+        anchor={anchor}
         side={side}
         align={align}
         sideOffset={sideOffset}

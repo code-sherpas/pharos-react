@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
   Combobox,
   ComboboxControl,
@@ -156,6 +156,56 @@ describe('Combobox', () => {
     // Removing a chip drops the value.
     await user.click(screen.getAllByRole('button', { name: 'Remove' })[0]);
     await waitFor(() => expect(screen.getByTestId('count')).toHaveTextContent('1'));
+  });
+
+  it('anchors the multi-select popup to the chips control box, not the input', async () => {
+    // Regression guard for the panel-width fix: the floating listbox must be
+    // positioned against the bordered chips box (full control width) rather
+    // than the input that floats after the chips. We assert the wiring that
+    // makes that possible — `ComboboxChips` forwarding its DOM node — since
+    // jsdom does not compute the resulting layout width.
+    const user = userEvent.setup();
+    function MultiCombobox() {
+      const chipsRef = useRef<HTMLDivElement>(null);
+      return (
+        <Combobox multiple items={FRUITS} defaultValue={['Apple']}>
+          <ComboboxChips ref={chipsRef} data-testid="chips-box">
+            <ComboboxChip>
+              Apple
+              <ComboboxChipRemove />
+            </ComboboxChip>
+            <ComboboxInput inset aria-label="Fruits" />
+          </ComboboxChips>
+          <ComboboxContent>
+            <ComboboxList>
+              {(item: string) => (
+                <ComboboxItem key={item} value={item}>
+                  {item}
+                </ComboboxItem>
+              )}
+            </ComboboxList>
+          </ComboboxContent>
+          <button
+            type="button"
+            onClick={() => {
+              // Surface the forwarded ref's target for the assertion below.
+              chipsRef.current?.setAttribute('data-ref-attached', 'true');
+            }}
+          >
+            probe
+          </button>
+        </Combobox>
+      );
+    }
+    render(<MultiCombobox />);
+
+    // The consumer's forwarded ref still resolves to the chips box (the slot
+    // Pharos publishes as the popup anchor) — the merge with the internal
+    // anchor ref must not drop it.
+    await user.click(screen.getByRole('button', { name: 'probe' }));
+    const chipsBox = screen.getByTestId('chips-box');
+    expect(chipsBox).toHaveAttribute('data-pharos-slot', 'combobox-chips');
+    expect(chipsBox).toHaveAttribute('data-ref-attached', 'true');
   });
 
   it('tags the input and content via data-pharos-slot', async () => {

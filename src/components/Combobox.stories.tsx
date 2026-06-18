@@ -119,6 +119,42 @@ export const Multiple: Story = {
   },
 };
 
+/** Multi-select panel width: once several chips push the input to the right
+ * edge of a narrow control, the popup still opens at the **full control
+ * width**, left-aligned — it anchors to the chips box, not to the floating
+ * input. Rendered open so the anchored panel is visible. */
+export const MultipleWidePanel: Story = {
+  parameters: { layout: 'padded' },
+  render: function MultipleWidePanelStory() {
+    const [value, setValue] = useState<string[]>(['Apple', 'Mango']);
+    return (
+      <div style={{ width: 460, paddingBottom: 240 }}>
+        <Combobox multiple defaultOpen items={FRUITS} value={value} onValueChange={setValue}>
+          <ComboboxChips>
+            {value.map((v) => (
+              <ComboboxChip key={v}>
+                {v}
+                <ComboboxChipRemove />
+              </ComboboxChip>
+            ))}
+            <ComboboxInput inset placeholder="Add fruit…" aria-label="Fruits" />
+          </ComboboxChips>
+          <ComboboxContent>
+            <ComboboxEmpty>No fruit found</ComboboxEmpty>
+            <ComboboxList>
+              {(item: string) => (
+                <ComboboxItem key={item} value={item}>
+                  {item}
+                </ComboboxItem>
+              )}
+            </ComboboxList>
+          </ComboboxContent>
+        </Combobox>
+      </div>
+    );
+  },
+};
+
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
