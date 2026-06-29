@@ -52,7 +52,7 @@ jobs:
     name: Publish Storybook
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           # Chromatic needs full git history to detect baselines and changes.
           fetch-depth: 0
