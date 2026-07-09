@@ -1,0 +1,8 @@
+# Minimal workspace: the library (root, '.') plus consumer-harness apps under
+# examples/. The root stays the published package; example apps are private and
+# depend on it via `workspace:*`, which resolves to the built `dist/` through the
+# package `exports` map — i.e. they consume Pharos exactly like an external
+# consumer. See AGENTS.md → "Consumer harness".
+packages:
+  - '.'
+  - 'examples/*'

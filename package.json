@@ -49,6 +49,8 @@
     "test": "vitest run --project unit",
     "test:watch": "vitest --project unit",
     "test:storybook": "vitest run --project storybook",
+    "test:e2e": "pnpm --filter @examples/saas-demo test:e2e",
+    "dev:demo": "pnpm --filter @examples/saas-demo dev",
     "typecheck": "tsc --noEmit",
     "verify:dist-types": "tsc --noEmit -p tsconfig.dist-smoke.json",
     "lint": "eslint .",

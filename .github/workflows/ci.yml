@@ -98,3 +98,56 @@ jobs:
       # the release workflow stays browser-free.
       - name: Story accessibility tests
         run: pnpm test:storybook
+
+  consumer-e2e:
+    name: consumer harness (playwright e2e)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10.33.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24.15.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright Chromium
+        run: pnpm --filter @examples/saas-demo exec playwright install --with-deps chromium
+
+      # Build the library to dist/ (the consumer contract), then the SaaS demo
+      # that consumes it via `workspace:*` (resolves to dist/) + styles.css +
+      # tokens/css. Playwright then serves the built demo (vite preview) and
+      # drives the real user flows. This gates PRs on the publish contract +
+      # composition — the layer unit/Storybook/Chromatic can't see. Separate
+      # from `pnpm test`; release.yml stays browser-free.
+      - name: Build library (dist/ = the consumer contract)
+        run: pnpm build
+
+      - name: Build demo
+        run: pnpm --filter @examples/saas-demo build
+
+      - name: Run consumer e2e (Playwright)
+        run: pnpm --filter @examples/saas-demo test:e2e
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: examples/saas-demo/playwright-report
+          retention-days: 7

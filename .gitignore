@@ -152,3 +152,9 @@ chromatic-diagnostics.json
 
 # Husky internals (auto-generated on install)
 .husky/_
+
+# Consumer harness (examples/*) build + Playwright artifacts
+examples/*/dist
+examples/*/playwright-report
+examples/*/test-results
+examples/*/.vite
