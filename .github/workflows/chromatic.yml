@@ -52,7 +52,7 @@ jobs:
     name: Publish Storybook
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           # Chromatic needs full git history to detect baselines and changes.
           fetch-depth: 0
@@ -72,7 +72,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Publish to Chromatic
-        uses: chromaui/action@v17
+        uses: chromaui/action@v18
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           # Skip waiting for the visual review to finish — GitHub Checks get
