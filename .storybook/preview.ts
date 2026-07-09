@@ -57,7 +57,11 @@ const preview: Preview = {
       ],
     },
     a11y: {
-      test: 'todo',
+      // 'error' makes axe violations fail the story test under
+      // `pnpm test:storybook` (addon-vitest + Playwright). This is only
+      // meaningful because that runner exists — before it, the parameter
+      // was inert (nothing rendered the stories to scan them).
+      test: 'error',
       // Base UI wraps focus-trapping popups (the Select listbox, etc.) in
       // focus-guard sentinels: `<span data-base-ui-focus-guard aria-hidden="true"
       // tabindex="0">`. axe flags these as `aria-hidden-focus` (serious), but the
