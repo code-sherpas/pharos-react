@@ -1,6 +1,6 @@
 {
   "name": "@examples/saas-demo",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "type": "module",
   "description": "Consumer harness: a SaaS-style client that composes every Pharos component the way an external consumer would (built dist + styles.css + tokens/css), exercised end-to-end by Playwright. Regression net for composition + the publish contract. Never published.",
