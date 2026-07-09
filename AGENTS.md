@@ -8,7 +8,8 @@ Decision D9 in `PLAN-pharos-alexandria.md`.
 
 ## Stack
 
-- Single-package repo (pnpm)
+- pnpm workspace: the published library (repo root) + a private, never-published
+  consumer-harness app under `examples/` (see _Consumer harness_)
 - React 19 + TypeScript
 - Vite library mode (ESM output, types emitted via `vite-plugin-dts`)
 - **CSS Modules** for component styles (one `<Component>.module.css` per
@@ -16,6 +17,8 @@ Decision D9 in `PLAN-pharos-alexandria.md`.
 - `class-variance-authority` + `clsx` for variant composition
 - Vitest (jsdom) + Testing Library
 - Storybook 10 + Chromatic (added in phase 1B.4 / 1B.5)
+- Playwright e2e over a SaaS-style consumer harness — integration/composition
+  regression net (`examples/saas-demo`)
 - Changesets
 
 ## Philosophy
@@ -110,6 +113,15 @@ the swap PR opens.
    `<Component>.module.css` next to the `.tsx`. Storybook may load its own
    demo CSS (under `.storybook/`), but that never enters the published
    bundle.
+8. **Every component ships into the consumer harness.** Adding or changing a
+   public component is not "done" until it is used in `examples/saas-demo` and
+   its real user flow is covered by a Playwright test under
+   `examples/saas-demo/e2e/`. The harness consumes the built package
+   (`workspace:*` → `dist/`, `styles.css`, `pharos-tokens/css`) exactly like an
+   external consumer, so it is the regression net for **composition** and the
+   **publish contract** — the layer that unit tests, Storybook and Chromatic
+   structurally cannot see. A PR that lands or changes a component without
+   wiring it into the demo **and** a flow is incomplete. See _Consumer harness_.
 
 ## Build outputs
 
@@ -147,6 +159,34 @@ build-time framework dependency. Whether the consumer uses Tailwind v3 / v4
 ```bash
 pnpm add @code-sherpas/pharos-react @code-sherpas/pharos-tokens
 ```
+
+## Consumer harness (`examples/saas-demo`)
+
+The repo is a pnpm workspace: the published library at the root plus a private,
+never-published SaaS-style client under `examples/saas-demo`. Its whole reason
+to exist is to consume Pharos **exactly like an external consumer** and prove,
+end-to-end, that composing the components still works.
+
+- It depends on `@code-sherpas/pharos-react` via `workspace:*`, which resolves
+  through the package `exports` to the built `dist/` — not `src/`. So it runs
+  against the real published artifact; `pnpm build` must run first.
+- It imports the three consumer lines verbatim (`pharos-tokens/css`,
+  `pharos-react/styles.css`, then components) and installs the same peer deps a
+  real consumer must (`react`, `react-dom`, `@base-ui/react`, `pharos-tokens`).
+- Playwright drives real user flows across composed components, asserting on
+  ARIA roles and the stable `data-pharos-*` attributes — never hashed classes.
+
+This catches what the other layers cannot: a broken `exports` map or a
+component missing from `dist/styles.css`, overlay stacking / z-index when
+overlays compose, focus-trap and focus-return across a real page, keyboard
+flows spanning components, and token regressions from `pharos-tokens`.
+
+Run it: `pnpm build` (once, to produce `dist/`) then `pnpm test:e2e` — or
+`pnpm dev:demo` for the live app. CI runs it as the `consumer-e2e` job:
+PR-gating, but deliberately **not** part of `pnpm test` nor `release.yml`
+(browser-e2e flakiness must never gate an npm publish — same rule as the a11y
+story runner). **Rule #8: every component must be wired into this harness with
+a flow.**
 
 ## Authoring a component
 
@@ -190,6 +230,11 @@ export function Button({ intent, size, className, ...rest }: Props) {
 (stable, no hash) and consumers can use them as CSS / e2e selectors without
 having to know the hashed class names.
 
+Shipping the component is not complete until it is wired into the consumer
+harness: a real usage on a page in `examples/saas-demo` plus a Playwright flow
+in its `e2e/`. This is part of the same PR, not a follow-up (rule #8, see
+_Consumer harness_).
+
 ## Expected MCP servers
 
 This repo has `.mcp.json` with: `context7`, `github`, `shadcn`.
@@ -209,7 +254,10 @@ This repo has `.mcp.json` with: `context7`, `github`, `shadcn`.
 ## Useful commands
 
 - `pnpm build` — compile the library to `dist/` and run `verify:dist-types`.
-- `pnpm test` — Vitest (jsdom) suite.
+- `pnpm test` — Vitest (jsdom) unit suite.
+- `pnpm test:storybook` — story a11y (axe) in a real Chromium (needs Playwright).
+- `pnpm test:e2e` — Playwright e2e over the consumer harness (run `pnpm build` first).
+- `pnpm dev:demo` — run the `examples/saas-demo` app locally (Vite dev).
 - `pnpm typecheck` — `tsc --noEmit`.
 - `pnpm verify:dist-types` — smoke-check the published `.d.ts` exposes
   every public symbol (regression guard for `dist/index.d.ts`).
