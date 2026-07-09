@@ -35,6 +35,6 @@ test.describe('Login flow', () => {
     // Dashboard confirms the composed post-auth screen rendered.
     await expect(page.getByRole('heading', { name: 'Dashboard' })).toBeVisible();
     await expect(page.getByText('ada@nimbus.io')).toBeVisible();
-    await expect(page.getByText('Active', { exact: true })).toBeVisible();
+    await expect(page.getByText('On track')).toBeVisible();
   });
 });
