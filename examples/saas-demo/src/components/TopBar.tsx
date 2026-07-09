@@ -19,6 +19,7 @@ import {
 } from '@code-sherpas/pharos-react';
 import { Bell, LogOut, Settings as SettingsIcon, Users } from 'lucide-react';
 import { NOTIFICATIONS, initials } from '../data';
+import { NewProjectSheet } from './NewProjectSheet';
 import type { Page } from '../Shell';
 
 interface TopBarProps {
@@ -60,6 +61,7 @@ export function TopBar({ user, page, onNavigate, onSignOut }: TopBarProps) {
       </nav>
 
       <div className="topbar-actions">
+        <NewProjectSheet />
         <div className="notif">
           <Popover>
             <PopoverTrigger

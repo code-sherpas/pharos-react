@@ -130,4 +130,25 @@ export type {
   ComboboxGroupLabelProps,
   ComboboxSeparatorProps,
 } from './components/Combobox';
+export {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+  SheetFooter,
+  SheetClose,
+  sheetVariants,
+} from './components/Sheet';
+export type {
+  SheetProps,
+  SheetTriggerProps,
+  SheetContentProps,
+  SheetHeaderProps,
+  SheetTitleProps,
+  SheetDescriptionProps,
+  SheetFooterProps,
+  SheetCloseProps,
+} from './components/Sheet';
 export { cn } from './lib/cn';

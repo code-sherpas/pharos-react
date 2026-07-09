@@ -1497,3 +1497,77 @@ audit ahead of the decision split the call-sites cleanly by contract:
 - **`PopoverPanel.tsx` retires here.** Once AddUsers/AddSkills move to
   `Combobox multiple`, the headlessui `PopoverPanel` wrapper they kept
   alive (deferred from D16) has no consumers and is deleted.
+
+## Sheet (D18, 2026-07-09)
+
+Modal panel docked to a viewport edge that slides in. Wraps Base UI's
+`Dialog.*`, which implements the ARIA **dialog** pattern as a **modal**
+disclosure: `role="dialog"`, focus trapped inside the panel, scroll
+locked, Escape and backdrop-click dismiss, focus returns to the trigger
+on close.
+
+### Why a third overlay atom (Sheet ≠ Popover ≠ DropdownMenu)
+
+The three are separate public atoms wrapping different Base UI
+primitives, matching the state-of-the-art split:
+
+- **DropdownMenu** (D15, `Menu.*`) — menu-button: commands, `role="menu"`
+  / `menuitem`, roving focus.
+- **Popover** (D16, `Popover.*`) — non-modal disclosure anchored to its
+  trigger; the page stays interactive.
+- **Sheet** (D18, `Dialog.*`) — **modal** task surface docked to an edge;
+  commands the screen (focus trap + scroll lock + backdrop).
+
+shadcn ships `Sheet` as a distinct component (a styled `Dialog`), and
+Radix/Base UI expose `Dialog` as its own primitive. Collapsing Sheet
+into Popover would drop modality and the focus trap; keeping it separate
+preserves the contract.
+
+### Why shadcn naming (`Sheet`, not `Drawer` / `Dialog`)
+
+Canonical order shadcn > Base UI > ARIA APG. shadcn calls the
+edge-docked modal `Sheet` (reserving `Dialog` for the centred modal, a
+future atom). `Drawer` is the Vaul/mobile name shadcn uses for a
+bottom-sheet-with-drag — not this. Pharos uses `Sheet`. Compound parts
+follow shadcn: `SheetTrigger / Content / Header / Title / Description /
+Footer / Close`. `SheetContent` collapses Base UI's `Portal` +
+`Backdrop` + `Popup` behind a single `side` prop — the same ergonomics
+Pharos applies for DropdownMenu / Popover.
+
+### `side` axis
+
+`SheetContent side="top" | "right" | "bottom" | "left"` (default
+`right`, the shadcn default), mirrored on `data-pharos-side`. No `size`
+axis in v1 (shadcn has none either): the panel takes a sensible default
+extent (`min(24rem, 100vw)` for left/right) and the consumer overrides
+via `className` / `style` if needed.
+
+### z-index: shared overlay layer, NOT a higher modal level
+
+The backdrop and panel use `--pharos-z-index-popover` — the SAME layer
+DropdownMenu / Popover / Select / Combobox use — and nesting resolves by
+portal **open order** (DOM order), not a higher modal z-index. Rationale:
+the primary consumer case is a **Select/Combobox opened from inside the
+Sheet** (a LanguageSelector in a mobile drawer). Those popups portal to
+`<body>` after the Sheet, so at equal z-index they paint above the
+panel. A dedicated higher modal z-index would push them _behind_ the
+sheet and break the case. Validated end-to-end in the consumer harness
+(`examples/saas-demo` → New project sheet → Select inside). Defining a
+real z-index scale in `pharos-tokens` remains a tracked follow-up
+(flagged since D15); the value stays a consumer-overridable var
+(fallback 1000).
+
+### What v1 deliberately leaves out
+
+- **No centred `Dialog` atom.** Sheet is the edge-docked modal; the
+  centred modal is a separate future atom (same Base UI `Dialog`
+  primitive, different positioning).
+- **No `size` axis / drag-to-dismiss.** Additive when a consumer needs
+  them.
+
+### Mapping from Alexandria
+
+Sheet unblocks the deferred `LanguageSelector` + `MobileDrawer` (a mobile
+navigation drawer embedding the language `Select`) — the exact
+Select-inside-a-drawer case the z-index decision protects. The adoption
+PR opens when this release publishes.
