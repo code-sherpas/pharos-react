@@ -1,0 +1,139 @@
+/* Sheet.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). Hashed into
+ * `dist/styles.css`. Styles a modal panel that docks to a viewport edge and
+ * slides in — the shadcn "Sheet" contract over Base UI's `Dialog` (modal:
+ * focus trap, scroll lock, backdrop). Motion is driven by Base UI's
+ * `data-starting-style` / `data-ending-style` state attributes.
+ *
+ * z-index: the backdrop and the panel share `--pharos-z-index-popover` — the
+ * SAME overlay layer DropdownMenu / Popover / Select / Combobox use. Nesting
+ * resolves by portal open order (DOM order), NOT by a higher modal z-index:
+ * a Select or Popover opened from INSIDE the Sheet portals to <body> AFTER the
+ * Sheet, so at equal z-index it paints above the panel. That is the primary
+ * use case (a LanguageSelector inside a mobile drawer), so a dedicated higher
+ * modal z-index would break it. See NAMING-decisions.md § Sheet. The token is
+ * still consumer-overridable (fallback 1000). Defining a real z-index scale in
+ * pharos-tokens is a tracked follow-up.
+ */
+
+/* === Backdrop (Dialog.Backdrop) === */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--pharos-z-index-popover, 1000);
+  /* Scrim from the base-black token at 50% via color-mix — no hardcoded
+   * rgba (NON-NEGOTIABLE rule 1). */
+  background-color: color-mix(in srgb, var(--pharos-color-base-black) 50%, transparent);
+  transition: opacity var(--pharos-duration-normal) var(--pharos-easing-out);
+}
+
+.backdrop[data-starting-style],
+.backdrop[data-ending-style] {
+  opacity: 0;
+}
+
+/* === Panel (Dialog.Popup) === */
+.content {
+  position: fixed;
+  z-index: var(--pharos-z-index-popover, 1000);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pharos-spacing-4);
+  padding: var(--pharos-spacing-6);
+
+  background-color: var(--pharos-color-base-white);
+  box-shadow: var(--pharos-shadow-xl);
+
+  font-family: var(--pharos-font-family-sans);
+  font-size: var(--pharos-font-size-sm);
+  color: var(--pharos-color-neutral-900);
+
+  outline: none;
+  overflow-y: auto;
+
+  transition: transform var(--pharos-duration-normal) var(--pharos-easing-out);
+}
+
+/* === Sides === */
+.sideRight {
+  top: 0;
+  bottom: 0;
+  right: 0;
+  height: 100dvh;
+  width: min(24rem, 100vw);
+  border-left: 1px solid var(--pharos-color-neutral-200);
+}
+.sideRight[data-starting-style],
+.sideRight[data-ending-style] {
+  transform: translateX(100%);
+}
+
+.sideLeft {
+  top: 0;
+  bottom: 0;
+  left: 0;
+  height: 100dvh;
+  width: min(24rem, 100vw);
+  border-right: 1px solid var(--pharos-color-neutral-200);
+}
+.sideLeft[data-starting-style],
+.sideLeft[data-ending-style] {
+  transform: translateX(-100%);
+}
+
+.sideTop {
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100vw;
+  max-height: 100dvh;
+  border-bottom: 1px solid var(--pharos-color-neutral-200);
+}
+.sideTop[data-starting-style],
+.sideTop[data-ending-style] {
+  transform: translateY(-100%);
+}
+
+.sideBottom {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100vw;
+  max-height: 100dvh;
+  border-top: 1px solid var(--pharos-color-neutral-200);
+}
+.sideBottom[data-starting-style],
+.sideBottom[data-ending-style] {
+  transform: translateY(100%);
+}
+
+/* === Slots === */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pharos-spacing-1);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--pharos-font-size-lg);
+  font-weight: var(--pharos-font-weight-semibold);
+  line-height: 1.4;
+  color: var(--pharos-color-neutral-900);
+}
+
+.description {
+  margin: 0;
+  font-size: var(--pharos-font-size-sm);
+  line-height: 1.5;
+  color: var(--pharos-color-neutral-600);
+}
+
+.footer {
+  display: flex;
+  gap: var(--pharos-spacing-2);
+  justify-content: flex-end;
+  margin-top: auto;
+}
