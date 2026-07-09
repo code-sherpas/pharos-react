@@ -58,3 +58,43 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+  storybook-a11y:
+    name: story accessibility (axe)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10.33.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24.15.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Cache Playwright's browser binaries (~120 MB) keyed on the lockfile,
+      # so a Chromium download only happens when the pinned Playwright
+      # version actually moves. Keeps this job cheap on every other run.
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      # Renders every *.stories.tsx in a real Chromium and runs axe against
+      # it. Fails the check on any violation, honoring `a11y.test: 'error'`
+      # in .storybook/preview.ts. Separate from `pnpm test` (unit/jsdom) so
+      # the release workflow stays browser-free.
+      - name: Story accessibility tests
+        run: pnpm test:storybook
