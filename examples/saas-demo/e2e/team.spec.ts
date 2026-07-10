@@ -6,7 +6,8 @@ import { signIn } from './helpers';
 test.describe('Team page', () => {
   test.beforeEach(async ({ page }) => {
     await signIn(page);
-    await page.getByRole('button', { name: 'Team' }).click();
+    // exact: to avoid matching the Dashboard's "Invite teammate" button.
+    await page.getByRole('button', { name: 'Team', exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Team' })).toBeVisible();
   });
 

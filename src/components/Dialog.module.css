@@ -1,0 +1,101 @@
+/* Dialog.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). Hashed into
+ * `dist/styles.css`. Styles a centered modal panel — the shadcn "Dialog"
+ * contract over Base UI's `Dialog` (modal: focus trap, scroll lock, backdrop).
+ * Sibling of Sheet (D18): same Base UI primitive, but centered with a
+ * fade-and-scale transition instead of an edge slide. Motion is driven by Base
+ * UI's `data-starting-style` / `data-ending-style` state attributes.
+ *
+ * z-index: backdrop and panel share `--pharos-z-index-popover` — the SAME
+ * overlay layer DropdownMenu / Popover / Select / Combobox / Sheet use. Nesting
+ * resolves by portal open order (DOM order), so a Select or Popover opened from
+ * INSIDE the dialog still stacks above it. Consumer-overridable (fallback 1000).
+ * See NAMING-decisions.md § Sheet for the full rationale.
+ */
+
+/* === Backdrop (Dialog.Backdrop) === */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--pharos-z-index-popover, 1000);
+  background-color: color-mix(in srgb, var(--pharos-color-base-black) 50%, transparent);
+  transition: opacity var(--pharos-duration-normal) var(--pharos-easing-out);
+}
+
+.backdrop[data-starting-style],
+.backdrop[data-ending-style] {
+  opacity: 0;
+}
+
+/* === Panel (Dialog.Popup) === */
+.content {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  /* Centering lives in the transform; the scale for the open/close motion is
+   * composed on top of the same translate (see starting/ending styles). */
+  transform: translate(-50%, -50%);
+  transform-origin: center;
+  z-index: var(--pharos-z-index-popover, 1000);
+
+  box-sizing: border-box;
+  width: calc(100% - 2 * var(--pharos-spacing-4));
+  max-width: 32rem;
+  max-height: calc(100dvh - 2 * var(--pharos-spacing-6));
+  overflow-y: auto;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--pharos-spacing-4);
+  padding: var(--pharos-spacing-6);
+
+  background-color: var(--pharos-color-base-white);
+  border-radius: var(--pharos-radius-lg);
+  box-shadow: var(--pharos-shadow-xl);
+
+  font-family: var(--pharos-font-family-sans);
+  font-size: var(--pharos-font-size-sm);
+  color: var(--pharos-color-neutral-900);
+
+  outline: none;
+
+  transition-property: opacity, transform;
+  transition-duration: var(--pharos-duration-fast);
+  transition-timing-function: var(--pharos-easing-out);
+}
+
+.content[data-starting-style],
+.content[data-ending-style] {
+  opacity: 0;
+  transform: translate(-50%, -50%) scale(0.96);
+}
+
+/* === Slots === */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pharos-spacing-1);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--pharos-font-size-lg);
+  font-weight: var(--pharos-font-weight-semibold);
+  line-height: 1.4;
+  color: var(--pharos-color-neutral-900);
+}
+
+.description {
+  margin: 0;
+  font-size: var(--pharos-font-size-sm);
+  line-height: 1.5;
+  color: var(--pharos-color-neutral-600);
+}
+
+.footer {
+  display: flex;
+  gap: var(--pharos-spacing-2);
+  justify-content: flex-end;
+  margin-top: auto;
+}
