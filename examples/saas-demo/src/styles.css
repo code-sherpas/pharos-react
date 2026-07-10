@@ -156,3 +156,10 @@ body {
   color: var(--pharos-color-neutral-700, #404040);
   font-size: 0.875rem;
 }
+
+.page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pharos-spacing-4, 1rem);
+}

@@ -151,4 +151,24 @@ export type {
   SheetFooterProps,
   SheetCloseProps,
 } from './components/Sheet';
+export {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from './components/Dialog';
+export type {
+  DialogProps,
+  DialogTriggerProps,
+  DialogContentProps,
+  DialogHeaderProps,
+  DialogTitleProps,
+  DialogDescriptionProps,
+  DialogFooterProps,
+  DialogCloseProps,
+} from './components/Dialog';
 export { cn } from './lib/cn';

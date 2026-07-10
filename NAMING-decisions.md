@@ -1559,9 +1559,9 @@ real z-index scale in `pharos-tokens` remains a tracked follow-up
 
 ### What v1 deliberately leaves out
 
-- **No centred `Dialog` atom.** Sheet is the edge-docked modal; the
-  centred modal is a separate future atom (same Base UI `Dialog`
-  primitive, different positioning).
+- **No centred modal here.** Sheet is the edge-docked modal; the centred
+  modal is the separate `Dialog` atom (D19) — same Base UI `Dialog`
+  primitive, different positioning.
 - **No `size` axis / drag-to-dismiss.** Additive when a consumer needs
   them.
 
@@ -1571,3 +1571,60 @@ Sheet unblocks the deferred `LanguageSelector` + `MobileDrawer` (a mobile
 navigation drawer embedding the language `Select`) — the exact
 Select-inside-a-drawer case the z-index decision protects. The adoption
 PR opens when this release publishes.
+
+## Dialog (D19, 2026-07-10)
+
+Centered modal panel. Wraps Base UI's `Dialog.*` — the SAME primitive as
+Sheet (D18) — as a **modal** disclosure: `role="dialog"`, focus trapped,
+scroll locked, Escape and backdrop-click dismiss, focus returns to the
+trigger on close.
+
+### Why a separate atom from Sheet (same primitive, different atom)
+
+Sheet and Dialog both wrap Base UI `Dialog`, but they are distinct public
+atoms because they answer different needs and shadcn ships them as
+separate components:
+
+- **Dialog** — the **centered** modal: confirmations, short focused forms,
+  destructive-action confirms. The default modal shape.
+- **Sheet** — the **edge-docked** panel (`side` axis): mobile nav, filter
+  panels, wide side forms.
+
+The split matches shadcn (`Dialog` vs `Sheet`) and keeps each API honest:
+Dialog has no `side` axis (always centered), Sheet has no centered mode.
+Merging them into one configurable overlay would blur both contracts. If
+something doesn't fit the centered shape, it's a Sheet — not a Dialog prop
+(Rule #0: don't force it).
+
+### Why shadcn naming (`Dialog`, not `Modal`)
+
+Canonical order shadcn > Base UI > ARIA APG. shadcn calls the centered
+modal `Dialog` (Radix / Base UI name it `Dialog` too). `Modal` is the
+MUI / Antd name — not canonical here. Compound parts follow shadcn:
+`DialogTrigger / Content / Header / Title / Description / Footer / Close`.
+`DialogContent` collapses Base UI's `Portal` + `Backdrop` + `Popup`,
+mirroring Sheet.
+
+### z-index and nesting
+
+Identical to Sheet: backdrop + panel share `--pharos-z-index-popover`, so
+a Select / Popover opened from inside the dialog stacks above it by portal
+open order (not a higher modal level). Validated in the consumer harness
+(Invite dialog → Select inside). Backdrop scrim via `color-mix` on
+`base-black`.
+
+### What v1 deliberately leaves out
+
+- **No `size` axis.** shadcn ships none; the panel takes `max-width: 32rem`
+  and the consumer overrides via `className`. Additive later if a size grid
+  proves necessary.
+- **No non-modal mode surfaced.** Base UI `Dialog.Root` accepts
+  `modal={false}` and passes through (`DialogProps`), but the atom is
+  documented as modal; a non-modal centered panel has no consumer yet.
+
+### Mapping from Alexandria
+
+Dialog maps to `DialogPanel` / `DialogPanelDeprecated` (the `@headlessui`
+centered modals). Their adoption follows the same incremental-vs-Fase-6
+rule as Sheet: a like-for-like confirm / short-form modal is a candidate
+swap; anything owning complex nested state is deferred.

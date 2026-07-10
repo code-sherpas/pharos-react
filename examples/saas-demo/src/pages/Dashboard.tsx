@@ -11,6 +11,7 @@ import {
   Separator,
 } from '@code-sherpas/pharos-react';
 import { MEMBERS, initials } from '../data';
+import { InviteDialog } from '../components/InviteDialog';
 
 interface DashboardPageProps {
   user: string;
@@ -23,7 +24,10 @@ interface DashboardPageProps {
 export function DashboardPage({ user }: DashboardPageProps) {
   return (
     <section className="dashboard">
-      <h1>Dashboard</h1>
+      <div className="page-head">
+        <h1>Dashboard</h1>
+        <InviteDialog />
+      </div>
       <p>
         Welcome back, <strong>{user}</strong>.
       </p>
