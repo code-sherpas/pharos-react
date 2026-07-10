@@ -51,6 +51,17 @@ jobs:
   chromatic:
     name: Publish Storybook
     runs-on: ubuntu-latest
+    # Skip the whole job on the `main` push of a Changesets version commit.
+    # "chore: version packages" only bumps `package.json` + CHANGELOG, which
+    # never changes a story — yet `package.json` busts TurboSnap into a full
+    # 96-story rebuild. Post-merge there is no required check to satisfy, so a
+    # job skip is safe here. The PR side is handled by the `skip` input below
+    # (which keeps the UI Review / UI Tests checks green with 0 snapshots).
+    # Does NOT affect Dependabot — a dependency bump can change the render, so
+    # those keep running. See Runbooks §21.
+    if: >-
+      github.event_name != 'push' ||
+      !startsWith(github.event.head_commit.message, 'chore: version packages')
     steps:
       - uses: actions/checkout@v6
         with:
@@ -78,6 +89,14 @@ jobs:
           # Skip waiting for the visual review to finish — GitHub Checks get
           # the final status via Chromatic's own integration.
           exitOnceUploaded: true
+          # Report the Chromatic checks green with ZERO snapshots on the
+          # Changesets version PR (branch `changeset-release/main`). A version
+          # bump changes only `package.json` + CHANGELOG (no visual impact),
+          # but `package.json` would otherwise force a full TurboSnap rebuild.
+          # Using the action's `skip` — not a job-level `if` — keeps the
+          # required UI Review / UI Tests checks reported (green) so the PR can
+          # still merge. See Runbooks §21.
+          skip: 'changeset-release/**'
           # When a build runs on `main`, accept any visual change the PR
           # has already approved. Prevents baseline drift: without this,
           # a baseline stays frozen at the last manually-accepted build
