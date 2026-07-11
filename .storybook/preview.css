@@ -3,6 +3,27 @@
  * into the published library. The published library is pure CSS Modules
  * with hashed class names — see Decision D9. */
 
+/* Design-system base typography for the story canvas.
+ *
+ * Pharos components set their own `font-family`, but raw markup in a story
+ * (a bare `<label>`, prose) and any element that only inherits font fell back
+ * to Storybook's DEFAULT base — so Chromatic snapshotted that text in the
+ * wrong typeface. Per the DS contract (D8/D9) the *consumer* provides the base
+ * typography; this makes the canvas render like a real consumer whose app sets
+ * the DS type (e.g. examples/saas-demo). Scoped to `#storybook-root` (canvas)
+ * so docs pages (`#storybook-docs`) keep their own typography.
+ *
+ * DELIBERATE re-baseline: this shifts the inherited text (and its color) of
+ * every component snapshot to the DS type — ~50 Chromatic changes to accept
+ * knowingly (typography/color only, no behaviour). The webfonts load in
+ * preview.ts. */
+#storybook-root {
+  font-family: var(--pharos-font-family-sans);
+  font-size: var(--pharos-font-size-sm);
+  line-height: 1.43;
+  color: var(--pharos-color-neutral-900);
+}
+
 .storybook-matrix {
   display: grid;
   grid-template-columns: auto repeat(3, auto);
