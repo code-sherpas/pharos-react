@@ -1,0 +1,89 @@
+/* Checkbox.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). Hashed into
+ * `dist/styles.css`. Styles a single square control (the shadcn "Checkbox"
+ * contract) over Base UI's `Checkbox`. State is driven by Base UI's
+ * `data-checked` / `data-indeterminate` / `data-disabled` attributes.
+ *
+ * The atom owns no label (Escuela 1, D11): the consumer pairs it with a
+ * `<label htmlFor>`. Error state is conveyed with `aria-invalid`, like Input /
+ * Textarea. The check / dash marks are inline SVG — the library ships no icon
+ * dependency (same convention as Spinner / Select).
+ */
+
+.root {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--pharos-spacing-5);
+  height: var(--pharos-spacing-5);
+  padding: 0;
+
+  border: 1px solid var(--pharos-color-neutral-500);
+  border-radius: var(--pharos-radius-sm);
+  background-color: var(--pharos-color-base-white);
+  /* The indicator inherits this via `currentColor`. */
+  color: var(--pharos-color-base-white);
+
+  cursor: pointer;
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: var(--pharos-duration-fast);
+  transition-timing-function: var(--pharos-easing-out);
+}
+
+.root:hover:not([data-disabled]):not([data-checked]):not([data-indeterminate]) {
+  border-color: var(--pharos-color-neutral-700);
+}
+
+/* Checked and indeterminate share the filled look — the mark differs. */
+.root[data-checked],
+.root[data-indeterminate] {
+  background-color: var(--pharos-color-neutral-900);
+  border-color: var(--pharos-color-neutral-900);
+}
+
+/* Error state via the standard aria-invalid attribute (D11). */
+.root[aria-invalid='true'] {
+  border-color: var(--pharos-color-semantic-error-fg);
+}
+
+.root:focus-visible {
+  outline: none;
+  /* Same two-stop ring as Button / Input so the system has one focus look. */
+  box-shadow:
+    0 0 0 2px var(--pharos-color-base-white),
+    0 0 0 4px var(--pharos-color-primary-600);
+}
+
+.root[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.indicator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pharos-color-base-white);
+}
+
+.icon {
+  width: var(--pharos-spacing-3);
+  height: var(--pharos-spacing-3);
+}
+
+/* The Indicator renders only when checked or indeterminate; inside it the
+ * check shows by default and the dash takes over for the indeterminate state. */
+.iconIndeterminate {
+  display: none;
+}
+
+.indicator[data-indeterminate] .iconCheck {
+  display: none;
+}
+
+.indicator[data-indeterminate] .iconIndeterminate {
+  display: block;
+}

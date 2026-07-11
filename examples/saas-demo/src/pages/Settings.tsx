@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react';
 import {
   Button,
+  Checkbox,
   Combobox,
   ComboboxChip,
   ComboboxChipRemove,
@@ -36,6 +37,7 @@ export function SettingsPage() {
   const [bio, setBio] = useState('');
   const [visibility, setVisibility] = useState('organization');
   const [skills, setSkills] = useState<string[]>(['React']);
+  const [notify, setNotify] = useState(true);
   const [nameError, setNameError] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -163,6 +165,20 @@ export function SettingsPage() {
               </ComboboxList>
             </ComboboxContent>
           </Combobox>
+        </div>
+
+        <div className="field">
+          <label htmlFor="notify" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <Checkbox
+              id="notify"
+              checked={notify}
+              onCheckedChange={(checked) => {
+                setNotify(checked === true);
+                touch();
+              }}
+            />
+            Email me product updates
+          </label>
         </div>
 
         <Separator />
