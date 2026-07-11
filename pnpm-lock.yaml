@@ -138,6 +138,12 @@ importers:
       '@code-sherpas/pharos-tokens':
         specifier: ^0.4.0
         version: 0.4.0
+      '@fontsource/inter':
+        specifier: ^5.2.8
+        version: 5.2.8
+      '@fontsource/outfit':
+        specifier: ^5.2.8
+        version: 5.2.8
       lucide-react:
         specifier: ^1.24.0
         version: 1.24.0(react@19.2.7)
