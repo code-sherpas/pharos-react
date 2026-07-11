@@ -7,6 +7,10 @@
 body {
   margin: 0;
   font-family: var(--pharos-font-family-sans, system-ui, sans-serif);
+  /* D3: body typography is 14 / 20. Set the consumer's base so plain text
+   * (labels, copy) matches the design-system components. */
+  font-size: var(--pharos-font-size-sm, 0.875rem);
+  line-height: 1.43;
   background: var(--pharos-color-neutral-50, #fafafa);
   color: var(--pharos-color-neutral-900, #171717);
 }
