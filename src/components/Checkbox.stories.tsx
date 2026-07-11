@@ -11,6 +11,21 @@ import { Checkbox } from './Checkbox';
 const meta: Meta<typeof Checkbox> = {
   title: 'Components/Checkbox',
   component: Checkbox,
+  // Give the stories the DS base typography so the raw <label> text renders in
+  // Outfit — a real consumer's app sets this as its base. Scoped to this meta
+  // (not the global story root) so it never re-bases other components' stories.
+  decorators: [
+    (Story) => (
+      <div
+        style={{
+          fontFamily: 'var(--pharos-font-family-sans)',
+          fontSize: 'var(--pharos-font-size-sm)',
+        }}
+      >
+        <Story />
+      </div>
+    ),
+  ],
 };
 
 export default meta;
