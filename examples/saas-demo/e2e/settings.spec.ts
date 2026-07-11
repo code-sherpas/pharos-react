@@ -59,4 +59,14 @@ test.describe('Settings form', () => {
     await expect(chips.filter({ hasText: 'TypeScript' })).toHaveCount(1);
     await expect(chips.filter({ hasText: 'React' })).toHaveCount(1);
   });
+
+  test('toggles the email-updates checkbox', async ({ page }) => {
+    const box = page.getByRole('checkbox', { name: 'Email me product updates' });
+    await expect(box).toHaveAttribute('aria-checked', 'true');
+    await box.click();
+    await expect(box).toHaveAttribute('aria-checked', 'false');
+    // Label click toggles it back (label/control association).
+    await page.getByText('Email me product updates').click();
+    await expect(box).toHaveAttribute('aria-checked', 'true');
+  });
 });

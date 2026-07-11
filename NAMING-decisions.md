@@ -1628,3 +1628,39 @@ Dialog maps to `DialogPanel` / `DialogPanelDeprecated` (the `@headlessui`
 centered modals). Their adoption follows the same incremental-vs-Fase-6
 rule as Sheet: a like-for-like confirm / short-form modal is a candidate
 swap; anything owning complex nested state is deferred.
+
+## Checkbox (D20, 2026-07-10)
+
+A single square selection control. Wraps Base UI's `Checkbox` — a
+`role="checkbox"` button (with `aria-checked="mixed"` for indeterminate)
+plus a hidden form input, Space to toggle, and the shared focus ring.
+
+### Opens the form-control family
+
+The first of the boolean/choice controls (Checkbox → Switch → Radio to
+follow). Fills the gap next to Input / Textarea / Select / Combobox. Like
+those, it is **label-less** (Escuela 1, D11): the consumer pairs it with a
+`<label htmlFor>`; error via `aria-invalid`. No `size` axis in v1 (shadcn
+ships none); a single 20 px box on the token grid.
+
+### `indeterminate` as a boolean, not `checked="indeterminate"`
+
+shadcn/Radix model the third state as a string union on `checked`
+(`boolean | "indeterminate"`); Base UI splits it into a separate boolean
+`indeterminate` prop. Per Rule #0 the DS follows the primitive here — the
+boolean is better typed and avoids the union foot-gun. The rendered
+semantics are identical (`aria-checked="mixed"`).
+
+### Icons inline, no dependency
+
+The check and dash marks are inline SVG (same convention as Spinner /
+Select's chevron) — the published bundle takes no icon dependency. The
+Indicator renders only when checked or indeterminate; CSS swaps check↔dash
+on `[data-indeterminate]`.
+
+### Mapping from Alexandria
+
+Maps to the various native/`@headlessui` checkboxes across the forms
+(settings, filters, consent). Like the other form atoms, a like-for-like
+swap (prop remap + `<label>` wiring) is incremental; checkbox groups with
+custom layout/state are case-by-case.

@@ -171,4 +171,6 @@ export type {
   DialogFooterProps,
   DialogCloseProps,
 } from './components/Dialog';
+export { Checkbox } from './components/Checkbox';
+export type { CheckboxProps } from './components/Checkbox';
 export { cn } from './lib/cn';
