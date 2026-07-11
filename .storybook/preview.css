@@ -3,6 +3,21 @@
  * into the published library. The published library is pure CSS Modules
  * with hashed class names — see Decision D9. */
 
+/* Give every canvas story the design-system base typography. Pharos
+ * components set their own `font-family`, but *raw* markup in a story — a
+ * bare `<label>`, prose, etc. — inherits from the story root, which Storybook
+ * otherwise leaves on its default font. Without this, the first story to
+ * render plain text (Checkbox's `WithLabel`) showed the label in Storybook's
+ * font instead of Outfit. This mirrors a real consumer, whose app sets the DS
+ * type as its base. Scoped to `#storybook-root` (the canvas) so docs pages
+ * (`#storybook-docs`) keep their own typography. Webfonts load in preview.ts. */
+#storybook-root {
+  font-family: var(--pharos-font-family-sans);
+  font-size: var(--pharos-font-size-sm);
+  line-height: 1.43;
+  color: var(--pharos-color-neutral-900);
+}
+
 .storybook-matrix {
   display: grid;
   grid-template-columns: auto repeat(3, auto);
