@@ -15,6 +15,8 @@ import {
   ComboboxList,
   ComboboxTrigger,
   Input,
+  RadioGroup,
+  RadioGroupItem,
   Select,
   SelectContent,
   SelectItem,
@@ -40,6 +42,7 @@ export function SettingsPage() {
   const [skills, setSkills] = useState<string[]>(['React']);
   const [notify, setNotify] = useState(true);
   const [weeklyDigest, setWeeklyDigest] = useState(false);
+  const [theme, setTheme] = useState('system');
   const [nameError, setNameError] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -195,6 +198,40 @@ export function SettingsPage() {
             />
             Send me a weekly digest
           </label>
+        </div>
+
+        <div className="field">
+          <label id="theme-label">Theme</label>
+          <RadioGroup
+            aria-labelledby="theme-label"
+            value={theme}
+            onValueChange={(value) => {
+              setTheme(value as string);
+              touch();
+            }}
+          >
+            <label
+              htmlFor="theme-light"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
+            >
+              <RadioGroupItem id="theme-light" value="light" />
+              Light
+            </label>
+            <label
+              htmlFor="theme-dark"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
+            >
+              <RadioGroupItem id="theme-dark" value="dark" />
+              Dark
+            </label>
+            <label
+              htmlFor="theme-system"
+              style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}
+            >
+              <RadioGroupItem id="theme-system" value="system" />
+              Match system
+            </label>
+          </RadioGroup>
         </div>
 
         <Separator />

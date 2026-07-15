@@ -1718,3 +1718,56 @@ Maps to the various boolean toggles / on-off settings across Alexandria's
 forms. Like the other form atoms, a like-for-like swap (prop remap +
 `<label>` wiring) is incremental; toggles wired into complex local state are
 case-by-case (Fase 6).
+
+## RadioGroup (D22, 2026-07-15)
+
+A set of mutually exclusive options. Wraps Base UI's `RadioGroup` + `Radio` —
+a `role="radiogroup"` container plus `role="radio"` buttons with a hidden form
+input, single selection, roving-tabindex arrow-key navigation, and the shared
+focus ring. The **third and final** boolean/choice control, completing the
+family opened by Checkbox (D20): Checkbox → Switch → **Radio**.
+
+### Compound, unlike Checkbox / Switch
+
+Checkbox and Switch are single self-contained atoms. RadioGroup is **compound**
+(`RadioGroup` + `RadioGroupItem`) because a radio is meaningless alone — the
+selection semantics (single choice, arrow navigation, the submitted value, the
+`name`) live on the **group**, not the individual control. Splitting them
+matches shadcn and the ARIA APG radiogroup pattern; forcing a flat single-atom
+API here would break the contract (Rule #0). This is the same reasoning that
+made Select / Combobox / DropdownMenu compound.
+
+### Canonical naming (`RadioGroup` + `RadioGroupItem`)
+
+Canonical order shadcn > Base UI > ARIA APG. shadcn names the parts
+`RadioGroup` and `RadioGroupItem`; Base UI names them `RadioGroup` and `Radio`.
+We take shadcn's names (the item is `RadioGroupItem`, not `Radio`) so the
+public contract reads like the rest of the ecosystem, and re-author the styles
+as CSS Modules over the Base UI primitive. `data-pharos-slot` is `radio-group`
+/ `radio-group-item`, mirroring the shadcn `data-slot` values.
+
+### Shared API, error at the group
+
+Inherits the form-control conventions: **label-less** (Escuela 1, D11) — the
+consumer pairs the group with a `<label>` / `aria-labelledby` and each item
+with a `<label htmlFor>`; **no `size` axis** in v1 (shadcn ships none). The one
+structural difference from Checkbox / Switch: **error is a group concern**, so
+`aria-invalid` goes on the `RadioGroup` and every item shows the error ring
+(`.group[aria-invalid] .item`), rather than per-control.
+
+### Ring-with-dot, token-derived, no icon
+
+The item mirrors the Checkbox's 20 px (`spacing-5`) control on the token grid,
+but circular (`radius-full`): the ring stays visible and an inner dot
+(`spacing-2`, `neutral-900`) appears on selection — the state-of-the-art radio
+look, deliberately distinct from the Checkbox's filled square. The ring
+darkens to `neutral-900` when selected, keeping one "active control" color
+across the family. The dot is a plain `<span>` (Base UI mounts the Indicator
+only while selected, `keepMounted={false}`) — no icon dependency.
+
+### Mapping from Alexandria
+
+Maps to the various native/`@headlessui` radio groups across Alexandria's forms
+(single-choice settings, filters). Like the other form atoms, a like-for-like
+swap (prop remap + `<label>` wiring) is incremental; groups wired into complex
+local state are case-by-case (Fase 6).
