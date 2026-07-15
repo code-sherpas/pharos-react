@@ -1,0 +1,88 @@
+/* Switch.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). Hashed into
+ * `dist/styles.css`. Styles a single on/off toggle (the shadcn "Switch"
+ * contract) over Base UI's `Switch`. State is driven by Base UI's
+ * `data-checked` / `data-disabled` attributes.
+ *
+ * The atom owns no label (Escuela 1, D11): the consumer pairs it with a
+ * `<label htmlFor>`. Error state is conveyed with `aria-invalid`, like Input /
+ * Textarea / Checkbox. No icon dependency — the thumb is a plain `<span>`.
+ *
+ * Geometry is fully token-derived: a 40×24 track (spacing-10 × spacing-6) with
+ * spacing-1 (4px) padding houses a 16px (spacing-4) thumb, so the thumb travels
+ * exactly spacing-4 (32px inner − 16px thumb) with no hardcoded pixel value.
+ */
+
+.root {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  width: var(--pharos-spacing-10);
+  height: var(--pharos-spacing-6);
+  padding: var(--pharos-spacing-1);
+
+  border: none;
+  border-radius: var(--pharos-radius-full);
+  /* Off track. The perceivable state indicator is the thumb (white with a
+   * neutral-500 hairline, ≈5.4:1) — it stays distinguishable on both the light
+   * off track and the dark on track, satisfying WCAG 1.4.11. */
+  background-color: var(--pharos-color-neutral-300);
+
+  cursor: pointer;
+  transition-property: background-color, box-shadow;
+  transition-duration: var(--pharos-duration-fast);
+  transition-timing-function: var(--pharos-easing-out);
+}
+
+.root:hover:not([data-disabled]):not([data-checked]) {
+  background-color: var(--pharos-color-neutral-400);
+}
+
+/* On track — the neutral-900 fill, matching the Checkbox's checked look. */
+.root[data-checked] {
+  background-color: var(--pharos-color-neutral-900);
+}
+
+.root[data-checked]:hover:not([data-disabled]) {
+  background-color: var(--pharos-color-neutral-700);
+}
+
+/* Error state via the standard aria-invalid attribute (D11). An inset ring so
+ * the track keeps its geometry (no border-driven layout shift on the thumb). */
+.root[aria-invalid='true'] {
+  box-shadow: inset 0 0 0 1px var(--pharos-color-semantic-error-fg);
+}
+
+.root:focus-visible {
+  outline: none;
+  /* Same two-stop ring as Button / Input / Checkbox so the system has one
+   * focus look. */
+  box-shadow:
+    0 0 0 2px var(--pharos-color-base-white),
+    0 0 0 4px var(--pharos-color-primary-600);
+}
+
+.root[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.thumb {
+  box-sizing: border-box;
+  width: var(--pharos-spacing-4);
+  height: var(--pharos-spacing-4);
+  border: 1px solid var(--pharos-color-neutral-500);
+  border-radius: var(--pharos-radius-full);
+  background-color: var(--pharos-color-base-white);
+
+  transition-property: transform;
+  transition-duration: var(--pharos-duration-fast);
+  transition-timing-function: var(--pharos-easing-out);
+}
+
+/* Slide to the far edge: inner width (32px) − thumb (16px) = spacing-4. */
+.root[data-checked] .thumb {
+  transform: translateX(var(--pharos-spacing-4));
+}

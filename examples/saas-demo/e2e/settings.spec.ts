@@ -69,4 +69,14 @@ test.describe('Settings form', () => {
     await page.getByText('Email me product updates').click();
     await expect(box).toHaveAttribute('aria-checked', 'true');
   });
+
+  test('toggles the weekly-digest switch', async ({ page }) => {
+    const toggle = page.getByRole('switch', { name: 'Send me a weekly digest' });
+    await expect(toggle).toHaveAttribute('aria-checked', 'false');
+    await toggle.click();
+    await expect(toggle).toHaveAttribute('aria-checked', 'true');
+    // Label click toggles it back (label/control association).
+    await page.getByText('Send me a weekly digest').click();
+    await expect(toggle).toHaveAttribute('aria-checked', 'false');
+  });
 });

@@ -1664,3 +1664,57 @@ Maps to the various native/`@headlessui` checkboxes across the forms
 (settings, filters, consent). Like the other form atoms, a like-for-like
 swap (prop remap + `<label>` wiring) is incremental; checkbox groups with
 custom layout/state are case-by-case.
+
+## Switch (D21, 2026-07-15)
+
+A single on/off toggle. Wraps Base UI's `Switch` — a `role="switch"` button
+plus a hidden form input, Space to toggle, and the shared focus ring. The
+second of the boolean form controls, completing the family opened by Checkbox
+(D20): Checkbox → **Switch** → Radio to follow.
+
+### Why a separate atom from Checkbox (canonical, not cosmetic)
+
+shadcn ships `Switch` and `Checkbox` as distinct components, and the split is
+semantic, not visual: a **Switch** takes effect immediately (a setting you
+flip — notifications on/off), while a **Checkbox** is a selection usually
+submitted with a surrounding form (accept terms, pick options). ARIA backs the
+distinction with separate roles (`switch` vs `checkbox`). Merging them into one
+configurable control would blur both contracts (Rule #0: don't force it).
+
+The API is deliberately the same shape as Checkbox — `checked` /
+`onCheckedChange` / `disabled`, label-less (Escuela 1, D11) with error via
+`aria-invalid`, no `size` axis in v1 (shadcn ships none). The one intentional
+difference: **no `indeterminate`**. A toggle is binary; there is no third
+state (Base UI's `Switch` exposes none either).
+
+### `role="switch"`, not a styled checkbox
+
+Base UI's `Switch` renders `role="switch"` with `aria-checked`, the canonical
+ARIA APG toggle semantics — not a `role="checkbox"` restyled to look like a
+toggle. Screen readers announce "switch, on/off", which is the correct mental
+model for an immediate setting.
+
+### Token-derived geometry (no hardcoded pixels)
+
+The track is 40×24 (`spacing-10` × `spacing-6`) with `spacing-1` (4px) padding
+around a 16px (`spacing-4`) thumb, so the thumb travels exactly `spacing-4`
+(32px inner − 16px thumb) — every dimension is a `--pharos-*` token
+(NON-NEGOTIABLE #1). The track is intentionally larger than the 20px Checkbox
+box: a toggle is a bigger hit target and reads as a distinct control shape.
+
+The **on** track uses `neutral-900` — the same fill as the Checkbox's checked
+state, keeping one "active control" color across the family. The **off** track
+is `neutral-300`; the perceivable state indicator is the thumb (white with a
+`neutral-500` hairline, ≈5.4:1), which stays distinguishable on both the light
+off track and the dark on track — satisfying WCAG 1.4.11 without a track
+border (which would break the clean token travel). Error state is an inset
+1px ring (`semantic.error`) so the track keeps its geometry. No icon
+dependency — the thumb is a plain `<span>` (unlike Checkbox's inline SVG
+marks).
+
+### Mapping from Alexandria
+
+Maps to the various boolean toggles / on-off settings across Alexandria's
+forms. Like the other form atoms, a like-for-like swap (prop remap +
+`<label>` wiring) is incremental; toggles wired into complex local state are
+case-by-case (Fase 6).

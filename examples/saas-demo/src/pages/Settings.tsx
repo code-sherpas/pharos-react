@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
   Separator,
+  Switch,
   Textarea,
 } from '@code-sherpas/pharos-react';
 import { SKILLS, TIMEZONES } from '../data';
@@ -38,6 +39,7 @@ export function SettingsPage() {
   const [visibility, setVisibility] = useState('organization');
   const [skills, setSkills] = useState<string[]>(['React']);
   const [notify, setNotify] = useState(true);
+  const [weeklyDigest, setWeeklyDigest] = useState(false);
   const [nameError, setNameError] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -178,6 +180,20 @@ export function SettingsPage() {
               }}
             />
             Email me product updates
+          </label>
+        </div>
+
+        <div className="field">
+          <label htmlFor="digest" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+            <Switch
+              id="digest"
+              checked={weeklyDigest}
+              onCheckedChange={(checked) => {
+                setWeeklyDigest(checked);
+                touch();
+              }}
+            />
+            Send me a weekly digest
           </label>
         </div>
 
