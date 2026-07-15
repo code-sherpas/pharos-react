@@ -1,0 +1,81 @@
+/* RadioGroup.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). Hashed into
+ * `dist/styles.css`. Styles the shadcn "RadioGroup" contract over Base UI's
+ * `RadioGroup` + `Radio`. Item state is driven by Base UI's `data-checked` /
+ * `data-disabled` attributes.
+ *
+ * The atom owns no labels (Escuela 1, D11): the consumer pairs the group with a
+ * `<label>` / `aria-labelledby` and each item with a `<label htmlFor>`. Error
+ * state is conveyed with `aria-invalid` on the group. The selected dot is a
+ * plain `<span>` — no icon dependency (Base UI mounts it only when checked).
+ *
+ * The item mirrors Checkbox's 20px (spacing-5) control on the token grid, but
+ * circular: a ring that stays visible with an inner dot on selection, the
+ * state-of-the-art radio look (distinct from Checkbox's filled square).
+ */
+
+.group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pharos-spacing-2);
+}
+
+.item {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--pharos-spacing-5);
+  height: var(--pharos-spacing-5);
+  padding: 0;
+
+  border: 1px solid var(--pharos-color-neutral-500);
+  border-radius: var(--pharos-radius-full);
+  background-color: var(--pharos-color-base-white);
+
+  cursor: pointer;
+  transition-property: background-color, border-color, box-shadow;
+  transition-duration: var(--pharos-duration-fast);
+  transition-timing-function: var(--pharos-easing-out);
+}
+
+.item:hover:not([data-disabled]):not([data-checked]) {
+  border-color: var(--pharos-color-neutral-700);
+}
+
+/* Selected — the ring darkens to match the Checkbox / Switch "active" color and
+ * the inner dot appears. */
+.item[data-checked] {
+  border-color: var(--pharos-color-neutral-900);
+}
+
+/* Error state via aria-invalid on the group (radio error is a group concern,
+ * D11) — every item shows the error ring. */
+.group[aria-invalid='true'] .item {
+  border-color: var(--pharos-color-semantic-error-fg);
+}
+
+.item:focus-visible {
+  outline: none;
+  /* Same two-stop ring as Button / Input / Checkbox / Switch so the system has
+   * one focus look. */
+  box-shadow:
+    0 0 0 2px var(--pharos-color-base-white),
+    0 0 0 4px var(--pharos-color-primary-600);
+}
+
+.item[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* The inner dot — Base UI mounts the Indicator only while selected. */
+.indicator {
+  display: inline-flex;
+  width: var(--pharos-spacing-2);
+  height: var(--pharos-spacing-2);
+  border-radius: var(--pharos-radius-full);
+  background-color: var(--pharos-color-neutral-900);
+}

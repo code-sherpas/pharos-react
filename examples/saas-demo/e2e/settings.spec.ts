@@ -79,4 +79,26 @@ test.describe('Settings form', () => {
     await page.getByText('Send me a weekly digest').click();
     await expect(toggle).toHaveAttribute('aria-checked', 'false');
   });
+
+  test('picks a single theme in the radio group', async ({ page }) => {
+    const group = page.getByRole('radiogroup', { name: 'Theme' });
+    const system = group.getByRole('radio', { name: 'Match system' });
+    const light = group.getByRole('radio', { name: 'Light' });
+    // Seeded selection is "system".
+    await expect(system).toHaveAttribute('aria-checked', 'true');
+    await expect(light).toHaveAttribute('aria-checked', 'false');
+
+    // Selecting another option enforces single selection.
+    await light.click();
+    await expect(light).toHaveAttribute('aria-checked', 'true');
+    await expect(system).toHaveAttribute('aria-checked', 'false');
+
+    // Arrow keys move the selection (roving radiogroup semantics).
+    await light.press('ArrowDown');
+    await expect(group.getByRole('radio', { name: 'Dark' })).toHaveAttribute(
+      'aria-checked',
+      'true',
+    );
+    await expect(light).toHaveAttribute('aria-checked', 'false');
+  });
 });
