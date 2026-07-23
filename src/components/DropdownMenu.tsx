@@ -1,3 +1,5 @@
+'use client';
+
 import type { ComponentProps } from 'react';
 import { Menu } from '@base-ui/react/menu';
 import { cn } from '../lib/cn';

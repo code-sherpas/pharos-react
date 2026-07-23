@@ -1,3 +1,5 @@
+'use client';
+
 import type { ComponentProps } from 'react';
 import { Popover as BasePopover } from '@base-ui/react/popover';
 import { cn } from '../lib/cn';
