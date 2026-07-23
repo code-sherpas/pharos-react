@@ -1,3 +1,5 @@
+'use client';
+
 import type { ComponentProps } from 'react';
 import { Select as BaseSelect } from '@base-ui/react/select';
 import { cva, type VariantProps } from 'class-variance-authority';

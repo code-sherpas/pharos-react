@@ -1,3 +1,5 @@
+'use client';
+
 import type { ComponentProps, ComponentPropsWithoutRef } from 'react';
 import { Dialog } from '@base-ui/react/dialog';
 import { cva, type VariantProps } from 'class-variance-authority';

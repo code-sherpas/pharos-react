@@ -1,3 +1,5 @@
+'use client';
+
 import type { ComponentProps, ComponentPropsWithoutRef } from 'react';
 import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 import { cn } from '../lib/cn';

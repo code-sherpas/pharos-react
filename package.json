@@ -25,7 +25,79 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./styles.css": "./dist/styles.css"
+    "./styles.css": "./dist/styles.css",
+    "./Avatar": {
+      "types": "./dist/components/Avatar.d.ts",
+      "import": "./dist/components/Avatar.js"
+    },
+    "./Badge": {
+      "types": "./dist/components/Badge.d.ts",
+      "import": "./dist/components/Badge.js"
+    },
+    "./Button": {
+      "types": "./dist/components/Button.d.ts",
+      "import": "./dist/components/Button.js"
+    },
+    "./Card": {
+      "types": "./dist/components/Card.d.ts",
+      "import": "./dist/components/Card.js"
+    },
+    "./Checkbox": {
+      "types": "./dist/components/Checkbox.d.ts",
+      "import": "./dist/components/Checkbox.js"
+    },
+    "./Combobox": {
+      "types": "./dist/components/Combobox.d.ts",
+      "import": "./dist/components/Combobox.js"
+    },
+    "./Dialog": {
+      "types": "./dist/components/Dialog.d.ts",
+      "import": "./dist/components/Dialog.js"
+    },
+    "./DropdownMenu": {
+      "types": "./dist/components/DropdownMenu.d.ts",
+      "import": "./dist/components/DropdownMenu.js"
+    },
+    "./IconButton": {
+      "types": "./dist/components/IconButton.d.ts",
+      "import": "./dist/components/IconButton.js"
+    },
+    "./Input": {
+      "types": "./dist/components/Input.d.ts",
+      "import": "./dist/components/Input.js"
+    },
+    "./Popover": {
+      "types": "./dist/components/Popover.d.ts",
+      "import": "./dist/components/Popover.js"
+    },
+    "./RadioGroup": {
+      "types": "./dist/components/RadioGroup.d.ts",
+      "import": "./dist/components/RadioGroup.js"
+    },
+    "./Select": {
+      "types": "./dist/components/Select.d.ts",
+      "import": "./dist/components/Select.js"
+    },
+    "./Separator": {
+      "types": "./dist/components/Separator.d.ts",
+      "import": "./dist/components/Separator.js"
+    },
+    "./Sheet": {
+      "types": "./dist/components/Sheet.d.ts",
+      "import": "./dist/components/Sheet.js"
+    },
+    "./Spinner": {
+      "types": "./dist/components/Spinner.d.ts",
+      "import": "./dist/components/Spinner.js"
+    },
+    "./Switch": {
+      "types": "./dist/components/Switch.d.ts",
+      "import": "./dist/components/Switch.js"
+    },
+    "./Textarea": {
+      "types": "./dist/components/Textarea.d.ts",
+      "import": "./dist/components/Textarea.js"
+    }
   },
   "sideEffects": [
     "**/*.css"
@@ -43,7 +115,7 @@
     }
   },
   "scripts": {
-    "build": "vite build && pnpm verify:dist-types",
+    "build": "vite build && pnpm verify:dist-types && pnpm verify:dist-rsc",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test": "vitest run --project unit",
@@ -53,6 +125,7 @@
     "dev:demo": "pnpm --filter @examples/saas-demo dev",
     "typecheck": "tsc --noEmit",
     "verify:dist-types": "tsc --noEmit -p tsconfig.dist-smoke.json",
+    "verify:dist-rsc": "node scripts/verify-dist-rsc.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

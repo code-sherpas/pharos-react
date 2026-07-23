@@ -1,3 +1,5 @@
+'use client';
+
 import type { ComponentProps } from 'react';
 import { Checkbox as BaseCheckbox } from '@base-ui/react/checkbox';
 import { cn } from '../lib/cn';

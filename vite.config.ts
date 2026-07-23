@@ -20,7 +20,6 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       formats: ['es'],
-      fileName: () => 'index.js',
       cssFileName: 'styles',
     },
     rollupOptions: {
@@ -32,19 +31,24 @@ export default defineConfig({
         /^@code-sherpas\/pharos-tokens\//,
         '@base-ui/react',
         /^@base-ui\/react\//,
+        // Runtime `dependencies` (installed transitively for consumers). With
+        // `preserveModules` an inlined dep would otherwise be emitted under
+        // `dist/node_modules/…` and referenced by a relative path — but `npm
+        // pack` strips every `node_modules` folder, so that path would dangle
+        // in the published tarball. Keeping them external ships bare specifiers
+        // that resolve from the consumer's install (#80).
+        'class-variance-authority',
+        'clsx',
       ],
       output: {
-        // Bundle banner that marks the published ESM module as client-only.
-        // Avatar (D14) calls `createContext` at module top level; without
-        // this directive, Next.js evaluates the module during RSC
-        // build-time analysis and fails with
-        // `TypeError: (0 , c.createContext) is not a function` while
-        // collecting page data. The whole library shipping as client-only
-        // matches what every React DS does (MUI, Chakra, Radix, shadcn).
-        // The atoms that have no hooks (Card / Separator) lose
-        // server-render-ability as a side effect — acceptable; consumers
-        // were never asked to render them as Server Components anyway.
-        banner: "'use client';",
+        // Per-component RSC granularity (#80): preserve the src module graph
+        // so each atom ships as its own file (`dist/components/Button.js`),
+        // carrying its own per-file `"use client"` directive where needed.
+        // Stateless atoms (Card / Separator / …) ship without it and stay
+        // server-renderable. Replaces the old blanket `banner: "'use client'"`.
+        preserveModules: true,
+        preserveModulesRoot: 'src',
+        entryFileNames: '[name].js',
       },
     },
     cssCodeSplit: false,
