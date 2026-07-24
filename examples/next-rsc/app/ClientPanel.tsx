@@ -55,7 +55,12 @@ export function ClientPanel() {
     <section aria-label="Client-boundary atoms" style={{ display: 'grid', gap: 16 }}>
       <div style={row}>
         <Avatar>
-          <AvatarImage src="https://example.com/a.png" alt="Ada" />
+          {/* Inline data-URI so the runtime smoke's console stays clean (a
+              network 404 would log a resource error and mask real ones). */}
+          <AvatarImage
+            src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=="
+            alt="Ada"
+          />
           <AvatarFallback>AL</AvatarFallback>
         </Avatar>
         <IconButton aria-label="Settings">

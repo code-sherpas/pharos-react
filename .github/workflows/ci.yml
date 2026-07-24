@@ -172,6 +172,16 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+
+      - name: Install Playwright Chromium
+        run: pnpm --filter @examples/next-rsc exec playwright install --with-deps chromium
+
       # Build the library to dist/ (the consumer contract), then `next build`
       # the minimal Next.js App Router consumer. It renders the stateless atoms
       # in a Server Component and the client atoms behind a `"use client"`
@@ -181,5 +191,20 @@ jobs:
       - name: Build library (dist/ = the consumer contract)
         run: pnpm build
 
-      - name: Build RSC consumer (next build = the RSC regression net)
+      - name: Build RSC consumer (next build = the RSC compile net)
         run: pnpm --filter @examples/next-rsc build
+
+      # Runtime smoke: serve the production build (`next start`) and drive it —
+      # catches what `next build` can't: hydration mismatches and post-hydration
+      # interactivity of the client atoms under Next. Server render + client
+      # hydration + a Base UI overlay, asserting zero console/page errors.
+      - name: Run RSC runtime smoke (Playwright)
+        run: pnpm --filter @examples/next-rsc test:e2e
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-next-rsc
+          path: examples/next-rsc/playwright-report
+          retention-days: 7
