@@ -1,0 +1,26 @@
+{
+  "name": "@examples/next-rsc",
+  "version": "0.0.0",
+  "private": true,
+  "description": "RSC consumer harness: a minimal Next.js App Router app that renders the STATELESS atoms inside a Server Component and the CLIENT atoms inside a Client Component, consuming the built dist + styles.css + tokens/css like an external consumer. Its `next build` is the regression net for the per-component `\"use client\"` boundaries (#80) — a layer the Vite saas-demo harness structurally cannot see. Never published.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@base-ui/react": "^1.4.1",
+    "@code-sherpas/pharos-react": "workspace:*",
+    "@code-sherpas/pharos-tokens": "^0.4.0",
+    "next": "^15.5.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.3",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "typescript": "^6.0.3"
+  }
+}

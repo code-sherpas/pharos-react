@@ -34,7 +34,15 @@ export default [
     },
   },
   {
-    ignores: ['dist/**', 'node_modules/**', 'coverage/**', 'storybook-static/**'],
+    ignores: [
+      'dist/**',
+      'node_modules/**',
+      'coverage/**',
+      'storybook-static/**',
+      // Build outputs of the consumer-harness example apps under examples/*.
+      '**/.next/**',
+      'examples/*/dist/**',
+    ],
   },
   prettier,
 ];
