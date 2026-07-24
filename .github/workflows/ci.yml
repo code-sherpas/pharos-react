@@ -151,3 +151,35 @@ jobs:
           name: playwright-report
           path: examples/saas-demo/playwright-report
           retention-days: 7
+
+  rsc-consumer:
+    name: rsc consumer (next build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 10.33.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 24.15.0
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Build the library to dist/ (the consumer contract), then `next build`
+      # the minimal Next.js App Router consumer. It renders the stateless atoms
+      # in a Server Component and the client atoms behind a `"use client"`
+      # boundary, so a successful prerender proves the per-component RSC
+      # directives (#80) hold — the boundary layer the Vite saas-demo harness
+      # cannot see. Browser-free; PR-gating; release.yml stays untouched.
+      - name: Build library (dist/ = the consumer contract)
+        run: pnpm build
+
+      - name: Build RSC consumer (next build = the RSC regression net)
+        run: pnpm --filter @examples/next-rsc build
