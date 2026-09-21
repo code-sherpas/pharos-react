@@ -303,7 +303,8 @@ link from elsewhere, never copy.
 | Code, tests, changesets                                         | this repo                                                                 |
 | Library/API contract, naming, component rules                   | the owning Pharos repo (`RULES.md`, `NAMING-decisions.md`)                |
 | Per-repo tech debt & adoption log                               | the repo (`docs/` — e.g. `docs/migration-log.md`, `docs/technical-debt/`) |
-| Agent skills (how we build)                                     | `code-sherpas/agent-skills` (skills-lock)                                 |
+| Software development standards (how we build)                   | `code-sherpas/software-development-standards` (read by URL)               |
+| Agent skills (procedures an agent runs)                         | `code-sherpas/agent-skills` (skills-lock)                                 |
 | Roadmap, plan, phase status                                     | Notion → Roadmap / Status                                                 |
 | Architecture/program decisions (ADRs)                           | Notion → Decisions (link to the repo doc if repo-local)                   |
 | Runbooks, CI/release/Chromatic quirks, verification recipes     | Notion → Runbooks                                                         |
