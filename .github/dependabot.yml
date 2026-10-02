@@ -18,6 +18,15 @@ updates:
     # are NOT skipped); there are just far fewer of them.
     schedule:
       interval: 'weekly'
+    # Match pnpm's `minimum-release-age` (7 days, .npmrc): do not propose a
+    # version pnpm itself would refuse to resolve. Own-org packages are exempt
+    # in both places, so a fresh pharos-tokens still arrives the day it ships.
+    # The cooldown only delays when a version is proposed; it does not change
+    # the groups below or the auto-merge gate.
+    cooldown:
+      default-days: 7
+      exclude:
+        - '@code-sherpas/*'
     groups:
       # react and react-dom must carry the exact same version — a lone
       # bump of either one fails every test with React's
