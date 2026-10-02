@@ -38,7 +38,7 @@ const preview: Preview = {
       if (typeof document !== 'undefined') {
         // lib.dom types `document.fonts` as always present, but jsdom does
         // not implement it — so say what the runtime may hand us.
-        const fonts: FontFaceSet | undefined = document.fonts;
+        const fonts = document.fonts as FontFaceSet | undefined;
         if (fonts) await fonts.ready;
       }
       return {};
