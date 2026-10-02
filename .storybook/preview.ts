@@ -35,8 +35,11 @@ const preview: Preview = {
   // because the snapshot fired before Outfit settled in.
   loaders: [
     async () => {
-      if (typeof document !== 'undefined' && document.fonts?.ready) {
-        await document.fonts.ready;
+      if (typeof document !== 'undefined') {
+        // lib.dom types `document.fonts` as always present, but jsdom does
+        // not implement it — so say what the runtime may hand us.
+        const fonts: FontFaceSet | undefined = document.fonts;
+        if (fonts) await fonts.ready;
       }
       return {};
     },

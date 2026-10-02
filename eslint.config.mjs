@@ -45,6 +45,32 @@ export default [
       'examples/*/dist/**',
     ],
   },
+  // Type-aware rules. The project service gives each file the program of the
+  // nearest tsconfig.json (the root one, or examples/*/tsconfig.json); the
+  // files no tsconfig includes (.storybook/, stories/ and the .mjs scripts)
+  // get the default project instead, so they are linted with types too.
+  {
+    files: ['**/*.ts', '**/*.tsx', '**/*.mjs'],
+    languageOptions: {
+      parserOptions: {
+        projectService: {
+          allowDefaultProject: [
+            '*.mjs',
+            '.storybook/*.ts',
+            'stories/*.tsx',
+            'scripts/*.mjs',
+            'examples/next-rsc/*.mjs',
+          ],
+        },
+        tsconfigRootDir: import.meta.dirname,
+      },
+    },
+    rules: {
+      // A promise where a value is expected — a condition, a spread, an event
+      // handler whose return is ignored — is a bug the compiler accepts.
+      '@typescript-eslint/no-misused-promises': 'error',
+    },
+  },
   // What GitHub Code Quality checked, checked here instead.
   //
   // Code Quality runs CodeQL's JavaScript quality suite — every query tagged
