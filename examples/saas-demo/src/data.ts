@@ -50,7 +50,7 @@ export const ROLE_TONE: Record<Member['role'], 'info' | 'success' | 'secondary'>
 export function initials(value: string): string {
   const parts = value.trim().split(/\s+/);
   return parts
-    .map((p) => p[0] ?? '')
+    .map((p) => p.charAt(0))
     .slice(0, 2)
     .join('')
     .toUpperCase();
