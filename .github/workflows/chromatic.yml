@@ -6,10 +6,17 @@ name: Chromatic
 # repo secrets.
 #
 # Snapshot quota lives under a budget (free tier 5000 / OSS tier 7500 per
-# month). A `paths-ignore` filter keeps Chromatic from spending snapshots
-# on changes that cannot affect the visual output (docs, changelogs,
-# changesets, dependabot config, the auto-merge workflow). None of these
-# touch the published bundle or any story.
+# month). Changes that cannot affect the visual output (docs, changelogs,
+# changesets, dependabot config, the auto-merge workflow) spend no snapshots:
+# the `scope` step below detects them and the Chromatic step runs with
+# `skip`, which marks the commit as passing with zero snapshots.
+#
+# The workflow itself always runs. It used to be filtered with `paths-ignore`,
+# but `UI Tests`, `UI Review` and `Publish Storybook` are required checks on
+# `main`: a workflow that never starts reports nothing, so a docs-only pull
+# request stayed BLOCKED forever and could only land with an admin bypass
+# (Chromatic's docs: "Skip the build with --skip instead of skipping the CI
+# step"). Now every pull request gets the three checks, true for what it is.
 #
 # Dependabot PRs continue to run Chromatic on purpose: a future PR is
 # expected to re-enable TurboSnap with a content-hash fingerprint of
@@ -21,24 +28,8 @@ name: Chromatic
 on:
   push:
     branches: [main]
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.mdx'
-      - '.changeset/**'
-      - 'CHANGELOG.md'
-      - 'LICENSE'
-      - '.github/dependabot.yml'
-      - '.github/workflows/dependabot-auto-merge.yml'
   pull_request:
     branches: [main]
-    paths-ignore:
-      - '**/*.md'
-      - '**/*.mdx'
-      - '.changeset/**'
-      - 'CHANGELOG.md'
-      - 'LICENSE'
-      - '.github/dependabot.yml'
-      - '.github/workflows/dependabot-auto-merge.yml'
 
 permissions:
   contents: read
@@ -68,18 +59,38 @@ jobs:
           # Chromatic needs full git history to detect baselines and changes.
           fetch-depth: 0
 
+      # Can this change alter what a story renders? Only if it touches a file
+      # outside the list below — the list `paths-ignore` used to carry.
+      - name: Decide whether the change is visual
+        id: scope
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
+            echo "visual=true" >> "$GITHUB_OUTPUT"; echo "No base to compare with: treating as visual."; exit 0
+          fi
+          changed=$(git diff --name-only "$BASE_SHA...$HEAD_SHA")
+          visual=$(printf '%s\n' "$changed" | grep -v -E '(\.mdx?$|^\.changeset/|^CHANGELOG\.md$|^LICENSE$|^\.github/dependabot\.yml$|^\.github/workflows/dependabot-auto-merge\.yml$)' | grep -c . || true)
+          echo "Changed files:"; printf '  %s\n' $changed
+          if [ "$visual" -gt 0 ]; then echo "visual=true" >> "$GITHUB_OUTPUT"; else echo "visual=false" >> "$GITHUB_OUTPUT"; fi
+          echo "Files that can change a story: $visual"
+
       - name: Install pnpm
+        if: steps.scope.outputs.visual == 'true'
         uses: pnpm/action-setup@v6
         with:
           version: 10.33.0
 
       - name: Setup Node.js
+        if: steps.scope.outputs.visual == 'true'
         uses: actions/setup-node@v6
         with:
           node-version: 24.15.0
           cache: pnpm
 
       - name: Install dependencies
+        if: steps.scope.outputs.visual == 'true'
         run: pnpm install --frozen-lockfile
 
       - name: Publish to Chromatic
@@ -89,14 +100,15 @@ jobs:
           # Skip waiting for the visual review to finish — GitHub Checks get
           # the final status via Chromatic's own integration.
           exitOnceUploaded: true
-          # Report the Chromatic checks green with ZERO snapshots on the
-          # Changesets version PR (branch `changeset-release/main`). A version
+          # Report the Chromatic checks green with ZERO snapshots when the
+          # change cannot alter a story (the `scope` step), and on the
+          # Changesets version PR (branch `changeset-release/main`): a version
           # bump changes only `package.json` + CHANGELOG (no visual impact),
           # but `package.json` would otherwise force a full TurboSnap rebuild.
-          # Using the action's `skip` — not a job-level `if` — keeps the
-          # required UI Review / UI Tests checks reported (green) so the PR can
-          # still merge. See Runbooks §21.
-          skip: 'changeset-release/**'
+          # Using the action's `skip` — not a job-level `if` or a path filter —
+          # keeps the required UI Review / UI Tests checks reported (green) so
+          # the PR can still merge. See Runbooks §21.
+          skip: ${{ steps.scope.outputs.visual != 'true' || startsWith(github.head_ref, 'changeset-release/') }}
           # When a build runs on `main`, accept any visual change the PR
           # has already approved. Prevents baseline drift: without this,
           # a baseline stays frozen at the last manually-accepted build
