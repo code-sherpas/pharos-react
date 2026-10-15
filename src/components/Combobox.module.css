@@ -313,3 +313,14 @@
   margin: var(--pharos-spacing-1) 0;
   background-color: var(--pharos-color-neutral-200);
 }
+
+/* === Touch screens ===
+ * iOS Safari zooms the whole page into any text field whose font is smaller
+ * than 16px the moment it is focused, and apps used to stop it by forbidding
+ * zoom altogether (`maximum-scale=1`), which breaks WCAG 1.4.4. On a coarse
+ * pointer every size types at `base` (16px), so the page can stay zoomable. */
+@media (pointer: coarse) {
+  .input {
+    font-size: var(--pharos-font-size-base);
+  }
+}
