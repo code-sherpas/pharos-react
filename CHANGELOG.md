@@ -1,5 +1,11 @@
 # @code-sherpas/pharos-react
 
+## 0.20.2
+
+### Patch Changes
+
+- 3a5656c: `Select` and `Combobox`: a long option now wraps onto as many lines as it needs instead of being cut with an ellipsis, so the end that tells similar options apart (a timezone's name, for instance) stays readable. The check mark of the selected option sits on its first line.
+
 ## 0.20.1
 
 ### Patch Changes
