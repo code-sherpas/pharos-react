@@ -70,6 +70,29 @@ export const OpenListbox: Story = {
 };
 
 /** Heights match the Input/Button grid so a Select sits flush on a form row. */
+const DELIVERY = {
+  standard: 'Standard delivery',
+  scheduled: 'Scheduled delivery to a pick-up point near your workplace, between 18:00 and 21:00',
+  express: 'Express',
+};
+
+/** Options longer than the trigger wrap onto as many lines as they need; the
+ * check mark stays on the first line. `defaultOpen` so Chromatic captures it. */
+export const LongOptions: Story = {
+  render: () => (
+    <Select defaultOpen defaultValue="scheduled" items={DELIVERY}>
+      <SelectTrigger aria-label="Delivery">
+        <SelectValue placeholder="Select delivery" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectItem value="standard">{DELIVERY.standard}</SelectItem>
+        <SelectItem value="scheduled">{DELIVERY.scheduled}</SelectItem>
+        <SelectItem value="express">{DELIVERY.express}</SelectItem>
+      </SelectContent>
+    </Select>
+  ),
+};
+
 export const Sizes: Story = {
   render: () => (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>

@@ -28,7 +28,12 @@ import {
 } from '@code-sherpas/pharos-react';
 import { SKILLS, TIMEZONES } from '../data';
 
-const VISIBILITY = { private: 'Private', organization: 'Organization', public: 'Public' };
+const VISIBILITY = {
+  private: 'Private',
+  organization: 'Organization',
+  public: 'Public',
+  invited: 'Only the people I invite, one by one, to each of my projects',
+};
 
 /**
  * The form-heavy page: Input, Textarea, Select (single listbox), Combobox
@@ -114,6 +119,9 @@ export function SettingsPage() {
               <SelectItem value="private">Private</SelectItem>
               <SelectItem value="organization">Organization</SelectItem>
               <SelectItem value="public">Public</SelectItem>
+              <SelectItem value="invited">
+                Only the people I invite, one by one, to each of my projects
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
