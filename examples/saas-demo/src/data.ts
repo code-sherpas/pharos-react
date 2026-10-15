@@ -22,6 +22,8 @@ export const TIMEZONES = [
   'America/New_York',
   'America/Los_Angeles',
   'Asia/Tokyo',
+  // As long as the real-world labels that made options get cut off.
+  '(GMT-06:00) America/Mexico_City — Central Standard Time (Mexico)',
 ];
 
 export const SKILLS = [

@@ -1,5 +1,34 @@
 import { test, expect } from '@playwright/test';
+import type { Locator } from '@playwright/test';
 import { signIn } from './helpers';
+
+/**
+ * True when every piece of the option's text is inside the option's box and
+ * nothing is cut off: no text wider than its container, no ellipsis.
+ */
+async function fitsWithoutClipping(option: Locator): Promise<boolean> {
+  return option.evaluate(function textIsWhole(el) {
+    const box = el.getBoundingClientRect();
+    return [...el.querySelectorAll('*'), el].every((node) => {
+      const style = getComputedStyle(node);
+      const r = node.getBoundingClientRect();
+      const clipped = node.scrollWidth > node.clientWidth + 1 && style.overflow !== 'visible';
+      return !clipped && style.textOverflow !== 'ellipsis' && r.right <= box.right + 1;
+    });
+  });
+}
+
+/** A phone-sized viewport, where long options no longer fit on one line. */
+const PHONE = { width: 360, height: 780 };
+
+/** True when the option's text runs over more than one line. */
+async function spansSeveralLines(option: Locator): Promise<boolean> {
+  return option.evaluate(function wraps(el) {
+    const lineHeight = parseFloat(getComputedStyle(el).lineHeight);
+    const text = el.firstElementChild ?? el;
+    return text.getBoundingClientRect().height > lineHeight * 1.5;
+  });
+}
 
 // Every form atom composed on one page: Input validation, the Select listbox,
 // and the multi-select Combobox chips.
@@ -45,6 +74,38 @@ test.describe('Settings form', () => {
     await expect(page.getByRole('option', { name: 'UTC' })).toHaveCount(0);
     await page.getByRole('option', { name: 'Europe/Madrid' }).click();
     await expect(input).toHaveValue('Europe/Madrid');
+  });
+
+  test('shows a long listbox option whole, on as many lines as it needs', async ({ page }) => {
+    await page.setViewportSize(PHONE);
+    await page.getByRole('combobox', { name: 'Profile visibility' }).click();
+    const option = page.getByRole('option', {
+      name: 'Only the people I invite, one by one, to each of my projects',
+    });
+    await expect(option).toBeVisible();
+    expect(await fitsWithoutClipping(option)).toBe(true);
+    expect(await spansSeveralLines(option)).toBe(true);
+    await option.click();
+    await expect(page.getByRole('combobox', { name: 'Profile visibility' })).toHaveText(
+      /only the people I invite/i,
+    );
+  });
+
+  test('shows a long combobox option whole, on as many lines as it needs', async ({ page }) => {
+    await page.setViewportSize(PHONE);
+    const input = page.getByRole('combobox', { name: 'Timezone' });
+    await input.click();
+    await input.fill('Mexico');
+    const option = page.getByRole('option', {
+      name: '(GMT-06:00) America/Mexico_City — Central Standard Time (Mexico)',
+    });
+    await expect(option).toBeVisible();
+    expect(await fitsWithoutClipping(option)).toBe(true);
+    expect(await spansSeveralLines(option)).toBe(true);
+    await option.click();
+    await expect(input).toHaveValue(
+      '(GMT-06:00) America/Mexico_City — Central Standard Time (Mexico)',
+    );
   });
 
   test('filters and adds a chip in the multi-select combobox', async ({ page }) => {

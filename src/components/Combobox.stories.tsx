@@ -88,6 +88,36 @@ export const OpenList: Story = {
   ),
 };
 
+const TIMEZONES = [
+  '(GMT-06:00) America/Mexico_City — Central Standard Time (Mexico)',
+  '(GMT-03:00) America/Argentina/La_Rioja — Argentina Standard Time',
+  '(GMT+02:00) Europe/Madrid — Central European Summer Time',
+];
+
+/** Options longer than the control wrap onto as many lines as they need,
+ * instead of hiding the end that tells them apart. `defaultOpen` so Chromatic
+ * captures it. */
+export const LongOptions: Story = {
+  render: () => (
+    <Combobox items={TIMEZONES} defaultOpen defaultValue={TIMEZONES[0]}>
+      <ComboboxControl>
+        <ComboboxInput placeholder="Search timezone…" aria-label="Timezone" />
+        <ComboboxTrigger aria-label="Open" />
+      </ComboboxControl>
+      <ComboboxContent>
+        <ComboboxEmpty>No timezone found</ComboboxEmpty>
+        <ComboboxList>
+          {(item: string) => (
+            <ComboboxItem key={item} value={item}>
+              {item}
+            </ComboboxItem>
+          )}
+        </ComboboxList>
+      </ComboboxContent>
+    </Combobox>
+  ),
+};
+
 /** Multi-select: each selection becomes a removable chip in the control box,
  * and the popup stays open so the user can keep adding. */
 export const Multiple: Story = {
