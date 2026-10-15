@@ -4,7 +4,14 @@ React component library for Code Sherpas. Consumes
 [`@code-sherpas/pharos-tokens`](https://github.com/code-sherpas/pharos-tokens)
 as a peer dependency. Built with Vite library mode, React 19 and CSS Modules.
 The published bundle ships zero Tailwind, zero PostCSS preflight and zero
-global resets — see Decision D9 in `PLAN-pharos-alexandria.md`.
+global resets — see Decision D9 in [the master plan](https://app.notion.com/p/38c1751eee108174b5b0ea1633c773ed) (Notion).
+
+Part of **Pharos**, Code Sherpas' design system: its visual direction and the
+values of every token are decided in the
+[Pharos design system artifact](https://claude.ai/artifact/AzsXQ2SHXhPJ9BhRSoGTbV),
+the components here and the tokens in [`pharos-tokens`](https://github.com/code-sherpas/pharos-tokens), and the program's documentation (decisions, roadmap,
+[quality standard](https://app.notion.com/p/3fa1751eee1081debcc6db3ac657e3ac))
+lives in Notion → [Programa Pharos](https://app.notion.com/p/38c1751eee1081a3834ff68c3485c03c).
 
 ## What's in this package
 

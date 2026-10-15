@@ -1,7 +1,7 @@
 # Rules for consumers of `@code-sherpas/pharos-react`
 
 This file ships with the package (`files` includes `RULES.md`). Every
-consumer — `alexandria-web-application`, `alexandria-design`, and any future
+consumer — `alexandria-web-application` and any future
 app — must follow these rules.
 
 ## 1. Only Pharos components for UI
