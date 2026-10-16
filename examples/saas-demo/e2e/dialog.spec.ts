@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { signIn } from './helpers';
+import { layerAtTheCorner, layerOf, signIn } from './helpers';
 
 // The Dialog (centered modal) and — critically — a Select opened from INSIDE
 // it. Same nested-overlay z-index case as the Sheet, in the centered shape:
@@ -21,6 +21,23 @@ test.describe('Invite dialog', () => {
 
     await page.getByRole('button', { name: 'Cancel' }).click();
     await expect(page.getByRole('dialog', { name: 'Invite teammate' })).toHaveCount(0);
+  });
+
+  // D29: backdrop and panel share the modal layer, so a modal opened over
+  // another one covers it, backdrop included; the Select's list sits on the
+  // popover layer above both.
+  test('its backdrop shares the panel layer and a Select list sits above it', async ({ page }) => {
+    await page.getByRole('button', { name: 'Invite teammate' }).click();
+    const panel = page.getByRole('dialog', { name: 'Invite teammate' });
+    await expect(panel).toBeVisible();
+
+    const panelLayer = await layerOf(panel);
+    expect(await layerAtTheCorner(page)).toBe(panelLayer);
+
+    await page.getByRole('combobox', { name: 'Role' }).click();
+    const list = page.getByRole('listbox');
+    await expect(list).toBeVisible();
+    expect(await layerOf(list)).toBeGreaterThan(panelLayer);
   });
 
   test('closes on Escape and returns focus to the trigger', async ({ page }) => {

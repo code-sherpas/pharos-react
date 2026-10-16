@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
-import { signIn } from './helpers';
+import { layerAtTheCorner, layerOf, signIn } from './helpers';
 
 // The Sheet (modal drawer) and — critically — a Select opened from INSIDE it.
-// That nested-overlay case is the reason Sheet shares the popover z-index
-// layer; if the layering regressed, the option below would be behind the
+// The Select's list sits on the popover layer, above the Sheet's modal layer
+// (D29); if the layering regressed, the option below would be behind the
 // panel and unclickable. This is the LanguageSelector-in-a-drawer scenario.
 test.describe('New project sheet', () => {
   test.beforeEach(async ({ page }) => {
@@ -21,6 +21,23 @@ test.describe('New project sheet', () => {
 
     await page.getByRole('button', { name: 'Cancel' }).click();
     await expect(page.getByRole('dialog', { name: 'New project' })).toHaveCount(0);
+  });
+
+  // D29: backdrop and panel share the modal layer, so a modal opened over
+  // another one covers it, backdrop included; the Select's list sits on the
+  // popover layer above both.
+  test('its backdrop shares the panel layer and a Select list sits above it', async ({ page }) => {
+    await page.getByRole('button', { name: 'New project' }).click();
+    const panel = page.getByRole('dialog', { name: 'New project' });
+    await expect(panel).toBeVisible();
+
+    const panelLayer = await layerOf(panel);
+    expect(await layerAtTheCorner(page)).toBe(panelLayer);
+
+    await page.getByRole('combobox', { name: 'Visibility' }).click();
+    const list = page.getByRole('listbox');
+    await expect(list).toBeVisible();
+    expect(await layerOf(list)).toBeGreaterThan(panelLayer);
   });
 
   test('closes on Escape and returns focus to the trigger', async ({ page }) => {

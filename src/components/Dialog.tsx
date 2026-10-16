@@ -56,9 +56,9 @@ DialogTrigger.displayName = 'DialogTrigger';
 
 /**
  * The centered panel. Collapses Base UI's `Portal` + `Backdrop` + `Popup`. The
- * backdrop and panel share the `--pharos-z-index-popover` overlay layer so a
- * Select / Popover opened from inside the dialog still stacks above it (portal
- * open order).
+ * backdrop and panel share the `--pharos-z-index-modal` layer (D29): a modal
+ * opened over the dialog paints above it by portal order, and a Select /
+ * Popover opened from inside it sits on the higher popover layer.
  */
 export interface DialogContentProps extends ComponentProps<typeof BaseDialog.Popup> {}
 
