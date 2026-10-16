@@ -1542,20 +1542,27 @@ axis in v1 (shadcn has none either): the panel takes a sensible default
 extent (`min(24rem, 100vw)` for left/right) and the consumer overrides
 via `className` / `style` if needed.
 
-### z-index: shared overlay layer, NOT a higher modal level
+### z-index: the modal layer (D29)
 
-The backdrop and panel use `--pharos-z-index-popover` — the SAME layer
-DropdownMenu / Popover / Select / Combobox use — and nesting resolves by
-portal **open order** (DOM order), not a higher modal z-index. Rationale:
-the primary consumer case is a **Select/Combobox opened from inside the
-Sheet** (a LanguageSelector in a mobile drawer). Those popups portal to
-`<body>` after the Sheet, so at equal z-index they paint above the
-panel. A dedicated higher modal z-index would push them _behind_ the
-sheet and break the case. Validated end-to-end in the consumer harness
-(`examples/saas-demo` → New project sheet → Select inside). Defining a
-real z-index scale in `pharos-tokens` remains a tracked follow-up
-(flagged since D15); the value stays a consumer-overridable var
-(fallback 1000).
+The backdrop and panel share `--pharos-z-index-modal` (1400 in the
+pharos-tokens z-index scale, D29). Two cases decide it:
+
+- **A Select/Combobox opened from inside the Sheet** (a LanguageSelector
+  in a mobile drawer). Its positioner sits on `--pharos-z-index-popover`
+  (1500), above the modal layer, so the list paints over the panel.
+- **A modal opened over another modal.** Backdrop and panel share one
+  layer, so the one opened later is later in the DOM and paints above
+  the first one, backdrop included. A backdrop on the lower overlay layer
+  (1300) would sit under the first panel and leave it undimmed.
+
+Both are validated end-to-end in the consumer harness (`examples/saas-demo`
+→ New project sheet → Select inside). The fallbacks are D29's values
+(modal 1400, popover 1500) for a consumer whose pharos-tokens predates the
+scale; the value stays a consumer-overridable var.
+
+Until D29 (pharos-react 0.20.2) the backdrop and panel shared
+`--pharos-z-index-popover` with fallback 1000, and nesting resolved only
+by portal order.
 
 ### What v1 deliberately leaves out
 
@@ -1607,10 +1614,10 @@ mirroring Sheet.
 
 ### z-index and nesting
 
-Identical to Sheet: backdrop + panel share `--pharos-z-index-popover`, so
-a Select / Popover opened from inside the dialog stacks above it by portal
-open order (not a higher modal level). Validated in the consumer harness
-(Invite dialog → Select inside). Backdrop scrim via `color-mix` on
+Identical to Sheet: backdrop + panel share `--pharos-z-index-modal` (D29),
+and a Select / Popover opened from inside the dialog sits on the higher
+popover layer. Validated in the consumer harness (Invite dialog → Select
+inside). Backdrop scrim via `color-mix` on
 `base-black`.
 
 ### What v1 deliberately leaves out

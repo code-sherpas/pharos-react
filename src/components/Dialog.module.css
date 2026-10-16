@@ -7,18 +7,20 @@
  * fade-and-scale transition instead of an edge slide. Motion is driven by Base
  * UI's `data-starting-style` / `data-ending-style` state attributes.
  *
- * z-index: backdrop and panel share `--pharos-z-index-popover` — the SAME
- * overlay layer DropdownMenu / Popover / Select / Combobox / Sheet use. Nesting
- * resolves by portal open order (DOM order), so a Select or Popover opened from
- * INSIDE the dialog still stacks above it. Consumer-overridable (fallback 1000).
- * See NAMING-decisions.md § Sheet for the full rationale.
+ * z-index: backdrop and panel share `--pharos-z-index-modal` (decision D29,
+ * modal 1400). Sharing one layer is what makes a modal opened over another
+ * work: the one opened later is later in the DOM and paints above, backdrop
+ * included. A backdrop on a lower layer (overlay 1300) would sit under the
+ * first modal's panel and leave it undimmed. A Select, Popover or menu opened
+ * from inside the dialog sits on the popover layer (1500), above it.
+ * The fallback is D29's value, for a consumer whose pharos-tokens predates it.
  */
 
 /* === Backdrop (Dialog.Backdrop) === */
 .backdrop {
   position: fixed;
   inset: 0;
-  z-index: var(--pharos-z-index-popover, 1000);
+  z-index: var(--pharos-z-index-modal, 1400);
   background-color: color-mix(in srgb, var(--pharos-color-base-black) 50%, transparent);
   transition: opacity var(--pharos-duration-normal) var(--pharos-easing-out);
 }
@@ -37,7 +39,7 @@
    * composed on top of the same translate (see starting/ending styles). */
   transform: translate(-50%, -50%);
   transform-origin: center;
-  z-index: var(--pharos-z-index-popover, 1000);
+  z-index: var(--pharos-z-index-modal, 1400);
 
   box-sizing: border-box;
   width: calc(100% - 2 * var(--pharos-spacing-4));

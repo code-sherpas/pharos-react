@@ -80,8 +80,9 @@ type SheetVariantProps = VariantProps<typeof sheetVariants>;
  * The panel surface. Collapses Base UI's `Portal` + `Backdrop` + `Popup`. The
  * `side` prop docks it to one of the four viewport edges (default `right`)
  * and picks the matching slide-in transition. The backdrop and panel share
- * the `--pharos-z-index-popover` overlay layer so a Select / Popover opened
- * from inside the sheet still stacks above it (portal open order).
+ * the `--pharos-z-index-modal` layer (D29): a modal opened over the sheet
+ * paints above it by portal order, and a Select / Popover opened from inside
+ * it sits on the higher popover layer.
  */
 export interface SheetContentProps extends ComponentProps<typeof Dialog.Popup>, SheetVariantProps {}
 
