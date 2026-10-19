@@ -19,7 +19,13 @@ export function App() {
       ) : (
         <LoginPage onSuccess={(email) => setUser(email)} />
       )}
-      <Toaster position="top-center" label="Notifications" closeLabel="Close" />
+      {/* Below the top bar while there is one: it publishes where it ends. */}
+      <Toaster
+        position="top-center"
+        offset="calc(var(--nimbus-topbar-bottom, 0px) + var(--pharos-spacing-4))"
+        label="Notifications"
+        closeLabel="Close"
+      />
     </ToastProvider>
   );
 }

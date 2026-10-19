@@ -146,6 +146,23 @@ describe('Toast', () => {
     expect(seen.size).toBe(1);
   });
 
+  it('sits as far from its edge as the consumer says, in pixels or any CSS length', () => {
+    const { rerender } = render(
+      <ToastProvider>
+        <Toaster label="Notifications" closeLabel="Close" offset={72} />
+      </ToastProvider>,
+    );
+    const region = screen.getByRole('region', { name: 'Notifications' });
+    expect(region.style.getPropertyValue('--pharos-toast-offset')).toBe('72px');
+
+    rerender(
+      <ToastProvider>
+        <Toaster label="Notifications" closeLabel="Close" offset="var(--bars-bottom)" />
+      </ToastProvider>,
+    );
+    expect(region.style.getPropertyValue('--pharos-toast-offset')).toBe('var(--bars-bottom)');
+  });
+
   it('replaces a toast raised again with the same id instead of stacking it', async () => {
     const user = userEvent.setup();
     renderWith({ id: 'saved', title: 'Settings saved' });

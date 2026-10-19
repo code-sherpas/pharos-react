@@ -1,6 +1,12 @@
 'use client';
 
-import { useMemo, type ComponentProps, type ComponentPropsWithoutRef, type ReactNode } from 'react';
+import {
+  useMemo,
+  type ComponentProps,
+  type ComponentPropsWithoutRef,
+  type CSSProperties,
+  type ReactNode,
+} from 'react';
 import { Toast as BaseToast } from '@base-ui/react/toast';
 import { cn } from '../lib/cn';
 import { Button } from './Button';
@@ -172,6 +178,13 @@ export interface ToasterProps extends Omit<
   label: string;
   /** Name of each toast's close button, e.g. "Close". */
   closeLabel: string;
+  /**
+   * Distance from the edge the toasts sit on: a number of pixels or any CSS
+   * length, `var()` included. For a layout whose top or bottom is taken by
+   * its own bars, so the toasts appear below or above them, not over them.
+   * @default 16px (`--pharos-spacing-4`)
+   */
+  offset?: number | string;
 }
 
 /** Renders the toasts. Place it once, inside `ToastProvider`. */
@@ -179,17 +192,30 @@ export function Toaster({
   position = 'bottom-end',
   label,
   closeLabel,
+  offset,
   className,
+  style,
   ...rest
 }: ToasterProps) {
   const { toasts, close } = BaseToast.useToastManager();
   const [edge] = position.split('-');
+  const offsetStyle =
+    offset === undefined
+      ? undefined
+      : ({
+          '--pharos-toast-offset': typeof offset === 'number' ? `${offset}px` : offset,
+        } as CSSProperties);
   return (
     <BaseToast.Portal>
       <BaseToast.Viewport
         aria-label={label}
         data-pharos-position={position}
         className={cn(styles.viewport, className)}
+        style={
+          typeof style === 'function'
+            ? (state) => ({ ...style(state), ...offsetStyle })
+            : { ...style, ...offsetStyle }
+        }
         {...rest}
       >
         {toasts.map((toast) => (

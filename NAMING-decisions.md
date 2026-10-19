@@ -1829,6 +1829,11 @@ than `left`/`right`, so right-to-left costs a `dir`. The newest toast is always
 the one nearest the edge. The region sits on the toast layer (D29, 1700): above
 a modal it is raised from, below tooltips.
 
+`offset` (Sonner's name) sets the distance from that edge: a number of pixels
+or any CSS length, `var()` and `calc()` included, so a layout whose top or
+bottom is taken by its own bars puts the toasts below or above them. It sets
+`--pharos-toast-offset` on the region; the inline gap stays at 16 px.
+
 ### Not in v1
 
 Stacked-and-collapsed toasts (Sonner's deck), anchored toasts (Base UI

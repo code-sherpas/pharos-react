@@ -16,6 +16,8 @@
 
 /* === Region (Toast.Viewport) === */
 .viewport {
+  /* The inline gap, and the block one unless `offset` sets
+   * `--pharos-toast-offset`. */
   --pharos-toast-edge-gap: var(--pharos-spacing-4);
 
   position: fixed;
@@ -34,11 +36,11 @@
 
 /* Newest first (Base UI's order), so the newest is nearest the edge. */
 .viewport[data-pharos-position^='top'] {
-  inset-block-start: var(--pharos-toast-edge-gap);
+  inset-block-start: var(--pharos-toast-offset, var(--pharos-toast-edge-gap));
 }
 
 .viewport[data-pharos-position^='bottom'] {
-  inset-block-end: var(--pharos-toast-edge-gap);
+  inset-block-end: var(--pharos-toast-offset, var(--pharos-toast-edge-gap));
   flex-direction: column-reverse;
 }
 

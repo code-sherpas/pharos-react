@@ -11,7 +11,9 @@ async function saveSettings(page: Page) {
 }
 
 test.describe('Toast', () => {
-  test('confirms a save at the top centre, inside the named region', async ({ page }) => {
+  test('confirms a save at the top centre, below the top bar, in the named region', async ({
+    page,
+  }) => {
     await signIn(page);
     await saveSettings(page);
 
@@ -23,7 +25,14 @@ test.describe('Toast', () => {
     const box = (await toast.boundingBox())!;
     const width = page.viewportSize()!.width;
     expect(Math.abs(box.x + box.width / 2 - width / 2)).toBeLessThan(2);
-    expect(box.y).toBeLessThan(40);
+    // `offset` puts it 16 px under the bar, not over it. The bar scrolls with
+    // the page and Save is at its foot, so measure from the top of the page.
+    await page.evaluate(() => window.scrollTo(0, 0));
+    const bar = (await page.getByRole('banner').boundingBox())!;
+    // Polled: it slides in from 16 px higher.
+    await expect
+      .poll(async () => (await toast.boundingBox())!.y - (bar.y + bar.height))
+      .toBeCloseTo(16, 0);
   });
 
   test('saving twice refreshes the toast instead of stacking a second', async ({ page }) => {
