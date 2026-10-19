@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   IconButton,
+  useToast,
 } from '@code-sherpas/pharos-react';
 import { MoreHorizontal } from 'lucide-react';
 import { MEMBERS, ROLE_TONE, initials, type Member } from '../data';
@@ -18,29 +19,30 @@ import { MEMBERS, ROLE_TONE, initials, type Member } from '../data';
  * A member list with a per-row DropdownMenu (kebab IconButton). The canonical
  * "row actions" composition, and the harness's check that a menu opened deep
  * in a list still works — including a destructive action that mutates the
- * list.
+ * list, confirmed by a toast that can undo it.
  */
 export function TeamPage() {
   const [members, setMembers] = useState<Member[]>(MEMBERS);
-  const [notice, setNotice] = useState<string | null>(null);
+  const toast = useToast();
 
   function remove(member: Member) {
     setMembers((current) => current.filter((m) => m.id !== member.id));
-    setNotice(`${member.name} removed from the team.`);
+    toast.add({
+      title: `${member.name} removed from the team.`,
+      action: {
+        children: 'Undo',
+        onClick: () => setMembers((current) => [...current, member]),
+      },
+    });
   }
 
   function resend(member: Member) {
-    setNotice(`Invite resent to ${member.email}.`);
+    toast.add({ title: `Invite resent to ${member.email}.`, variant: 'success' });
   }
 
   return (
     <section>
       <h1>Team</h1>
-      {notice && (
-        <p role="status" className="notice">
-          {notice}
-        </p>
-      )}
       <Card>
         <ul className="member-list">
           {members.map((m) => (

@@ -70,6 +70,9 @@ import {
   Switch,
   RadioGroup,
   RadioGroupItem,
+  ToastProvider,
+  Toaster,
+  useToast,
   cn,
   type ButtonProps,
   type IconButtonProps,
@@ -88,6 +91,10 @@ import {
   type SwitchProps,
   type RadioGroupProps,
   type RadioGroupItemProps,
+  type ToasterProps,
+  type ToastOptions,
+  type ToastProviderProps,
+  type UseToastReturnValue,
 } from '../dist/index.js';
 
 // (2) Deep-import subpaths (#80): each component's primary symbol (and a type
@@ -117,6 +124,7 @@ import {
   RadioGroup as RadioGroupDeep,
   RadioGroupItem as RadioGroupItemDeep,
 } from '../dist/components/RadioGroup.js';
+import { Toaster as ToasterDeep } from '../dist/components/Toast.js';
 
 // A couple of representative typed prop checks (surface shape, not just names).
 const _buttonProps: ButtonProps = { intent: 'primary', size: 'md' };
@@ -125,6 +133,12 @@ const _badgeProps: BadgeProps = { variant: 'success', children: 'ok' };
 const _avatarProps: AvatarProps = { size: 'md', shape: 'circle' };
 const _switchProps: SwitchProps = { checked: true };
 const _radioItemProps: RadioGroupItemProps = { value: 'a' };
+const _toasterProps: ToasterProps = {
+  position: 'top-center',
+  label: 'Notifications',
+  closeLabel: 'Close',
+};
+const _toastOptions: ToastOptions = { title: 'Saved', variant: 'success' };
 const _buttonPropsDeep: ButtonPropsDeep = { intent: 'secondary' };
 
 // Type-level presence guard for the remaining public prop types (referencing
@@ -142,6 +156,8 @@ export type _PublicPropTypes = [
   DialogProps,
   CheckboxProps,
   RadioGroupProps,
+  ToastProviderProps,
+  UseToastReturnValue,
 ];
 
 // Touch every binding so nothing is flagged as unused (surface presence check).
@@ -218,6 +234,12 @@ export const _smoke = [
   SwitchDeep,
   RadioGroupDeep,
   RadioGroupItemDeep,
+  ToasterDeep,
+  ToastProvider,
+  Toaster,
+  useToast,
+  _toasterProps,
+  _toastOptions,
   _buttonProps,
   _iconButtonProps,
   _badgeProps,
