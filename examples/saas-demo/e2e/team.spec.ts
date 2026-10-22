@@ -20,7 +20,20 @@ test.describe('Team page', () => {
     await expect(page.getByText('Alan Turing', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Actions for Alan Turing' }).click();
     await page.getByRole('menuitem', { name: 'Remove from team' }).click();
-    await expect(page.getByText('Alan Turing removed from the team.')).toBeVisible();
+    await expect(
+      page.getByRole('dialog', { name: 'Alan Turing removed from the team.' }),
+    ).toBeVisible();
     await expect(page.getByText('Alan Turing', { exact: true })).toHaveCount(0);
+  });
+
+  test('undoes the removal from the toast that confirms it', async ({ page }) => {
+    await page.getByRole('button', { name: 'Actions for Alan Turing' }).click();
+    await page.getByRole('menuitem', { name: 'Remove from team' }).click();
+    const toast = page.getByRole('dialog', { name: 'Alan Turing removed from the team.' });
+
+    await toast.getByRole('button', { name: 'Undo' }).click();
+
+    await expect(page.getByText('Alan Turing', { exact: true })).toBeVisible();
+    await expect(toast).toHaveCount(0);
   });
 });

@@ -1,0 +1,201 @@
+/* Toast.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). Hashed into
+ * `dist/styles.css`. Styles the toasts over Base UI's `Toast`: a fixed region
+ * in one corner (or centred on one edge), holding a column of cards.
+ *
+ * z-index: the region sits on the toast layer (decision D29, 1700): above
+ * modals and popovers, so a toast raised from inside a dialog is not hidden by
+ * it, and below tooltips. The fallbacks are D29's and the current palette's
+ * values, for a consumer whose pharos-tokens predates them.
+ *
+ * Layout uses logical properties only, so `start`/`end` follow the writing
+ * direction. Motion comes from Base UI's `data-starting-style` /
+ * `data-ending-style`, and collapses to a fade under reduced motion.
+ */
+
+/* === Region (Toast.Viewport) === */
+.viewport {
+  /* The inline gap, and the block one unless `offset` sets
+   * `--pharos-toast-offset`. */
+  --pharos-toast-edge-gap: var(--pharos-spacing-4);
+
+  position: fixed;
+  z-index: var(--pharos-z-index-toast, 1700);
+  box-sizing: border-box;
+  inline-size: min(22.5rem, calc(100% - 2 * var(--pharos-toast-edge-gap)));
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--pharos-spacing-2);
+
+  /* The region itself never blocks the page under its empty area. */
+  pointer-events: none;
+  outline: none;
+}
+
+/* Newest first (Base UI's order), so the newest is nearest the edge. */
+.viewport[data-pharos-position^='top'] {
+  inset-block-start: var(--pharos-toast-offset, var(--pharos-toast-edge-gap));
+}
+
+.viewport[data-pharos-position^='bottom'] {
+  inset-block-end: var(--pharos-toast-offset, var(--pharos-toast-edge-gap));
+  flex-direction: column-reverse;
+}
+
+.viewport[data-pharos-position$='start'] {
+  inset-inline-start: var(--pharos-toast-edge-gap);
+}
+
+.viewport[data-pharos-position$='end'] {
+  inset-inline-end: var(--pharos-toast-edge-gap);
+}
+
+.viewport[data-pharos-position$='center'] {
+  inset-inline: 0;
+  margin-inline: auto;
+}
+
+/* === Toast (Toast.Root) === */
+.toast {
+  --pharos-toast-enter-shift: calc(-1 * var(--pharos-spacing-4));
+
+  box-sizing: border-box;
+  pointer-events: auto;
+
+  background-color: var(--pharos-color-surface-card, var(--pharos-color-base-white));
+  border: 1px solid var(--pharos-color-border-subtle, var(--pharos-color-neutral-200));
+  border-radius: var(--pharos-radius-lg);
+  box-shadow: var(--pharos-shadow-lg);
+
+  font-family: var(--pharos-font-family-sans);
+  font-size: var(--pharos-font-size-sm);
+  line-height: 1.43; /* 14 / 20, D3 */
+  color: var(--pharos-color-neutral-900);
+
+  /* Swiping moves it with the finger. */
+  transform: translate(var(--toast-swipe-movement-x, 0), var(--toast-swipe-movement-y, 0));
+  transition-property: opacity, transform;
+  transition-duration: var(--pharos-duration-normal);
+  transition-timing-function: var(--pharos-easing-out);
+}
+
+.viewport[data-pharos-position^='bottom'] .toast {
+  --pharos-toast-enter-shift: var(--pharos-spacing-4);
+}
+
+/* Arrives from, and leaves towards, the edge it sits on. */
+.toast[data-starting-style],
+.toast[data-ending-style] {
+  opacity: 0;
+  transform: translateY(var(--pharos-toast-enter-shift));
+}
+
+/* Swiped away: keeps going the way the finger went. */
+.toast[data-ending-style][data-swipe-direction='left'] {
+  transform: translateX(calc(var(--toast-swipe-movement-x, 0) - 100%));
+}
+
+.toast[data-ending-style][data-swipe-direction='right'] {
+  transform: translateX(calc(var(--toast-swipe-movement-x, 0) + 100%));
+}
+
+.toast[data-limited] {
+  opacity: 0;
+}
+
+/* The system's focus ring (as Button): a white halo, then the accent. Kept as
+ * box-shadow plus the card's own shadow, so the ring is not lost under it. */
+.toast:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--pharos-color-base-white),
+    0 0 0 4px var(--pharos-color-primary-600),
+    var(--pharos-shadow-lg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast,
+  .toast[data-starting-style],
+  .toast[data-ending-style] {
+    transform: none;
+    transition-property: opacity;
+  }
+}
+
+/* === Content (Toast.Content) === */
+.content {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pharos-spacing-3);
+  padding-block: var(--pharos-spacing-3);
+  padding-inline: var(--pharos-spacing-4) var(--pharos-spacing-2);
+}
+
+/* 20 px, the height of the title's first line, so the two line up. */
+.icon {
+  flex-shrink: 0;
+  inline-size: var(--pharos-spacing-5);
+  block-size: var(--pharos-spacing-5);
+}
+
+.text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: var(--pharos-spacing-0-5);
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+.toast[data-pharos-variant='success'] .icon {
+  color: var(--pharos-color-semantic-success-fg);
+}
+
+.toast[data-pharos-variant='info'] .icon {
+  color: var(--pharos-color-semantic-info-fg);
+}
+
+.toast[data-pharos-variant='destructive'] .icon {
+  color: var(--pharos-color-semantic-error-fg);
+}
+
+/* Amber does not reach 3:1 on white as a stroke, so warning is a filled
+ * triangle with the glyph in its on-colour, the way a warning sign reads. */
+.toast[data-pharos-variant='warning'] .icon {
+  color: var(--pharos-color-semantic-warning-on);
+}
+
+.warningFill {
+  fill: var(--pharos-color-semantic-warning-fg);
+  stroke: var(--pharos-color-semantic-warning-fg);
+}
+
+/* Base UI renders the title as an `<h2>`: its size and line come from here,
+ * not from the browser's or the page's heading styles. */
+.title {
+  margin: 0;
+  font-size: var(--pharos-font-size-sm);
+  line-height: inherit;
+  font-weight: var(--pharos-font-weight-semibold);
+}
+
+.description {
+  margin: 0;
+  font-size: var(--pharos-font-size-sm);
+  line-height: inherit;
+  color: var(--pharos-color-neutral-600);
+}
+
+.action {
+  align-self: flex-start;
+  margin-block-start: var(--pharos-spacing-2);
+}
+
+/* The 32 px button is centred on the title's first 20 px line: it rises 6 px
+ * into the padding instead of pushing the card taller. */
+.close {
+  flex-shrink: 0;
+  margin-block: calc(-1 * var(--pharos-spacing-1-5)) calc(-1 * var(--pharos-spacing-1-5));
+}

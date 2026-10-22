@@ -17,6 +17,7 @@ import {
   PopoverTitle,
   PopoverTrigger,
 } from '@code-sherpas/pharos-react';
+import { useEffect, useRef } from 'react';
 import { Bell, LogOut, Settings as SettingsIcon, Users } from 'lucide-react';
 import { NOTIFICATIONS, initials } from '../data';
 import { NewProjectSheet } from './NewProjectSheet';
@@ -40,10 +41,31 @@ const NAV: { id: Page; label: string }[] = [
  * (notifications) triggered by an IconButton carrying a Badge count, and an
  * Avatar-in-IconButton DropdownMenu (account menu). This is where the harness
  * gets to stress overlay stacking, focus return and keyboard flows.
+ *
+ * It also publishes where it ends, as `--nimbus-topbar-bottom` on the root,
+ * so the app's Toaster can sit below it through `offset` instead of over it.
  */
 export function TopBar({ user, page, onNavigate, onSignOut }: TopBarProps) {
+  const bar = useRef<HTMLElement>(null);
+  useEffect(function publishWhereTheBarEnds() {
+    const element = bar.current;
+    if (element === null) return;
+    const root = document.documentElement;
+    const observer = new ResizeObserver(function measure() {
+      root.style.setProperty(
+        '--nimbus-topbar-bottom',
+        `${element.getBoundingClientRect().bottom}px`,
+      );
+    });
+    observer.observe(element);
+    return function forget() {
+      observer.disconnect();
+      root.style.removeProperty('--nimbus-topbar-bottom');
+    };
+  }, []);
+
   return (
-    <header className="topbar">
+    <header className="topbar" ref={bar}>
       <div className="topbar-brand">Nimbus</div>
 
       <nav className="topbar-nav" aria-label="Primary">

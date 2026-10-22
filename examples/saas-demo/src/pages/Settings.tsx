@@ -25,6 +25,7 @@ import {
   Separator,
   Switch,
   Textarea,
+  useToast,
 } from '@code-sherpas/pharos-react';
 import { SKILLS, TIMEZONES } from '../data';
 
@@ -38,7 +39,9 @@ const VISIBILITY = {
 /**
  * The form-heavy page: Input, Textarea, Select (single listbox), Combobox
  * (single filter) and Combobox (multi with removable chips), plus validation
- * and a save confirmation. Exercises every form atom composed on one page.
+ * and a save confirmation in a toast. Exercises every form atom composed on one
+ * page. The validation error stays next to its field: a toast is for what can
+ * be missed.
  */
 export function SettingsPage() {
   const [name, setName] = useState('Ada Lovelace');
@@ -49,21 +52,17 @@ export function SettingsPage() {
   const [weeklyDigest, setWeeklyDigest] = useState(false);
   const [theme, setTheme] = useState('system');
   const [nameError, setNameError] = useState(false);
-  const [saved, setSaved] = useState(false);
-
-  function touch() {
-    setSaved(false);
-  }
+  const toast = useToast();
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!name.trim()) {
       setNameError(true);
-      setSaved(false);
       return;
     }
     setNameError(false);
-    setSaved(true);
+    // One id: saving twice refreshes the toast instead of stacking a second.
+    toast.add({ id: 'settings-saved', title: 'Settings saved.', variant: 'success' });
   }
 
   return (
@@ -78,7 +77,6 @@ export function SettingsPage() {
             aria-invalid={nameError || undefined}
             onChange={(e) => {
               setName(e.target.value);
-              touch();
             }}
           />
           {nameError && (
@@ -96,7 +94,6 @@ export function SettingsPage() {
             placeholder="Tell your team about yourself…"
             onChange={(e) => {
               setBio(e.target.value);
-              touch();
             }}
           />
         </div>
@@ -109,7 +106,6 @@ export function SettingsPage() {
             onValueChange={(v) => {
               // A single Select yields `string | null` (null when cleared).
               setVisibility(v ?? '');
-              touch();
             }}
           >
             <SelectTrigger aria-labelledby="visibility-label">
@@ -155,7 +151,6 @@ export function SettingsPage() {
             value={skills}
             onValueChange={(v) => {
               setSkills(v);
-              touch();
             }}
           >
             <ComboboxChips>
@@ -187,7 +182,6 @@ export function SettingsPage() {
               checked={notify}
               onCheckedChange={(checked) => {
                 setNotify(checked === true);
-                touch();
               }}
             />
             Email me product updates
@@ -201,7 +195,6 @@ export function SettingsPage() {
               checked={weeklyDigest}
               onCheckedChange={(checked) => {
                 setWeeklyDigest(checked);
-                touch();
               }}
             />
             Send me a weekly digest
@@ -215,7 +208,6 @@ export function SettingsPage() {
             value={theme}
             onValueChange={(value) => {
               setTheme(value as string);
-              touch();
             }}
           >
             <label
@@ -245,11 +237,6 @@ export function SettingsPage() {
         <Separator />
         <div className="settings-actions">
           <Button type="submit">Save changes</Button>
-          {saved && (
-            <span role="status" className="notice">
-              Settings saved.
-            </span>
-          )}
         </div>
       </form>
     </section>

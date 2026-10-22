@@ -1778,3 +1778,70 @@ Maps to the various native/`@headlessui` radio groups across Alexandria's forms
 (single-choice settings, filters). Like the other form atoms, a like-for-like
 swap (prop remap + `<label>` wiring) is incremental; groups wired into complex
 local state are case-by-case (Fase 6).
+
+## Toast (D30, 2026-10-19)
+
+Brief, non-blocking feedback about something that just happened, shown in one
+corner (or centred on one edge) and gone on its own. Wraps Base UI's `Toast`:
+`ToastProvider` holds the toasts, one `Toaster` renders them, and `useToast()`
+raises them. The first atom of the feedback family that is **not** inline
+(Badge, Spinner).
+
+### Canonical naming (`Toast`, `Toaster`, `useToast`)
+
+shadcn > Base UI > APG. The concept is "toast" in shadcn, Base UI, Radix,
+Primer, Carbon ("toast notification"), Polaris and Fluent 2; Material calls it
+a snackbar and Atlassian a flag. shadcn's own surface is a `Toaster` placed once
+plus a function that raises toasts, so Pharos exports `Toaster` and `useToast()`
+— shadcn's original hook name — over Base UI's `Toast.Provider` and
+`useToastManager()`, and adds `ToastProvider` because Base UI's manager lives in
+React context. Alexandria's `Notification` / `CallNotice` map to it (RULES.md).
+
+### `variant`, as in Badge
+
+`default | success | info | warning | destructive` — the same axis and values as
+`Badge`, so one vocabulary names "what this is about" across the system. Every
+variant but `default` adds a Lucide icon (circle-check, info, triangle-alert,
+circle-alert), so the meaning never rests on colour alone. Amber does not reach
+3:1 on white as a stroke, so `warning` is a filled triangle with its glyph in
+`semantic-warning-on`.
+
+### What the consumer names, and what Pharos decides
+
+- **No text inside the component** (quality standard § 5): `Toaster` requires
+  `label` (the region's name, "Notifications") and `closeLabel` (each close
+  button's). Base UI's built-in English "Notifications" is overridden.
+- **Seven seconds by default** (Base UI: five), long enough to read two lines;
+  the timer pauses while the pointer or focus is on the toasts (Base UI).
+- **A toast with an action does not close on its own** unless told to: a control
+  that vanishes on a timer is one some people never reach (WCAG 2.2.1). Acting
+  on it closes it — Base UI leaves it open; Pharos closes it.
+- **The action sits under the text**, never beside it, so the message keeps the
+  whole width at 320 px.
+- **Three at a time**, the oldest leaving first; adding one with the id of a
+  toast on screen replaces it instead of stacking a copy.
+
+### Position, logical
+
+`position`: `top-start | top-center | top-end | bottom-start | bottom-center |
+bottom-end`, default `bottom-end` (Sonner, Primer, Carbon). `start`/`end` rather
+than `left`/`right`, so right-to-left costs a `dir`. The newest toast is always
+the one nearest the edge. The region sits on the toast layer (D29, 1700): above
+a modal it is raised from, below tooltips.
+
+`offset` (Sonner's name) sets the distance from that edge: a number of pixels
+or any CSS length, `var()` and `calc()` included, so a layout whose top or
+bottom is taken by its own bars puts the toasts below or above them. It sets
+`--pharos-toast-offset` on the region; the inline gap stays at 16 px.
+
+### Not in v1
+
+Stacked-and-collapsed toasts (Sonner's deck), anchored toasts (Base UI
+`Toast.Positioner`) and `promise()` are left out; the API takes them without a
+breaking change.
+
+### Mapping from Alexandria
+
+The call's `CallNotice` (a hand-made bottom notice) becomes `toast.add` with a
+`Toaster` at `top-center` (ALEX-513). The `role="status"` notices on other
+screens migrate one by one; a notice tied to a field stays next to the field.

@@ -15,6 +15,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  useToast,
 } from '@code-sherpas/pharos-react';
 
 const ROLES = { admin: 'Admin', editor: 'Editor', viewer: 'Viewer' };
@@ -23,10 +24,12 @@ const ROLES = { admin: 'Admin', editor: 'Editor', viewer: 'Viewer' };
  * A centered confirmation/short-form Dialog. Like NewProjectSheet, it embeds a
  * Select so the harness proves a listbox opened from INSIDE a centered modal
  * still stacks above the panel (the nested-overlay z-index case, in the Dialog
- * shape this time).
+ * shape this time). "Copy invite link" raises a toast while the modal is open,
+ * which must paint above it (D29: toast 1700 > modal 1400).
  */
 export function InviteDialog() {
   const [role, setRole] = useState('editor');
+  const toast = useToast();
 
   return (
     <Dialog>
@@ -57,6 +60,12 @@ export function InviteDialog() {
         </div>
 
         <DialogFooter>
+          <Button
+            intent="secondary"
+            onClick={() => toast.add({ title: 'Invite link copied.', variant: 'success' })}
+          >
+            Copy invite link
+          </Button>
           <DialogClose render={<Button intent="ghost">Cancel</Button>} />
           <DialogClose render={<Button>Send invite</Button>} />
         </DialogFooter>

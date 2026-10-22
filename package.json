@@ -97,6 +97,10 @@
     "./Textarea": {
       "types": "./dist/components/Textarea.d.ts",
       "import": "./dist/components/Textarea.js"
+    },
+    "./Toast": {
+      "types": "./dist/components/Toast.d.ts",
+      "import": "./dist/components/Toast.js"
     }
   },
   "sideEffects": [
