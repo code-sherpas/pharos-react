@@ -57,6 +57,17 @@
   border-color: var(--pharos-color-semantic-error-fg);
 }
 
+/* Disabled: the whole box reads as unavailable, at the opacity Input and the
+ * Select trigger use, so a disabled Combobox matches the fields beside it.
+ * Base UI marks the single-select box (`InputGroup`) with `data-disabled`;
+ * the multi-select chips box gets no attribute of its own, so it is matched
+ * by the disabled input it holds. */
+.control[data-disabled],
+.control:has(.input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* The multi-select chips box wraps its chips and grows vertically. */
 .chips {
   flex-wrap: wrap;
@@ -182,6 +193,19 @@
 
 .chipRemove:hover {
   color: var(--pharos-color-neutral-900);
+}
+
+/* Nothing inside a disabled Combobox answers the pointer: the chevron, the
+ * clear button and a chip's remove button all show `not-allowed`, and the
+ * remove button stops darkening on hover. */
+.trigger[data-disabled],
+.clear[data-disabled],
+.chipRemove[data-disabled] {
+  cursor: not-allowed;
+}
+
+.chipRemove[data-disabled]:hover {
+  color: var(--pharos-color-neutral-500);
 }
 
 .chipRemove svg {

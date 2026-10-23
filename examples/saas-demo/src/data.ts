@@ -26,6 +26,13 @@ export const TIMEZONES = [
   '(GMT-06:00) America/Mexico_City — Central Standard Time (Mexico)',
 ];
 
+/** Where a workspace keeps its data — chosen by its admin, read-only here. */
+export const DATA_REGIONS = [
+  'Europe (Frankfurt)',
+  'United States (Virginia)',
+  'Asia Pacific (Sydney)',
+];
+
 export const SKILLS = [
   'React',
   'TypeScript',

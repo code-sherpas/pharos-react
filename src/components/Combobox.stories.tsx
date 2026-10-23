@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
+import { expect, within } from 'storybook/test';
 import {
   Combobox,
   ComboboxControl,
@@ -182,6 +183,74 @@ export const MultipleWidePanel: Story = {
         </Combobox>
       </div>
     );
+  },
+};
+
+/** Disabled, single and multiple: the whole control reads as unavailable at
+ * the opacity Input and the Select trigger use (0.5), and nothing inside it
+ * answers the pointer. The single one carries a value, the way a locked form
+ * shows what was chosen. */
+export const Disabled: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <Combobox disabled items={FRUITS} defaultValue="Mango">
+        <ComboboxControl>
+          <ComboboxInput aria-label="Fruit" />
+          <ComboboxClear aria-label="Clear" />
+          <ComboboxTrigger aria-label="Open" />
+        </ComboboxControl>
+        <ComboboxContent>
+          <ComboboxList>
+            {(item: string) => (
+              <ComboboxItem key={item} value={item}>
+                {item}
+              </ComboboxItem>
+            )}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
+      <Combobox disabled multiple items={FRUITS} defaultValue={['Apple', 'Cherry']}>
+        <ComboboxChips>
+          {['Apple', 'Cherry'].map((v) => (
+            <ComboboxChip key={v}>
+              {v}
+              <ComboboxChipRemove />
+            </ComboboxChip>
+          ))}
+          <ComboboxInput inset aria-label="Fruits" />
+        </ComboboxChips>
+        <ComboboxContent>
+          <ComboboxList>
+            {(item: string) => (
+              <ComboboxItem key={item} value={item}>
+                {item}
+              </ComboboxItem>
+            )}
+          </ComboboxList>
+        </ComboboxContent>
+      </Combobox>
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const single = canvas.getByRole('combobox', { name: 'Fruit' });
+    const multiple = canvas.getByRole('combobox', { name: 'Fruits' });
+    await expect(single).toBeDisabled();
+    await expect(multiple).toBeDisabled();
+
+    for (const box of [
+      canvasElement.querySelector('[data-pharos-slot="combobox-control"]'),
+      canvasElement.querySelector('[data-pharos-slot="combobox-chips"]'),
+    ]) {
+      await expect(box).not.toBeNull();
+      await expect(getComputedStyle(box as Element).opacity).toBe('0.5');
+      await expect(getComputedStyle(box as Element).cursor).toBe('not-allowed');
+    }
+    for (const slot of ['combobox-trigger', 'combobox-clear', 'combobox-chip-remove']) {
+      const part = canvasElement.querySelector(`[data-pharos-slot="${slot}"]`);
+      await expect(part).not.toBeNull();
+      await expect(getComputedStyle(part as Element).cursor).toBe('not-allowed');
+    }
   },
 };
 
