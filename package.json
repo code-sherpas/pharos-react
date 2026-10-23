@@ -107,7 +107,8 @@
     "**/*.css"
   ],
   "engines": {
-    "node": ">=22"
+    "node": ">=22",
+    "pnpm": "10.33.0"
   },
   "packageManager": "pnpm@10.33.0",
   "pnpm": {
@@ -120,13 +121,13 @@
   },
   "scripts": {
     "build": "vite build && pnpm verify:dist-types && pnpm verify:dist-rsc",
-    "storybook": "storybook dev -p 6006",
+    "storybook": "bash scripts/check-node-version.sh && storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test": "vitest run --project unit",
     "test:watch": "vitest --project unit",
     "test:storybook": "vitest run --project storybook",
     "test:e2e": "pnpm --filter @examples/saas-demo test:e2e",
-    "dev:demo": "pnpm --filter @examples/saas-demo dev",
+    "dev:demo": "bash scripts/check-node-version.sh && pnpm --filter @examples/saas-demo dev",
     "typecheck": "tsc --noEmit",
     "verify:dist-types": "tsc --noEmit -p tsconfig.dist-smoke.json",
     "verify:dist-rsc": "node scripts/verify-dist-rsc.mjs",
