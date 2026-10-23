@@ -27,7 +27,7 @@ import {
   Textarea,
   useToast,
 } from '@code-sherpas/pharos-react';
-import { SKILLS, TIMEZONES } from '../data';
+import { DATA_REGIONS, SKILLS, TIMEZONES } from '../data';
 
 const VISIBILITY = {
   private: 'Private',
@@ -141,6 +141,28 @@ export function SettingsPage() {
               </ComboboxList>
             </ComboboxContent>
           </Combobox>
+        </div>
+
+        <div className="field">
+          <label id="region-label">Data region</label>
+          <Combobox items={DATA_REGIONS} defaultValue="Europe (Frankfurt)" disabled>
+            <ComboboxControl>
+              <ComboboxInput aria-labelledby="region-label" aria-describedby="region-hint" />
+              <ComboboxTrigger aria-label="Open data regions" />
+            </ComboboxControl>
+            <ComboboxContent>
+              <ComboboxList>
+                {(item: string) => (
+                  <ComboboxItem key={item} value={item}>
+                    {item}
+                  </ComboboxItem>
+                )}
+              </ComboboxList>
+            </ComboboxContent>
+          </Combobox>
+          <p id="region-hint" className="hint-text">
+            Set by your workspace admin.
+          </p>
         </div>
 
         <div className="field">

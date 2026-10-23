@@ -39,6 +39,12 @@ body {
   font-weight: 500;
 }
 
+.hint-text {
+  margin: 0;
+  font-size: var(--pharos-font-size-xs, 0.75rem);
+  color: var(--pharos-color-neutral-600, #4b5563);
+}
+
 .error-text {
   margin: 0;
   color: var(--pharos-color-semantic-error, #dc2626);

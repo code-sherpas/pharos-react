@@ -65,6 +65,20 @@ test.describe('Settings form', () => {
     await expect(page.getByText(/settings saved/i)).toBeVisible();
   });
 
+  test('shows the data region locked, looking as unavailable as any disabled field', async ({
+    page,
+  }) => {
+    const region = page.getByRole('combobox', { name: 'Data region' });
+    await expect(region).toBeDisabled();
+    await expect(region).toHaveValue('Europe (Frankfurt)');
+    await expect(region).toHaveAccessibleDescription('Set by your workspace admin.');
+    await expect(page.getByRole('button', { name: 'Open data regions' })).toBeDisabled();
+
+    const control = page.locator('[data-pharos-slot="combobox-control"]', { has: region });
+    await expect(control).toHaveCSS('opacity', '0.5');
+    await expect(control).toHaveCSS('cursor', 'not-allowed');
+  });
+
   test('filters and picks a value in the single-select combobox', async ({ page }) => {
     const input = page.getByRole('combobox', { name: 'Timezone' });
     await input.click();
