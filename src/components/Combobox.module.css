@@ -221,12 +221,11 @@
  * Positioner itself.
  *
  * Sourced from `--pharos-z-index-popover` (no hardcoded value — NON-NEGOTIABLE
- * rule 1). The fallback is D29's popover layer (1500, above modal 1400), for
- * an app whose pharos-tokens predates it; an app whose own overlays sit higher
- * (drawers, modals) raises every Pharos popup at once by overriding
- * `--pharos-z-index-popover` in `:root`. */
+ * rule 1): D29's popover layer, 1500, above modal 1400. An app whose own
+ * overlays sit higher (drawers, modals) raises every Pharos popup at once by
+ * overriding `--pharos-z-index-popover` in `:root`. */
 .positioner {
-  z-index: var(--pharos-z-index-popover, 1500);
+  z-index: var(--pharos-z-index-popover);
 }
 
 /* === Floating surface (Combobox.Popup) — mirrors Select === */

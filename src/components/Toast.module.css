@@ -6,8 +6,7 @@
  *
  * z-index: the region sits on the toast layer (decision D29, 1700): above
  * modals and popovers, so a toast raised from inside a dialog is not hidden by
- * it, and below tooltips. The fallbacks are D29's and the current palette's
- * values, for a consumer whose pharos-tokens predates them.
+ * it, and below tooltips.
  *
  * Layout uses logical properties only, so `start`/`end` follow the writing
  * direction. Motion comes from Base UI's `data-starting-style` /
@@ -21,7 +20,7 @@
   --pharos-toast-edge-gap: var(--pharos-spacing-4);
 
   position: fixed;
-  z-index: var(--pharos-z-index-toast, 1700);
+  z-index: var(--pharos-z-index-toast);
   box-sizing: border-box;
   inline-size: min(22.5rem, calc(100% - 2 * var(--pharos-toast-edge-gap)));
 
@@ -64,8 +63,8 @@
   box-sizing: border-box;
   pointer-events: auto;
 
-  background-color: var(--pharos-color-surface-card, var(--pharos-color-base-white));
-  border: 1px solid var(--pharos-color-border-subtle, var(--pharos-color-neutral-200));
+  background-color: var(--pharos-color-surface-card);
+  border: 1px solid var(--pharos-color-border-subtle);
   border-radius: var(--pharos-radius-lg);
   box-shadow: var(--pharos-shadow-lg);
 
