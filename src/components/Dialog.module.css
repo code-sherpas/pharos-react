@@ -13,14 +13,13 @@
  * included. A backdrop on a lower layer (overlay 1300) would sit under the
  * first modal's panel and leave it undimmed. A Select, Popover or menu opened
  * from inside the dialog sits on the popover layer (1500), above it.
- * The fallback is D29's value, for a consumer whose pharos-tokens predates it.
  */
 
 /* === Backdrop (Dialog.Backdrop) === */
 .backdrop {
   position: fixed;
   inset: 0;
-  z-index: var(--pharos-z-index-modal, 1400);
+  z-index: var(--pharos-z-index-modal);
   background-color: color-mix(in srgb, var(--pharos-color-base-black) 50%, transparent);
   transition: opacity var(--pharos-duration-normal) var(--pharos-easing-out);
 }
@@ -39,7 +38,7 @@
    * composed on top of the same translate (see starting/ending styles). */
   transform: translate(-50%, -50%);
   transform-origin: center;
-  z-index: var(--pharos-z-index-modal, 1400);
+  z-index: var(--pharos-z-index-modal);
 
   box-sizing: border-box;
   width: calc(100% - 2 * var(--pharos-spacing-4));

@@ -10,15 +10,14 @@
  * (decision D29, modal 1400), like Dialog: one layer for both, so a modal
  * opened over the Sheet paints above it by DOM order, backdrop included. A
  * Select or Popover opened from inside the Sheet (a LanguageSelector in a
- * mobile drawer) sits on the popover layer (1500), above it. The fallback is
- * D29's value, for a consumer whose pharos-tokens predates it.
+ * mobile drawer) sits on the popover layer (1500), above it.
  */
 
 /* === Backdrop (Dialog.Backdrop) === */
 .backdrop {
   position: fixed;
   inset: 0;
-  z-index: var(--pharos-z-index-modal, 1400);
+  z-index: var(--pharos-z-index-modal);
   /* Scrim from the base-black token at 50% via color-mix — no hardcoded
    * rgba (NON-NEGOTIABLE rule 1). */
   background-color: color-mix(in srgb, var(--pharos-color-base-black) 50%, transparent);
@@ -33,7 +32,7 @@
 /* === Panel (Dialog.Popup) === */
 .content {
   position: fixed;
-  z-index: var(--pharos-z-index-modal, 1400);
+  z-index: var(--pharos-z-index-modal);
   box-sizing: border-box;
   display: flex;
   flex-direction: column;

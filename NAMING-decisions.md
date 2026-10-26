@@ -1556,9 +1556,11 @@ pharos-tokens z-index scale, D29). Two cases decide it:
   (1300) would sit under the first panel and leave it undimmed.
 
 Both are validated end-to-end in the consumer harness (`examples/saas-demo`
-→ New project sheet → Select inside). The fallbacks are D29's values
-(modal 1400, popover 1500) for a consumer whose pharos-tokens predates the
-scale; the value stays a consumer-overridable var.
+→ New project sheet → Select inside). The value stays a
+consumer-overridable var. From pharos-react 1.0.0, which requires
+pharos-tokens 0.8 or later, the var has no fallback: every supported
+pharos-tokens defines it. (0.20.3 to 0.21.x carried fallbacks of 1400 and
+1500 for consumers on older tokens.)
 
 Until D29 (pharos-react 0.20.2) the backdrop and panel shared
 `--pharos-z-index-popover` with fallback 1000, and nesting resolved only
