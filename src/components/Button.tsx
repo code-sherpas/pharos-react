@@ -16,12 +16,10 @@ import styles from './Button.module.css';
 const buttonVariants = cva(styles.button, {
   variants: {
     intent: {
-      // `primary` is the most emphasized CTA. It renders in neutral-900,
-      // matching Alexandria's `NewButton variant="filled" tone="default"`
-      // and the Linear/Vercel/Notion convention of "brand color as accent,
-      // dark neutral as primary action". The blue `primary-*` palette is
-      // reserved for brand accents (focus rings, highlights, badges) —
-      // not for the default filled button.
+      // `primary` is the most emphasized CTA, filled in seablue
+      // (`primary-600`, decision D24): blue is the colour of every
+      // interaction, and the primary action is the one blue anchor of a
+      // view.
       primary: styles.primary,
       secondary: styles.secondary,
       ghost: styles.ghost,
