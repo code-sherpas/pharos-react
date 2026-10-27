@@ -1,5 +1,6 @@
 import { Fragment } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
+import { expect, within } from 'storybook/test';
 import { Button } from './Button';
 
 const INTENTS = ['primary', 'secondary', 'ghost', 'destructive'] as const;
@@ -71,6 +72,21 @@ export const Destructive: Story = {
 
 export const Disabled: Story = {
   args: { disabled: true, children: 'Disabled' },
+};
+
+/** Disabled the focusable way (ARIA APG): `aria-disabled="true"` looks like
+ * `disabled` but keeps the button focusable, so a control that turns busy
+ * while it has focus does not drop a keyboard user. Presses are ignored. */
+export const AriaDisabled: Story = {
+  name: 'Disabled, focusable (aria-disabled)',
+  args: { 'aria-disabled': 'true', children: 'Saving…' },
+  play: async ({ canvasElement }) => {
+    const button = within(canvasElement).getByRole('button', { name: 'Saving…' });
+    await expect(button).not.toBeDisabled();
+    await expect(getComputedStyle(button).opacity).toBe('0.5');
+    button.focus();
+    await expect(button).toHaveFocus();
+  },
 };
 
 export const AsLink: Story = {

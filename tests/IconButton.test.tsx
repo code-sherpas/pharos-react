@@ -84,6 +84,22 @@ describe('IconButton', () => {
     expect(ref.current).toBeInstanceOf(HTMLButtonElement);
   });
 
+  it('with aria-disabled="true" stays focusable and ignores Enter', async () => {
+    const user = userEvent.setup();
+    const onClick = vi.fn();
+    render(
+      <IconButton aria-label="Sending" aria-disabled="true" onClick={onClick}>
+        <Icon />
+      </IconButton>,
+    );
+    const button = screen.getByRole('button', { name: 'Sending' });
+    expect(button).not.toBeDisabled();
+    await user.tab();
+    expect(button).toHaveFocus();
+    await user.keyboard('{Enter}');
+    expect(onClick).not.toHaveBeenCalled();
+  });
+
   it('does not fire onClick when disabled', async () => {
     const user = userEvent.setup();
     const onClick = vi.fn();

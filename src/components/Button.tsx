@@ -3,6 +3,7 @@
 import { useRender } from '@base-ui/react/use-render';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/cn';
+import { ignorePressWhenAriaDisabled } from '../lib/focusableDisabled';
 import styles from './Button.module.css';
 
 /**
@@ -78,6 +79,9 @@ export function Button({
       'data-pharos-size': resolvedSize,
       className: cn(buttonVariants({ intent: resolvedIntent, size: resolvedSize }), className),
       ...rest,
+      // `aria-disabled="true"` keeps the button focusable and looks disabled
+      // (see Button.module.css); a press from the keyboard is ignored here.
+      onClick: ignorePressWhenAriaDisabled(rest['aria-disabled'], rest.onClick),
     },
   });
 }
