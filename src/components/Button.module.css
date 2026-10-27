@@ -124,18 +124,23 @@
 
 /* === Intents === */
 
+/* Primary is seablue (D24): blue is the colour of every interaction, and the
+ * primary action is the one blue anchor of a view. White on primary-600 is
+ * about 6.6:1; hover and active darken one and two steps of the ramp, as
+ * destructive does with its own. The focus ring keeps primary-600, set apart
+ * from the fill by the white halo. */
 .primary {
-  background-color: var(--pharos-color-neutral-900);
+  background-color: var(--pharos-color-primary-600);
   color: var(--pharos-color-base-white);
   --button-focus-ring: var(--pharos-color-primary-600);
 }
 
 .primary:hover {
-  background-color: var(--pharos-color-neutral-700);
+  background-color: var(--pharos-color-primary-700);
 }
 
 .primary:active {
-  background-color: var(--pharos-color-neutral-950);
+  background-color: var(--pharos-color-primary-800);
 }
 
 .secondary {

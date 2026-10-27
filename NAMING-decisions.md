@@ -228,27 +228,20 @@ instance using these mappings.
 | `DestructiveButton` / `DangerButton`                        | `<Button intent="destructive">`                                                                    |
 | `IconButton`                                                | Deferred — dedicated component once Lucide integration lands (D4)                                  |
 
-### Note on `intent="primary"` vs the `primary-*` palette
+### `intent="primary"` and the `primary-*` palette (D24)
 
-The word "primary" names two different things in Pharos, and they
-intentionally do not refer to each other:
+`<Button intent="primary">` is filled with **`primary-600`** (`#2a48e9`,
+seablue), hover `primary-700`, active `primary-800`. Blue is the colour
+of every interaction in Pharos (focus rings, links, steps, the selected
+state), and the primary action is the one blue anchor of a view. White
+on `primary-600` is about 6.6:1.
 
-- **`primary-*` palette** (`primary-50`..`primary-900` in tokens) is the
-  brand blue (`primary-600` = `#2a48e9`, sea-blue). It exists as accent
-  — focus rings, active tab indicators, badges, links, highlights.
-- **`<Button intent="primary">`** is the most emphasized CTA. It renders
-  in **neutral-900** (dark navy-black), matching Alexandria's dominant
-  `NewButton variant="filled" tone="default"` treatment and the
-  Linear / Vercel / Notion convention of "brand as accent, dark neutral
-  as CTA".
-
-The name collision is a known quirk of Pharos inheriting shadcn's
-"primary" palette naming while picking a CTA that is not the brand
-color. Renaming the palette (to `brand-*` or `accent-*`) was
-considered and rejected: it would be a major-version break of
-pharos-tokens for a purely cosmetic naming concern, and the ambiguity
-is bounded to one document — this one. Read "`intent="primary"`" as
-"the primary action on the screen", not as "the primary-palette color".
+Until pharos-react 1.0 the primary button was `neutral-900`, after
+Alexandria's `NewButton variant="filled" tone="default"` and the
+"brand as accent, dark neutral as CTA" convention. Decision D24
+(2026-10-15) replaced it: the dark fill left the brand colour out of
+every main action. IconButton follows, since it shares Button's
+intents.
 
 ### Deliberate visual changes at migration time
 
@@ -855,7 +848,7 @@ values as Button (`primary | secondary | ghost | destructive`), and
 the visual treatment is an implementation detail of each intent. Reading
 across the system stays one-axis: every interactive control answers
 the question "what does this action mean?" with the same vocabulary.
-The mapping is exact — `primary` is filled neutral-900, `secondary`
+The mapping is exact — `primary` is filled `primary-600` (D24), `secondary`
 is bordered (the Material `Outlined` equivalent), `ghost` is
 transparent (the Material `Standard` equivalent), `destructive` is
 filled red. No tonal tier; if a low-emphasis filled variant becomes
