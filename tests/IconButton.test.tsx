@@ -84,20 +84,20 @@ describe('IconButton', () => {
     expect(ref.current).toBeInstanceOf(HTMLButtonElement);
   });
 
-  it('with aria-disabled="true" stays focusable and ignores Enter', async () => {
+  it('with aria-disabled="true" stays focusable and still hands a press to onClick', async () => {
     const user = userEvent.setup();
-    const onClick = vi.fn();
+    const sayWhy = vi.fn();
     render(
-      <IconButton aria-label="Sending" aria-disabled="true" onClick={onClick}>
+      <IconButton aria-label="Microphone unavailable" aria-disabled="true" onClick={sayWhy}>
         <Icon />
       </IconButton>,
     );
-    const button = screen.getByRole('button', { name: 'Sending' });
+    const button = screen.getByRole('button', { name: 'Microphone unavailable' });
     expect(button).not.toBeDisabled();
     await user.tab();
     expect(button).toHaveFocus();
     await user.keyboard('{Enter}');
-    expect(onClick).not.toHaveBeenCalled();
+    expect(sayWhy).toHaveBeenCalledTimes(1);
   });
 
   it('does not fire onClick when disabled', async () => {

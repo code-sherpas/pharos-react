@@ -71,52 +71,26 @@ describe('Button', () => {
   });
 
   describe('with aria-disabled="true" (focusable while unavailable)', () => {
-    it('stays focusable and ignores Enter and Space', async () => {
+    it('stays focusable and enabled for the browser', async () => {
       const user = userEvent.setup();
-      const onClick = vi.fn();
-      render(
-        <Button aria-disabled="true" onClick={onClick}>
-          Saving
-        </Button>,
-      );
+      render(<Button aria-disabled="true">Saving</Button>);
       const button = screen.getByRole('button', { name: 'Saving' });
       expect(button).not.toBeDisabled();
+      expect(button).toHaveAttribute('aria-disabled', 'true');
       await user.tab();
       expect(button).toHaveFocus();
-      await user.keyboard('{Enter}');
-      await user.keyboard(' ');
-      expect(onClick).not.toHaveBeenCalled();
-      expect(button).toHaveFocus();
     });
 
-    it('does not follow its link', async () => {
+    it('still hands a press to onClick, so the consumer can say why it is unavailable', async () => {
       const user = userEvent.setup();
-      const onClickCapture = vi.fn((event: MouseEvent) => event.defaultPrevented);
+      const sayWhy = vi.fn();
       render(
-        <div onClick={onClickCapture}>
-          <Button aria-disabled="true" render={<a href="#/checkout" />}>
-            Pay
-          </Button>
-        </div>,
-      );
-      const link = screen.getByRole('link', { name: 'Pay' });
-      link.focus();
-      await user.keyboard('{Enter}');
-      expect(onClickCapture).toHaveReturnedWith(true);
-      expect(window.location.hash).not.toBe('#/checkout');
-    });
-
-    it('fires onClick again once aria-disabled goes away', async () => {
-      const user = userEvent.setup();
-      const onClick = vi.fn();
-      const { rerender } = render(
-        <Button aria-disabled="true" onClick={onClick}>
-          Save
+        <Button aria-disabled="true" onClick={sayWhy}>
+          Turn microphone on
         </Button>,
       );
-      rerender(<Button onClick={onClick}>Save</Button>);
-      await user.click(screen.getByRole('button', { name: 'Save' }));
-      expect(onClick).toHaveBeenCalledTimes(1);
+      await user.click(screen.getByRole('button', { name: 'Turn microphone on' }));
+      expect(sayWhy).toHaveBeenCalledTimes(1);
     });
   });
 

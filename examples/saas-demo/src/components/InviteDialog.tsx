@@ -30,13 +30,23 @@ const ROLES = { admin: 'Admin', editor: 'Editor', viewer: 'Viewer' };
 export function InviteDialog() {
   const [role, setRole] = useState('editor');
   const [email, setEmail] = useState('');
+  const [open, setOpen] = useState(false);
   const toast = useToast();
   // Unavailable until there is an address, the focusable way (aria-disabled):
-  // it keeps its place in the tab order and says why it cannot be pressed.
+  // it keeps its place in the tab order and, pressed, points at what is
+  // missing instead of doing nothing.
   const canSend = email.trim() !== '';
 
+  function send() {
+    if (!canSend) {
+      document.getElementById('invite-email')?.focus();
+      return;
+    }
+    setOpen(false);
+  }
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button size="sm">Invite teammate</Button>} />
       <DialogContent>
         <DialogHeader>
@@ -84,16 +94,13 @@ export function InviteDialog() {
             Copy invite link
           </Button>
           <DialogClose render={<Button intent="ghost">Cancel</Button>} />
-          <DialogClose
-            render={
-              <Button
-                aria-disabled={!canSend}
-                aria-describedby={canSend ? undefined : 'invite-email-hint'}
-              >
-                Send invite
-              </Button>
-            }
-          />
+          <Button
+            aria-disabled={!canSend}
+            aria-describedby={canSend ? undefined : 'invite-email-hint'}
+            onClick={send}
+          >
+            Send invite
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
