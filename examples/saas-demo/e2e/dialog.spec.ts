@@ -40,6 +40,29 @@ test.describe('Invite dialog', () => {
     expect(await layerOf(list)).toBeGreaterThan(panelLayer);
   });
 
+  // Focusable while unavailable (aria-disabled): «Send invite» keeps its place
+  // in the tab order, looks disabled, says why, and a press does not close the
+  // dialog until there is an address.
+  test('cannot send an invite without an email, and can once there is one', async ({ page }) => {
+    await page.getByRole('button', { name: 'Invite teammate' }).click();
+    const dialog = page.getByRole('dialog', { name: 'Invite teammate' });
+    const send = dialog.getByRole('button', { name: 'Send invite' });
+
+    await expect(send).toHaveAttribute('aria-disabled', 'true');
+    await expect(send).toHaveAccessibleDescription('Add an email to send the invite.');
+    await expect(send).toHaveCSS('opacity', '0.5');
+    await send.focus();
+    await expect(send).toBeFocused();
+    await page.keyboard.press('Enter');
+    await expect(dialog).toBeVisible();
+
+    await dialog.getByLabel('Email').fill('grace@nimbus.io');
+    await expect(send).not.toHaveAttribute('aria-disabled', 'true');
+    await expect(send).toHaveCSS('opacity', '1');
+    await send.click();
+    await expect(dialog).toHaveCount(0);
+  });
+
   test('closes on Escape and returns focus to the trigger', async ({ page }) => {
     const trigger = page.getByRole('button', { name: 'Invite teammate' });
     await trigger.click();

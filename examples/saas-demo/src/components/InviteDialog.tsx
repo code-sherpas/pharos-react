@@ -29,7 +29,11 @@ const ROLES = { admin: 'Admin', editor: 'Editor', viewer: 'Viewer' };
  */
 export function InviteDialog() {
   const [role, setRole] = useState('editor');
+  const [email, setEmail] = useState('');
   const toast = useToast();
+  // Unavailable until there is an address, the focusable way (aria-disabled):
+  // it keeps its place in the tab order and says why it cannot be pressed.
+  const canSend = email.trim() !== '';
 
   return (
     <Dialog>
@@ -42,7 +46,20 @@ export function InviteDialog() {
 
         <div className="field">
           <label htmlFor="invite-email">Email</label>
-          <Input id="invite-email" type="email" placeholder="teammate@company.com" />
+          <Input
+            id="invite-email"
+            type="email"
+            placeholder="teammate@company.com"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+            }}
+          />
+          {!canSend && (
+            <p id="invite-email-hint" className="hint-text">
+              Add an email to send the invite.
+            </p>
+          )}
         </div>
 
         <div className="field">
@@ -67,7 +84,16 @@ export function InviteDialog() {
             Copy invite link
           </Button>
           <DialogClose render={<Button intent="ghost">Cancel</Button>} />
-          <DialogClose render={<Button>Send invite</Button>} />
+          <DialogClose
+            render={
+              <Button
+                aria-disabled={!canSend}
+                aria-describedby={canSend ? undefined : 'invite-email-hint'}
+              >
+                Send invite
+              </Button>
+            }
+          />
         </DialogFooter>
       </DialogContent>
     </Dialog>

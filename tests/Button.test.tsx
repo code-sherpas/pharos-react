@@ -70,6 +70,56 @@ describe('Button', () => {
     expect(onClick).not.toHaveBeenCalled();
   });
 
+  describe('with aria-disabled="true" (focusable while unavailable)', () => {
+    it('stays focusable and ignores Enter and Space', async () => {
+      const user = userEvent.setup();
+      const onClick = vi.fn();
+      render(
+        <Button aria-disabled="true" onClick={onClick}>
+          Saving
+        </Button>,
+      );
+      const button = screen.getByRole('button', { name: 'Saving' });
+      expect(button).not.toBeDisabled();
+      await user.tab();
+      expect(button).toHaveFocus();
+      await user.keyboard('{Enter}');
+      await user.keyboard(' ');
+      expect(onClick).not.toHaveBeenCalled();
+      expect(button).toHaveFocus();
+    });
+
+    it('does not follow its link', async () => {
+      const user = userEvent.setup();
+      const onClickCapture = vi.fn((event: MouseEvent) => event.defaultPrevented);
+      render(
+        <div onClick={onClickCapture}>
+          <Button aria-disabled="true" render={<a href="#/checkout" />}>
+            Pay
+          </Button>
+        </div>,
+      );
+      const link = screen.getByRole('link', { name: 'Pay' });
+      link.focus();
+      await user.keyboard('{Enter}');
+      expect(onClickCapture).toHaveReturnedWith(true);
+      expect(window.location.hash).not.toBe('#/checkout');
+    });
+
+    it('fires onClick again once aria-disabled goes away', async () => {
+      const user = userEvent.setup();
+      const onClick = vi.fn();
+      const { rerender } = render(
+        <Button aria-disabled="true" onClick={onClick}>
+          Save
+        </Button>,
+      );
+      rerender(<Button onClick={onClick}>Save</Button>);
+      await user.click(screen.getByRole('button', { name: 'Save' }));
+      expect(onClick).toHaveBeenCalledTimes(1);
+    });
+  });
+
   it('activates on Enter when focused', async () => {
     const user = userEvent.setup();
     const onClick = vi.fn();
