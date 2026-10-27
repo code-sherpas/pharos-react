@@ -116,12 +116,18 @@
     0 0 0 4px var(--button-focus-ring, var(--pharos-color-primary-600));
 }
 
-/* Disabled the focusable way (`aria-disabled="true"`, ARIA APG) looks exactly
- * like `disabled`: a control that turns busy while it has focus keeps it, and
- * reads as unavailable. The component ignores a keyboard press on it. */
-.button:disabled,
-.button[aria-disabled='true'] {
+/* Disabled the focusable way (`aria-disabled="true"`, ARIA APG) looks like
+ * `disabled` but stays focusable and still receives the press: the consumer
+ * decides what a press does — nothing while a request travels, or saying why
+ * the action is unavailable. Hover and active do not change it (see the
+ * `:not([aria-disabled='true'])` on each intent). */
+.button:disabled {
   pointer-events: none;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.button[aria-disabled='true'] {
   cursor: not-allowed;
   opacity: 0.5;
 }
@@ -139,11 +145,11 @@
   --button-focus-ring: var(--pharos-color-primary-600);
 }
 
-.primary:hover {
+.primary:hover:not([aria-disabled='true']) {
   background-color: var(--pharos-color-primary-700);
 }
 
-.primary:active {
+.primary:active:not([aria-disabled='true']) {
   background-color: var(--pharos-color-primary-800);
 }
 
@@ -159,11 +165,11 @@
   --button-focus-ring: var(--pharos-color-primary-600);
 }
 
-.secondary:hover {
+.secondary:hover:not([aria-disabled='true']) {
   background-color: var(--pharos-color-neutral-50);
 }
 
-.secondary:active {
+.secondary:active:not([aria-disabled='true']) {
   background-color: var(--pharos-color-neutral-100);
 }
 
@@ -173,11 +179,11 @@
   --button-focus-ring: var(--pharos-color-primary-600);
 }
 
-.ghost:hover {
+.ghost:hover:not([aria-disabled='true']) {
   background-color: var(--pharos-color-neutral-100);
 }
 
-.ghost:active {
+.ghost:active:not([aria-disabled='true']) {
   background-color: var(--pharos-color-neutral-200);
 }
 
@@ -187,11 +193,11 @@
   --button-focus-ring: var(--pharos-color-semantic-error-fg);
 }
 
-.destructive:hover {
+.destructive:hover:not([aria-disabled='true']) {
   background-color: var(--pharos-color-semantic-error-fg-hover);
 }
 
-.destructive:active {
+.destructive:active:not([aria-disabled='true']) {
   background-color: var(--pharos-color-semantic-error-fg-active);
 }
 

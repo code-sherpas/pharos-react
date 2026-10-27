@@ -76,7 +76,8 @@ export const Disabled: Story = {
 
 /** Disabled the focusable way (ARIA APG): `aria-disabled="true"` looks like
  * `disabled` but keeps the button focusable, so a control that turns busy
- * while it has focus does not drop a keyboard user. Presses are ignored. */
+ * while it has focus does not drop a keyboard user. The press still reaches
+ * `onClick`: the consumer decides whether it does nothing or says why. */
 export const AriaDisabled: Story = {
   name: 'Disabled, focusable (aria-disabled)',
   args: { 'aria-disabled': 'true', children: 'Saving…' },

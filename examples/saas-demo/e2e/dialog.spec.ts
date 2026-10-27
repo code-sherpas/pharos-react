@@ -41,8 +41,8 @@ test.describe('Invite dialog', () => {
   });
 
   // Focusable while unavailable (aria-disabled): «Send invite» keeps its place
-  // in the tab order, looks disabled, says why, and a press does not close the
-  // dialog until there is an address.
+  // in the tab order, looks disabled, says why, and a press moves to the email
+  // field instead of closing the dialog until there is an address.
   test('cannot send an invite without an email, and can once there is one', async ({ page }) => {
     await page.getByRole('button', { name: 'Invite teammate' }).click();
     const dialog = page.getByRole('dialog', { name: 'Invite teammate' });
@@ -55,6 +55,8 @@ test.describe('Invite dialog', () => {
     await expect(send).toBeFocused();
     await page.keyboard.press('Enter');
     await expect(dialog).toBeVisible();
+    // Pressed while unavailable, it points at what is missing.
+    await expect(dialog.getByLabel('Email')).toBeFocused();
 
     await dialog.getByLabel('Email').fill('grace@nimbus.io');
     await expect(send).not.toHaveAttribute('aria-disabled', 'true');

@@ -3,7 +3,6 @@
 import { useRender } from '@base-ui/react/use-render';
 import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '../lib/cn';
-import { ignorePressWhenAriaDisabled } from '../lib/focusableDisabled';
 import { Spinner } from './Spinner';
 import styles from './IconButton.module.css';
 
@@ -101,7 +100,6 @@ export function IconButton({
       disabled: isDisabled,
       className: cn(iconButtonVariants({ intent: resolvedIntent, size: resolvedSize }), className),
       ...rest,
-      onClick: ignorePressWhenAriaDisabled(rest['aria-disabled'], rest.onClick),
       children: isLoading ? <Spinner size={resolvedSize} /> : children,
     },
   });
