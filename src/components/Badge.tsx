@@ -7,10 +7,15 @@ import styles from './Badge.module.css';
  * Maps the `variant` axis to per-class names inside `Badge.module.css`.
  * The variant set follows shadcn/ui — `default`, `secondary`, `destructive`,
  * `outline` — extended with the semantic tones every modern DS exposes
- * (`success`, `warning`, `info`). Naming stays asymmetric on purpose:
+ * (`success`, `warning`, `info`) and the brand terracotta (`accent`,
+ * `accent-soft`, D25). Naming stays asymmetric on purpose:
  * `destructive` is the canonical shadcn name for "negative tone" and we
  * keep it instead of renaming it to `error`, so consumers familiar with
  * shadcn pick the right value without re-learning the API.
+ *
+ * The semantic tones are for system state only; the accent tones are for
+ * content identity only — a module mark, a topic tag, a category — never for
+ * an action, a selection or a state, which stay blue or semantic.
  */
 const badgeVariants = cva(styles.badge, {
   variants: {
@@ -22,6 +27,8 @@ const badgeVariants = cva(styles.badge, {
       success: styles.success,
       warning: styles.warning,
       info: styles.info,
+      accent: styles.accent,
+      'accent-soft': styles.accentSoft,
     },
   },
   defaultVariants: {

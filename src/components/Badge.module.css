@@ -66,3 +66,18 @@
   background: var(--pharos-color-semantic-info-fg);
   color: var(--pharos-color-semantic-info-on);
 }
+
+/* Brand accent (D25): content identity, never system state. Solid terracotta
+ * 700, not the 600 base: white on 600 is 4.04:1 and fails AA at 12px; on 700
+ * it is 5.92:1. Use it for the single mark that matters. */
+.accent {
+  background: var(--pharos-color-accent-terracotta-700);
+  color: var(--pharos-color-base-white);
+}
+
+/* The tint, for many tags shown together: terracotta-700 ink on the 50 tint
+ * keeps AA for the 12px label. */
+.accentSoft {
+  background: var(--pharos-color-accent-terracotta-50);
+  color: var(--pharos-color-accent-terracotta-700);
+}
