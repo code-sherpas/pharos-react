@@ -1,5 +1,11 @@
 # @code-sherpas/pharos-react
 
+## 1.1.1
+
+### Patch Changes
+
+- fc48d8f: The package no longer ships `RULES.md`: the rules for consumers now live in Notion (decision D27), linked from the README. Components and exports are unchanged.
+
 ## 1.1.0
 
 ### Minor Changes
