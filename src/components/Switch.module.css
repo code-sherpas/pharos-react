@@ -25,10 +25,11 @@
 
   border: none;
   border-radius: var(--pharos-radius-full);
-  /* Off track. The perceivable state indicator is the thumb (white with a
-   * neutral-500 hairline, ≈5.4:1) — it stays distinguishable on both the light
-   * off track and the dark on track, satisfying WCAG 1.4.11. */
-  background-color: var(--pharos-color-neutral-300);
+  /* Off track: the warm paper fill the tokens reserve for it. The perceivable
+   * state indicator is the thumb (white with a neutral-500 hairline, ≈5.4:1) —
+   * it stays distinguishable on both the light off track and the dark on track,
+   * satisfying WCAG 1.4.11. */
+  background-color: var(--pharos-color-paper-300);
 
   cursor: pointer;
   transition-property: background-color, box-shadow;
@@ -37,7 +38,7 @@
 }
 
 .root:hover:not([data-disabled]):not([data-checked]) {
-  background-color: var(--pharos-color-neutral-400);
+  background-color: var(--pharos-color-neutral-300);
 }
 
 /* On track — the neutral-900 fill, matching the Checkbox's checked look. */
