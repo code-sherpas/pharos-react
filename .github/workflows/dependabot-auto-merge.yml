@@ -4,7 +4,8 @@ name: Dependabot auto-merge
 # Major bumps and any runtime-dependency change keep waiting for a human review.
 #
 # `gh pr merge --auto --squash` only flips the merge switch — GitHub still requires
-# every required status check (CI, CodeQL, Chromatic) to pass before the merge happens.
+# every required status check (CI, CodeQL, Chromatic) to pass. With the merge queue
+# on main, it then adds the PR to the queue, which merges it with its own method.
 # This workflow does not bypass branch protection.
 #
 # Required GitHub setup (one-off):
