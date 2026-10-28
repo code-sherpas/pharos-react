@@ -171,7 +171,8 @@ is **incremental**, not a big-bang end-of-plan event:
 2. When the PR merges and Changesets publishes the new version to npm, a
    separate PR opens in `alexandria-web-application` that:
    - Replaces every instance of the Alexandria equivalent(s) with the
-     Pharos component, following the mapping in `NAMING-decisions.md`.
+     Pharos component, following the mapping in the component's page of
+     [pharos-react: nombres y API de componentes](https://app.notion.com/p/4071751eee10818fab08c348d3f2dd1e) (Notion).
    - Deletes the obsolete Alexandria components once all call-sites are
      swapped.
    - Lists **every affected route** (URL paths under `/app/`) in the PR
@@ -191,7 +192,8 @@ consumes it.
 When a Pharos release introduces a deliberate visual change from Alexandria
 (e.g. `NewButton`'s navy fill becoming brand blue), that is the DS deciding
 what the design vocabulary means — not a bug. Deliberate changes are
-documented in the component's entry in `NAMING-decisions.md` at the time
+documented in the component's page of
+[pharos-react: nombres y API de componentes](https://app.notion.com/p/4071751eee10818fab08c348d3f2dd1e) (Notion) at the time
 the swap PR opens.
 
 ## NON-NEGOTIABLE rules
@@ -421,19 +423,19 @@ it. Deliberate visual changes are documented.
 **Where each thing goes** — each fact has ONE home; link from elsewhere, never
 copy.
 
-| Content                                                           | Home                                                                        |
-| ----------------------------------------------------------------- | --------------------------------------------------------------------------- |
-| Visual and brand direction, token values, visual component guides | the Pharos design system artifact                                           |
-| Code, tests, changesets                                           | this repo                                                                   |
-| README (the npm page), `AGENTS.md`, `CHANGELOG.md`                | this repo                                                                   |
-| Library/API contract, naming, consumer rules, tech debt           | Notion (decision D27; until moved: `RULES.md` / `NAMING-decisions.md` here) |
-| Software development standards (how we build)                     | `code-sherpas/software-development-standards` (read by URL)                 |
-| Roadmap, plan, phase status                                       | Notion → Roadmap / Status                                                   |
-| Architecture/program decisions (ADRs)                             | Notion → Decisions                                                          |
-| Runbooks, CI/release/Chromatic quirks, verification recipes       | Notion → Runbooks                                                           |
-| Team norms / working agreements                                   | Notion → Working agreements                                                 |
-| Task tracking / follow-ups                                        | Notion → Tasks                                                              |
-| Personal / machine-local (`settings.local.json`, language pref)   | stays local; never shared                                                   |
+| Content                                                           | Home                                                                                                           |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Visual and brand direction, token values, visual component guides | the Pharos design system artifact                                                                              |
+| Code, tests, changesets                                           | this repo                                                                                                      |
+| README (the npm page), `AGENTS.md`, `CHANGELOG.md`                | this repo                                                                                                      |
+| Library/API contract, naming, consumer rules, tech debt           | Notion → [Contrato de las bibliotecas Pharos](https://app.notion.com/p/4071751eee10811bafcbf67fa7e13f38) (D27) |
+| Software development standards (how we build)                     | `code-sherpas/software-development-standards` (read by URL)                                                    |
+| Roadmap, plan, phase status                                       | Notion → Roadmap / Status                                                                                      |
+| Architecture/program decisions (ADRs)                             | Notion → Decisions                                                                                             |
+| Runbooks, CI/release/Chromatic quirks, verification recipes       | Notion → Runbooks                                                                                              |
+| Team norms / working agreements                                   | Notion → Working agreements                                                                                    |
+| Task tracking / follow-ups                                        | Notion → Tasks                                                                                                 |
+| Personal / machine-local (`settings.local.json`, language pref)   | stays local; never shared                                                                                      |
 
 `CLAUDE.md` is a symlink to this file (`.claude/CLAUDE.md → ../AGENTS.md`), so
 Claude Code loads these rules automatically.

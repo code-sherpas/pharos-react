@@ -17,7 +17,7 @@ import styles from './DropdownMenu.module.css';
  * disclosure/dialog contract). 7 of 8 surveyed design systems separate
  * the two for exactly this reason — putting `role="menu"` around
  * arbitrary content breaks screen-reader expectations. See
- * `NAMING-decisions.md` § DropdownMenu.
+ * the DropdownMenu page of the naming decisions: https://app.notion.com/p/4071751eee10815ab61dc5e63758da12
  *
  * Naming follows shadcn (`DropdownMenu*`, not Base UI's `Menu`). The
  * compound surface collapses Base UI's `Portal` + `Positioner` + `Popup`
