@@ -1840,3 +1840,42 @@ breaking change.
 The call's `CallNotice` (a hand-made bottom notice) becomes `toast.add` with a
 `Toaster` at `top-center` (ALEX-513). The `role="status"` notices on other
 screens migrate one by one; a notice tied to a field stays next to the field.
+
+## ToggleGroup (D25, 2026-10-28)
+
+Two to five options side by side, where choosing one changes what the
+surrounding view shows at once — a list shown as List / Grid. The artifact
+«Pharos» draws it as **SegmentedControl**; D25 brings it into the library and
+fixes its name by the canonical order (shadcn > Base UI > APG).
+
+### Why `ToggleGroup`, not `SegmentedControl`
+
+shadcn has no SegmentedControl: its component for this pattern is
+`ToggleGroup` + `ToggleGroupItem` with a single value, and its Base UI
+version wraps Base UI's `ToggleGroup`. Pharos takes that name (NON-NEGOTIABLE
+#3) and that contract. David chose it on 2026-10-28 over keeping the
+artifact's name with RadioGroup semantics; the artifact renames to match.
+
+### Semantics: toggle buttons, one always pressed
+
+Base UI renders a `role="group"` of `aria-pressed` buttons with one tab stop:
+arrow keys move between them, Enter or Space presses the focused one. That
+is the shadcn and Base UI contract; the artifact's version used radio
+semantics (arrows move and select), which no longer applies.
+
+A plain single-mode toggle group can be left with nothing pressed by
+pressing the pressed item again. A view switch must always have an answer,
+so in single mode Pharos cancels that change (`eventDetails.cancel()`) and
+does not report it. With `multiple`, any number can be pressed, none
+included, as in Base UI.
+
+The value is an array, as in Base UI and shadcn's Base UI version:
+`value={[view]}`, `onValueChange={(v) => setView(v[0])}`.
+
+### Look
+
+The artifact's: a `paper-200` rail, pill segments in `neutral-600` text, a
+`paper-300` hover, the pressed segment lifted in white with `shadow-sm` and a
+`paper-300` hairline, and the shared focus ring. `size` is `sm` (32px,
+`spacing-8`) or `md` (40px, `spacing-10`, default), on the control grid. It
+owns no label (D11): name the group with `aria-label` or `aria-labelledby`.

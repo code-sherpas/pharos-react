@@ -177,6 +177,8 @@ export { Switch } from './components/Switch';
 export type { SwitchProps } from './components/Switch';
 export { RadioGroup, RadioGroupItem } from './components/RadioGroup';
 export type { RadioGroupProps, RadioGroupItemProps } from './components/RadioGroup';
+export { ToggleGroup, ToggleGroupItem } from './components/ToggleGroup';
+export type { ToggleGroupProps, ToggleGroupItemProps } from './components/ToggleGroup';
 export { ToastProvider, Toaster, useToast } from './components/Toast';
 export type {
   ToastProviderProps,

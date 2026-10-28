@@ -70,6 +70,8 @@ import {
   Switch,
   RadioGroup,
   RadioGroupItem,
+  ToggleGroup,
+  ToggleGroupItem,
   ToastProvider,
   Toaster,
   useToast,
@@ -91,6 +93,8 @@ import {
   type SwitchProps,
   type RadioGroupProps,
   type RadioGroupItemProps,
+  type ToggleGroupProps,
+  type ToggleGroupItemProps,
   type ToasterProps,
   type ToastOptions,
   type ToastProviderProps,
@@ -125,6 +129,10 @@ import {
   RadioGroupItem as RadioGroupItemDeep,
 } from '../dist/components/RadioGroup.js';
 import { Toaster as ToasterDeep } from '../dist/components/Toast.js';
+import {
+  ToggleGroup as ToggleGroupDeep,
+  ToggleGroupItem as ToggleGroupItemDeep,
+} from '../dist/components/ToggleGroup.js';
 
 // A couple of representative typed prop checks (surface shape, not just names).
 const _buttonProps: ButtonProps = { intent: 'primary', size: 'md' };
@@ -133,6 +141,8 @@ const _badgeProps: BadgeProps = { variant: 'success', children: 'ok' };
 const _avatarProps: AvatarProps = { size: 'md', shape: 'circle' };
 const _switchProps: SwitchProps = { checked: true };
 const _radioItemProps: RadioGroupItemProps = { value: 'a' };
+const _toggleGroupProps: ToggleGroupProps = { size: 'sm', defaultValue: ['list'] };
+const _toggleGroupItemProps: ToggleGroupItemProps = { value: 'list' };
 const _toasterProps: ToasterProps = {
   position: 'top-center',
   label: 'Notifications',
@@ -156,6 +166,7 @@ export type _PublicPropTypes = [
   DialogProps,
   CheckboxProps,
   RadioGroupProps,
+  ToggleGroupProps,
   ToastProviderProps,
   UseToastReturnValue,
 ];
@@ -234,6 +245,12 @@ export const _smoke = [
   SwitchDeep,
   RadioGroupDeep,
   RadioGroupItemDeep,
+  ToggleGroupDeep,
+  ToggleGroupItemDeep,
+  ToggleGroup,
+  ToggleGroupItem,
+  _toggleGroupProps,
+  _toggleGroupItemProps,
   ToasterDeep,
   ToastProvider,
   Toaster,
