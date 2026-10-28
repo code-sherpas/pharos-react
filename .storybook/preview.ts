@@ -2,7 +2,8 @@ import type { Preview } from '@storybook/react-vite';
 
 // pharos-tokens defines the `--pharos-*` CSS variables that every component
 // in pharos-react resolves at runtime. Importing it here mirrors what a real
-// consumer must do once at their app entry — see RULES.md §3.
+// consumer must do once at their app entry — rule 3 of the consumer rules
+// linked from the README.
 import '@code-sherpas/pharos-tokens/css';
 
 // Self-host the fonts that the D8 stack expects (`Outfit, Inter, system-ui,
@@ -11,7 +12,7 @@ import '@code-sherpas/pharos-tokens/css';
 // Fonts, no race condition between font load and Chromatic's snapshot
 // capture. This is Storybook-only: the published bundle stays
 // framework-agnostic and continues to declare font loading as the
-// consumer's responsibility (D8 + RULES.md §8).
+// consumer's responsibility (D8, and rule 8 of pharos-tokens' consumer rules).
 import '@fontsource/outfit/400.css';
 import '@fontsource/outfit/500.css';
 import '@fontsource/outfit/600.css';

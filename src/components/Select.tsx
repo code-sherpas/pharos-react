@@ -18,7 +18,7 @@ import styles from './Select.module.css';
  * that is a Combobox (the APG combobox pattern). shadcn, Base UI and ARIA APG
  * all separate the two under exactly these names, which is why Pharos ships
  * two atoms rather than one component with a `searchable` axis. See
- * `NAMING-decisions.md` § Select.
+ * the Select + Combobox page of the naming decisions: https://app.notion.com/p/4071751eee108172bf64fdbe0fe8a94b
  *
  * Multi-select is the `multiple` axis on the root (not a separate atom),
  * matching Base UI / shadcn / React Aria: pass `multiple` and `value`

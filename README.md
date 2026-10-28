@@ -46,7 +46,7 @@ export function Demo() {
 
 ## Rules for consumers
 
-See [RULES.md](./RULES.md) — published with the package.
+See [the rules for consumers](https://app.notion.com/p/4071751eee1081239c1efa6a8fdde525) in Notion (Programa Pharos), where Pharos keeps its documentation (decision D27).
 
 ## Storybook
 
