@@ -30,6 +30,10 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # The merge queue builds main + the queued changes and waits for the
+  # required checks on that build. Chromatic recognises the queue branch
+  # (gh-readonly-queue/main/...) and compares it with the accepted baselines.
+  merge_group:
 
 permissions:
   contents: read
@@ -64,8 +68,8 @@ jobs:
       - name: Decide whether the change is visual
         id: scope
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
-          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.event.merge_group.head_sha || github.sha }}
         run: |
           if [ -z "$BASE_SHA" ] || [ "$BASE_SHA" = "0000000000000000000000000000000000000000" ]; then
             echo "visual=true" >> "$GITHUB_OUTPUT"; echo "No base to compare with: treating as visual."; exit 0
@@ -96,18 +100,26 @@ jobs:
         uses: chromaui/action@v17
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-          # Skip waiting for the visual review to finish — GitHub Checks get
-          # the final status via Chromatic's own integration.
-          exitOnceUploaded: true
+          # On a pull request, skip waiting for the visual review to finish —
+          # GitHub Checks get the final status via Chromatic's own integration.
+          # In the merge queue, wait and fail on changes nobody accepted: the
+          # changes are reviewed and accepted on the pull request, so the queue
+          # build finds none, and one that does is taken out of the queue.
+          exitOnceUploaded: ${{ github.event_name != 'merge_group' }}
+          exitZeroOnChanges: ${{ github.event_name != 'merge_group' }}
           # Report the Chromatic checks green with ZERO snapshots when the
           # change cannot alter a story (the `scope` step), and on the
-          # Changesets version PR (branch `changeset-release/main`): a version
+          # Changesets version PR (branch `changeset-release/main`, or its
+          # commit "chore: version packages" in the merge queue): a version
           # bump changes only `package.json` + CHANGELOG (no visual impact),
           # but `package.json` would otherwise force a full TurboSnap rebuild.
           # Using the action's `skip` — not a job-level `if` or a path filter —
           # keeps the required UI Review / UI Tests checks reported (green) so
           # the PR can still merge. See Runbooks §21.
-          skip: ${{ steps.scope.outputs.visual != 'true' || startsWith(github.head_ref, 'changeset-release/') }}
+          skip: >-
+            ${{ steps.scope.outputs.visual != 'true' ||
+            startsWith(github.head_ref, 'changeset-release/') ||
+            startsWith(github.event.merge_group.head_commit.message, 'chore: version packages') }}
           # When a build runs on `main`, accept any visual change the PR
           # has already approved. Prevents baseline drift: without this,
           # a baseline stays frozen at the last manually-accepted build
