@@ -155,6 +155,23 @@ test.describe('Settings form', () => {
     await expect(toggle).toHaveAttribute('aria-checked', 'false');
   });
 
+  test('paints the off switch on the warm paper track', async ({ page }) => {
+    const toggle = page.getByRole('switch', { name: 'Send me a weekly digest' });
+    await expect(toggle).toHaveAttribute('aria-checked', 'false');
+    // The token as this page resolves it, so a token missing from the
+    // published CSS fails here instead of leaving the track transparent.
+    const paper300 = await page.evaluate(function resolvePaper300() {
+      const probe = document.createElement('span');
+      probe.style.backgroundColor = 'var(--pharos-color-paper-300)';
+      document.body.append(probe);
+      const color = getComputedStyle(probe).backgroundColor;
+      probe.remove();
+      return color;
+    });
+    expect(paper300).not.toBe('rgba(0, 0, 0, 0)');
+    await expect(toggle).toHaveCSS('background-color', paper300);
+  });
+
   test('picks a single theme in the radio group', async ({ page }) => {
     const group = page.getByRole('radiogroup', { name: 'Theme' });
     const system = group.getByRole('radio', { name: 'Match system' });
