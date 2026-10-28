@@ -24,6 +24,8 @@ describe('Badge', () => {
     ['success'],
     ['warning'],
     ['info'],
+    ['accent'],
+    ['accent-soft'],
   ] as const)('exposes %s variant through data-pharos-variant', (variant) => {
     render(<Badge variant={variant}>Label</Badge>);
     expect(screen.getByText('Label')).toHaveAttribute('data-pharos-variant', variant);

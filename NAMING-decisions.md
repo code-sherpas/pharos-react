@@ -291,7 +291,7 @@ shadcn is the primary source per `AGENTS.md`.
 Public API:
 
 ```ts
-<Badge variant="default | secondary | destructive | outline | success | warning | info">
+<Badge variant="default | secondary | destructive | outline | success | warning | info | accent | accent-soft">
   {label}
 </Badge>
 ```
@@ -355,6 +355,22 @@ than renaming to `error`, so consumers familiar with shadcn pick the
 right value without re-learning the API. The asymmetry is one-time
 cognitive cost; renaming would split Pharos from its primary naming
 authority for no real-world benefit.
+
+### Brand accent: `accent` and `accent-soft` (D25, 1.1.0)
+
+The artifact «Pharos» adds two brand values to the same axis, following the
+rule above that a new treatment is a new variant value, not a new axis:
+`accent` (solid `accent-terracotta-700`, white text) and `accent-soft` (the
+`accent-terracotta-50` tint with `accent-terracotta-700` text). They mark
+**content identity** — a module or chapter mark, a topic tag, a category —
+and never an action, a selection, a link or a system state, which stay blue
+or semantic. `accent` is for the single mark that matters; `accent-soft` for
+tags shown many at once.
+
+Solid `700`, not the `600` brand base: white on `600` is 4.04:1, which fails
+AA for the 12px label; on `700` it is 5.92:1. The names follow the token
+family (`accent`) rather than the hue, so a future brand accent does not
+rename the API.
 
 ### Mapping from Alexandria
 
@@ -1706,7 +1722,9 @@ box: a toggle is a bigger hit target and reads as a distinct control shape.
 
 The **on** track uses `neutral-900` — the same fill as the Checkbox's checked
 state, keeping one "active control" color across the family. The **off** track
-is `neutral-300`; the perceivable state indicator is the thumb (white with a
+is `paper-300` (`neutral-300` on hover) since 1.0.4: the warm fill the tokens
+reserve for it, following the artifact «Pharos» (it was `neutral-300`, with
+`neutral-400` on hover, before). The perceivable state indicator is the thumb (white with a
 `neutral-500` hairline, ≈5.4:1), which stays distinguishable on both the light
 off track and the dark on track — satisfying WCAG 1.4.11 without a track
 border (which would break the clean token travel). Error state is an inset

@@ -119,6 +119,15 @@ body {
   font-weight: 700;
 }
 
+.project-topics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pharos-spacing-1, 0.25rem);
+  list-style: none;
+  margin: var(--pharos-spacing-3, 0.75rem) 0 0;
+  padding: 0;
+}
+
 /* ---- Team list ---- */
 .member-list {
   list-style: none;
