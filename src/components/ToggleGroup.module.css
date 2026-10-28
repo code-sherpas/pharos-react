@@ -1,0 +1,104 @@
+/* ToggleGroup.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). Hashed into
+ * `dist/styles.css`. Styles the shadcn "ToggleGroup" contract over Base UI's
+ * `ToggleGroup` + `Toggle`, with the look of the artifact's SegmentedControl
+ * (D25): a warm paper rail holding pill segments, the pressed one lifted in
+ * white. Item state is driven by Base UI's `data-pressed` / `data-disabled`.
+ *
+ * Heights sit on the control grid (32 / 40px: spacing-8 / spacing-10), with a
+ * spacing-0-5 rail inset and gap.
+ */
+
+.group {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: stretch;
+  gap: var(--pharos-spacing-0-5);
+  max-width: 100%;
+  padding: var(--pharos-spacing-0-5);
+  border-radius: var(--pharos-radius-full);
+  background-color: var(--pharos-color-paper-200);
+  font-family: var(--pharos-font-family-sans);
+}
+
+.sizeSm {
+  height: var(--pharos-spacing-8);
+}
+
+.sizeMd {
+  height: var(--pharos-spacing-10);
+}
+
+.item {
+  appearance: none;
+  box-sizing: border-box;
+  display: inline-flex;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pharos-spacing-1-5);
+  min-width: 0;
+  margin: 0;
+  padding: 0 var(--pharos-spacing-3);
+
+  border: 0;
+  border-radius: var(--pharos-radius-full);
+  background: transparent;
+  /* neutral-600 on paper-200 keeps the resting labels above 4.5:1. */
+  color: var(--pharos-color-neutral-600);
+  font: inherit;
+  font-size: var(--pharos-font-size-sm);
+  font-weight: var(--pharos-font-weight-medium);
+  line-height: 1;
+  white-space: nowrap;
+
+  cursor: pointer;
+  transition-property: color, background-color, box-shadow;
+  transition-duration: var(--pharos-duration-fast);
+  transition-timing-function: var(--pharos-easing-out);
+}
+
+.sizeMd .item {
+  padding: 0 var(--pharos-spacing-4);
+}
+
+.item > svg {
+  width: 1em;
+  height: 1em;
+  flex: 0 0 auto;
+}
+
+.item:hover:not([data-pressed]):not([data-disabled]) {
+  color: var(--pharos-color-neutral-900);
+  background-color: var(--pharos-color-paper-300);
+}
+
+/* Pressed: lifted in white. The paper-300 hairline draws its edge where the
+ * shadow alone would be too faint on the warm rail. */
+.item[data-pressed] {
+  color: var(--pharos-color-neutral-900);
+  background-color: var(--pharos-color-base-white);
+  box-shadow:
+    var(--pharos-shadow-sm),
+    0 0 0 1px var(--pharos-color-paper-300);
+}
+
+.item:focus-visible {
+  outline: none;
+  /* Same two-stop ring as every other control. */
+  box-shadow:
+    0 0 0 2px var(--pharos-color-base-white),
+    0 0 0 4px var(--pharos-color-primary-600);
+}
+
+.item[data-disabled] {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item {
+    transition: none;
+  }
+}

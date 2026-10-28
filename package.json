@@ -101,6 +101,10 @@
     "./Toast": {
       "types": "./dist/components/Toast.d.ts",
       "import": "./dist/components/Toast.js"
+    },
+    "./ToggleGroup": {
+      "types": "./dist/components/ToggleGroup.d.ts",
+      "import": "./dist/components/ToggleGroup.js"
     }
   },
   "sideEffects": [

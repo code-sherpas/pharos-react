@@ -10,6 +10,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   IconButton,
+  ToggleGroup,
+  ToggleGroupItem,
   useToast,
 } from '@code-sherpas/pharos-react';
 import { MoreHorizontal } from 'lucide-react';
@@ -19,10 +21,14 @@ import { MEMBERS, ROLE_TONE, initials, type Member } from '../data';
  * A member list with a per-row DropdownMenu (kebab IconButton). The canonical
  * "row actions" composition, and the harness's check that a menu opened deep
  * in a list still works — including a destructive action that mutates the
- * list, confirmed by a toast that can undo it.
+ * list, confirmed by a toast that can undo it. A ToggleGroup above it lays the
+ * members out as a list or a grid, the segmented view switch.
  */
+type Layout = 'list' | 'grid';
+
 export function TeamPage() {
   const [members, setMembers] = useState<Member[]>(MEMBERS);
+  const [layout, setLayout] = useState<Layout>('list');
   const toast = useToast();
 
   function remove(member: Member) {
@@ -42,9 +48,22 @@ export function TeamPage() {
 
   return (
     <section>
-      <h1>Team</h1>
+      <div className="page-head">
+        <h1>Team</h1>
+        <ToggleGroup
+          aria-label="Layout"
+          size="sm"
+          value={[layout]}
+          onValueChange={function showLayout(next) {
+            setLayout(next[0] as Layout);
+          }}
+        >
+          <ToggleGroupItem value="list">List</ToggleGroupItem>
+          <ToggleGroupItem value="grid">Grid</ToggleGroupItem>
+        </ToggleGroup>
+      </div>
       <Card>
-        <ul className="member-list">
+        <ul className="member-list" data-layout={layout}>
           {members.map((m) => (
             <li key={m.id} className="member-row">
               <Avatar size="sm" aria-label={m.name}>

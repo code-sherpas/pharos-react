@@ -147,6 +147,15 @@ body {
   border-bottom: none;
 }
 
+.member-list[data-layout='grid'] {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+}
+
+.member-list[data-layout='grid'] .member-row {
+  border-bottom: none;
+}
+
 .member-id {
   display: flex;
   flex-direction: column;
