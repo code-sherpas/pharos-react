@@ -49,6 +49,9 @@ export const NOTIFICATIONS = [
   'Your export is ready to download.',
 ];
 
+/** Topics of this quarter's projects — content identity, so accent Badges. */
+export const PROJECT_TOPICS = ['Design', 'Platform', 'Growth'];
+
 /** Badge tone per role — maps to Pharos Badge `variant` values. */
 export const ROLE_TONE: Record<Member['role'], 'info' | 'success' | 'secondary'> = {
   Admin: 'info',

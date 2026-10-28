@@ -9,6 +9,8 @@ const VARIANTS = [
   'success',
   'warning',
   'info',
+  'accent',
+  'accent-soft',
 ] as const;
 
 const meta: Meta<typeof Badge> = {
@@ -70,6 +72,31 @@ export const Warning: Story = {
 
 export const Info: Story = {
   args: { variant: 'info', children: 'Beta' },
+};
+
+export const Accent: Story = {
+  args: { variant: 'accent', children: 'Module 01' },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Brand terracotta for content identity — a module mark, a category. Never an action, ' +
+          'a selection or a system state: those stay blue or semantic.',
+      },
+    },
+  },
+};
+
+export const AccentSoft: Story = {
+  name: 'Accent soft',
+  args: { variant: 'accent-soft', children: 'React' },
+  parameters: {
+    docs: {
+      description: {
+        story: 'The terracotta tint, for topic tags when many show together.',
+      },
+    },
+  },
 };
 
 export const WithIcon: Story = {

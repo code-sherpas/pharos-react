@@ -10,7 +10,7 @@ import {
   CardTitle,
   Separator,
 } from '@code-sherpas/pharos-react';
-import { MEMBERS, initials } from '../data';
+import { MEMBERS, PROJECT_TOPICS, initials } from '../data';
 import { InviteDialog } from '../components/InviteDialog';
 
 interface DashboardPageProps {
@@ -18,7 +18,8 @@ interface DashboardPageProps {
 }
 
 /**
- * Overview screen: stat Cards with status Badges and an AvatarGroup of the
+ * Overview screen: stat Cards with status Badges, the projects' topic tags in
+ * the brand accent (content identity, not state), and an AvatarGroup of the
  * team. Keeps the user email visible (the auth smoke test asserts it).
  */
 export function DashboardPage({ user }: DashboardPageProps) {
@@ -40,6 +41,16 @@ export function DashboardPage({ user }: DashboardPageProps) {
           </CardHeader>
           <CardContent>
             <span className="stat">3</span> <Badge variant="success">On track</Badge>
+            <ul className="project-topics" aria-label="Project topics">
+              <li>
+                <Badge variant="accent">Q3 plan</Badge>
+              </li>
+              {PROJECT_TOPICS.map((topic) => (
+                <li key={topic}>
+                  <Badge variant="accent-soft">{topic}</Badge>
+                </li>
+              ))}
+            </ul>
           </CardContent>
         </Card>
 
