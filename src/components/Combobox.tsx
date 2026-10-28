@@ -28,7 +28,8 @@ import styles from './Combobox.module.css';
  * single component with a `searchable` axis. (Free-text entry — typing a
  * value that is not in the list — is Base UI's separate `Autocomplete`
  * primitive and is deferred; every known Alexandria call-site filters a known
- * set.) See `NAMING-decisions.md` § Combobox.
+ * set.) See the Select + Combobox page of the naming decisions:
+ * https://app.notion.com/p/4071751eee108172bf64fdbe0fe8a94b
  *
  * Multi-select is the `multiple` axis on the root (not a separate atom),
  * matching Base UI / shadcn / React Aria. With `multiple`, selections render

@@ -20,7 +20,8 @@ import styles from './Popover.module.css';
  * systems separate the two for exactly this reason: wrapping `role="menu"`
  * around free-form content breaks screen-reader expectations. The two atoms
  * wrap different Base UI primitives (`Menu` vs `Popover`) — they do not
- * share machinery. See `NAMING-decisions.md` § Popover.
+ * share machinery. See the Popover page of the naming decisions:
+ * https://app.notion.com/p/4071751eee1081239536dc0517fce057
  *
  * Naming follows shadcn (`Popover*`). The compound surface collapses Base
  * UI's `Portal` + `Positioner` + `Popup` into a single `PopoverContent`
