@@ -1722,7 +1722,9 @@ box: a toggle is a bigger hit target and reads as a distinct control shape.
 
 The **on** track uses `neutral-900` — the same fill as the Checkbox's checked
 state, keeping one "active control" color across the family. The **off** track
-is `neutral-300`; the perceivable state indicator is the thumb (white with a
+is `paper-300` (`neutral-300` on hover) since 1.0.4: the warm fill the tokens
+reserve for it, following the artifact «Pharos» (it was `neutral-300`, with
+`neutral-400` on hover, before). The perceivable state indicator is the thumb (white with a
 `neutral-500` hairline, ≈5.4:1), which stays distinguishable on both the light
 off track and the dark on track — satisfying WCAG 1.4.11 without a track
 border (which would break the clean token travel). Error state is an inset
