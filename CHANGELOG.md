@@ -1,5 +1,16 @@
 # @code-sherpas/pharos-react
 
+## 1.1.0
+
+### Minor Changes
+
+- 5f4b5be: `Badge` gains the brand variants `accent` (solid `accent-terracotta-700`, white text) and `accent-soft` (`accent-terracotta-50` tint, `accent-terracotta-700` text), as the artifact «Pharos» has them (decision D25). They mark content identity — a module, a topic, a category — and never an action, a selection or a system state, which stay blue or semantic. `700` and not the `600` base because white on `600` is 4.04:1 and fails AA at 12px.
+- 238145b: New `ToggleGroup` + `ToggleGroupItem` (decision D25): two to five options side by side, where choosing one changes what the view shows at once — a list shown as List / Grid. The artifact «Pharos» calls it SegmentedControl; Pharos uses shadcn's canonical name. It wraps Base UI's `ToggleGroup`: a `role="group"` of `aria-pressed` buttons, one tab stop, arrow keys to move, Enter or Space to press. In single mode one item always stays pressed; `multiple` allows any number, none included. `size` is `sm` (32px) or `md` (40px, default). The look is the artifact's: a `paper-200` rail with the pressed segment lifted in white. Like Base UI, the value is an array: `value={[view]}` and `onValueChange={(v) => setView(v[0])}`.
+
+### Patch Changes
+
+- aed4687: `Switch` paints its off track in the warm `paper-300`, the fill `pharos-tokens` reserves for it, as the artifact «Pharos» does; hovering it shows `neutral-300`. It was `neutral-300`, with `neutral-400` on hover. The on track, the thumb and the focus ring do not change.
+
 ## 1.0.3
 
 ### Patch Changes
