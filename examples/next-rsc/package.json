@@ -13,7 +13,7 @@
   "dependencies": {
     "@base-ui/react": "^1.4.1",
     "@code-sherpas/pharos-react": "workspace:*",
-    "@code-sherpas/pharos-tokens": "^0.8.0",
+    "@code-sherpas/pharos-tokens": "^1.0.0",
     "next": "^15.5.28",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
