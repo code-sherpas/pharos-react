@@ -1,0 +1,11 @@
+{
+  // The stylesheet entry point must type-check for a consumer with no bundler
+  // types. tsconfig.json loads `vite/client`, whose `declare module '*.css'`
+  // would hide a missing declaration, so this check runs with none.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": [],
+    "noUncheckedSideEffectImports": true
+  },
+  "include": ["tests/types/css-entry-point.ts"]
+}

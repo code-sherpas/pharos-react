@@ -17,14 +17,18 @@
   },
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "styles.css.d.ts"
   ],
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
-    "./styles.css": "./dist/styles.css",
+    "./styles.css": {
+      "types": "./styles.css.d.ts",
+      "default": "./dist/styles.css"
+    },
     "./Avatar": {
       "types": "./dist/components/Avatar.d.ts",
       "import": "./dist/components/Avatar.js"
@@ -132,7 +136,7 @@
     "test:e2e": "pnpm --filter @examples/saas-demo test:e2e",
     "dev:demo": "bash scripts/check-node-version.sh && pnpm --filter @examples/saas-demo dev",
     "typecheck": "tsc --noEmit",
-    "verify:dist-types": "tsc --noEmit -p tsconfig.dist-smoke.json",
+    "verify:dist-types": "tsc --noEmit -p tsconfig.dist-smoke.json && tsc --noEmit -p tsconfig.css-entry-types.json",
     "verify:dist-rsc": "node scripts/verify-dist-rsc.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",

@@ -1,7 +1,8 @@
-// The CSS-contract side-effect imports resolve to real files at build time but
-// ship no TypeScript declarations, so `next build`'s type check (stricter than
-// Vite's) reports TS2882 on them. Declaring the modules is the same one-liner a
-// real TypeScript consumer adds. (Tracked upstream: `pharos-tokens` should ship
-// a `css.d.ts` — see the Pharos "Tareas" backlog.)
+// `@code-sherpas/pharos-tokens/css` ships no declarations up to pharos-tokens
+// 1.0.0, and Next's own `declare module '*.css'` does not reach a path that
+// does not end in `.css`, so `next build`'s type check (TS 6,
+// `noUncheckedSideEffectImports` on by default) reports TS2882 without this
+// one-liner. pharos-tokens#209 ships them; remove this file once this harness
+// depends on that release. (`@code-sherpas/pharos-react/styles.css` needs
+// nothing: it ships its own declarations, checked by `pnpm verify:dist-types`.)
 declare module '@code-sherpas/pharos-tokens/css';
-declare module '@code-sherpas/pharos-react/styles.css';
