@@ -1,5 +1,12 @@
 # @code-sherpas/pharos-react
 
+## 2.0.1
+
+### Patch Changes
+
+- b28482c: `@code-sherpas/pharos-react/styles.css` now ships type declarations (a `types` condition pointing to an empty `styles.css.d.ts`). Its side-effect import type-checks with `noUncheckedSideEffectImports` (on by default since TypeScript 6) even without a bundler's `declare module '*.css'`, for example in a plain `tsc` check.
+- 069f9da: The published `package.json` no longer declares `engines.pnpm: "10.33.0"`. It told consumers the package installs only with that exact pnpm, which was never true. It was meant for this repository's contributors, and `packageManager` already pins it for them. `engines.node` (`>=22`) is unchanged.
+
 ## 2.0.0
 
 ### Major Changes
