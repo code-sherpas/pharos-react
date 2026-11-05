@@ -11,6 +11,10 @@
     "shadcn": {
       "command": "npx",
       "args": ["-y", "@shadcn/mcp"]
+    },
+    "notion": {
+      "type": "http",
+      "url": "https://mcp.notion.com/mcp"
     }
   }
 }

@@ -348,7 +348,7 @@ _Consumer harness_).
 
 ## Expected MCP servers
 
-This repo has `.mcp.json` with: `context7`, `github`, `shadcn`.
+This repo has `.mcp.json` with: `context7`, `github`, `shadcn`, `notion`.
 
 **When to use each one:**
 
@@ -361,6 +361,15 @@ This repo has `.mcp.json` with: `context7`, `github`, `shadcn`.
   expected **API contract** (props, variants, accessibility) of a new
   component. Implementation in this repo always re-authors styles as CSS
   Modules — do not copy shadcn's Tailwind utility strings.
+- **`notion`** → the **Programa Pharos** workspace (roadmap, status,
+  decisions, runbooks, tasks — see _Project knowledge_ below). Read the pages
+  through it, and use it to move a task to Done when it is finished. It uses
+  **OAuth with a personal token**: the server registration is shared via
+  `.mcp.json`, but each developer authenticates once per machine — run `/mcp`
+  in Claude Code, pick `notion` and sign in with your own account. If a
+  session reports it disconnected, or a page answers 404, re-run `/mcp`
+  (tokens expire, and a token from another account cannot see the
+  workspace): say so instead of working around it.
 
 ## Useful commands
 
