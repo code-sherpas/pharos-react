@@ -50,6 +50,10 @@ test.describe('App shell', () => {
     await page.getByRole('option', { name: 'Español' }).click();
     const renamed = page.getByRole('combobox', { name: 'Language: Español' });
     await expect(renamed).toBeVisible();
+    // Let the list finish closing before reopening it: reopening during the
+    // close transition loses the first Escape (a Base UI quirk, every Select;
+    // tracked in Notion → Tasks).
+    await expect(listbox).toBeHidden();
 
     // Keyboard: Escape closes it and focus goes back to the icon button.
     await renamed.click();
