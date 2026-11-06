@@ -464,6 +464,35 @@ copy.
 | Task tracking / follow-ups                                        | Notion → Tasks                                                                                                 |
 | Personal / machine-local (`settings.local.json`, language pref)   | stays local; never shared                                                                                      |
 
+**A public change is done only when every Pharos resource says it.** Merging is
+not done, and neither is npm publishing it. A change to what consumers see
+(a component, a prop, an export or entry point, a token it uses, a deliberate
+visual change) is done when all of these hold, checked by
+whoever ships it, without anyone having to ask:
+
+1. **npm** — the version is published, checked in the tarball (`npm pack` /
+   `npm view`): the export, the entry point, the types.
+2. **Design system artifact** (https://claude.ai/artifact/AzsXQ2SHXhPJ9BhRSoGTbV)
+   — the component recreated or updated following the artifact's `SKILL.md`:
+   source, `bundle.js`, `index.d.ts`, its `README.md` and `preview.html`, and
+   the brand book where a rule changes. Its `api/` cards are regenerated when
+   someone saves from the page: say so.
+3. **Its copy in the Alexandria design canvas**
+   (https://claude.ai/artifact/QBdTJuViMBwaZYSo1TC7Ah, `project/ds/pharos/`) —
+   the same bundle and types, and `canvas.json` `designSystems[].version`
+   pointing to the artifact version copied.
+4. **Notion** — the component's page under
+   [pharos-react: nombres y API de componentes](https://app.notion.com/p/4071751eee10818fab08c348d3f2dd1e)
+   (a new one for a new component); a new decision in Decisions; Status, if
+   the phase changed.
+5. **The task** — moved to Done (Hecha) in Notion → Tasks, with the change
+   requests and the version.
+6. **The consumer who waits for it** — the application's task or session gets
+   the version; adopting it stays theirs.
+
+An item that does not apply is said so, with the reason, in the change request.
+The final report of the work names each item and what was updated in it.
+
 `CLAUDE.md` is a symlink to this file (`.claude/CLAUDE.md → ../AGENTS.md`), so
 Claude Code loads these rules automatically.
 
