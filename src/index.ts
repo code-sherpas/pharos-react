@@ -188,4 +188,6 @@ export type {
   ToastVariant,
   UseToastReturnValue,
 } from './components/Toast';
+export { LanguagesIcon } from './icons/LanguagesIcon';
+export type { LanguagesIconProps } from './icons/LanguagesIcon';
 export { cn } from './lib/cn';

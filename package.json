@@ -18,7 +18,8 @@
   "type": "module",
   "files": [
     "dist",
-    "styles.css.d.ts"
+    "styles.css.d.ts",
+    "THIRD-PARTY-NOTICES.md"
   ],
   "exports": {
     ".": {
@@ -108,6 +109,10 @@
     "./ToggleGroup": {
       "types": "./dist/components/ToggleGroup.d.ts",
       "import": "./dist/components/ToggleGroup.js"
+    },
+    "./LanguagesIcon": {
+      "types": "./dist/icons/LanguagesIcon.d.ts",
+      "import": "./dist/icons/LanguagesIcon.js"
     }
   },
   "sideEffects": [

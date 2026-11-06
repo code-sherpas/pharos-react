@@ -21,6 +21,7 @@ import { Input } from '@code-sherpas/pharos-react/Input';
 import { Separator } from '@code-sherpas/pharos-react/Separator';
 import { Textarea } from '@code-sherpas/pharos-react/Textarea';
 import { Spinner } from '@code-sherpas/pharos-react/Spinner';
+import { LanguagesIcon } from '@code-sherpas/pharos-react/LanguagesIcon';
 // A client atom referenced from a Server Component is fine *because* it carries
 // its own `"use client"` — Next treats it as a client boundary. If Button lost
 // its directive, its hook would run during prerender and the build would fail.
@@ -38,6 +39,10 @@ export default function Page() {
           <Badge variant="success">Server</Badge>
           <Badge variant="outline">Stateless</Badge>
           <Spinner aria-label="Loading" />
+          <Badge variant="outline">
+            <LanguagesIcon /> English
+          </Badge>
+          <LanguagesIcon label="Language" />
         </div>
 
         <Card>

@@ -25,6 +25,9 @@ test.describe('RSC runtime smoke', () => {
     await expect(page.getByRole('heading', { name: 'Pharos RSC harness' })).toBeVisible();
     await expect(page.getByText('Server Component')).toBeVisible(); // CardTitle
     await expect(page.getByText('Server', { exact: true })).toBeVisible(); // Badge
+    // LanguagesIcon, server-rendered: hidden next to its text, named on its own.
+    await expect(page.getByRole('img', { name: 'Language' })).toBeVisible();
+    await expect(page.locator('[data-pharos-icon="languages"][aria-hidden="true"]')).toHaveCount(1);
 
     // (2) A client atom hydrated and is interactive: the Switch toggles.
     const toggle = page.getByRole('switch', { name: 'Notifications' });

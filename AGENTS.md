@@ -212,8 +212,11 @@ the swap PR opens.
    `@radix-ui/*` or `@base-ui/*` directly. Wrap them.
 3. **Canonical names only.** When adding a component, check shadcn first. If
    the Alexandria name differs, Pharos still uses the canonical one.
-4. **Lucide for icons.** Decision D4. Custom icons only if Lucide does not
-   cover the need; live under `src/icons/`.
+4. **Lucide for icons.** Decision D4. Public icons live under `src/icons/`
+   as named components (`LanguagesIcon`, …) with Lucide's path data inlined —
+   no `lucide-react` dependency — and the licence notice in
+   `THIRD-PARTY-NOTICES.md`. Non-Lucide icons only if Lucide does not cover
+   the need.
 5. **Body typography is 14 / 20.** Decision D3. Do not reintroduce a 16-px
    default body size.
 6. **One red.** Decision D2. Use `semantic.error`; do not add `laser-red` or
