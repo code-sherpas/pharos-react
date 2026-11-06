@@ -40,7 +40,16 @@ const CLIENT = [
 ];
 
 // Presentational atoms with no hooks → server-renderable, no directive.
-const STATELESS = ['Badge', 'Card', 'Input', 'Separator', 'Textarea', 'Spinner'];
+const STATELESS = [
+  'components/Badge',
+  'components/Card',
+  'components/Input',
+  'components/Separator',
+  'components/Textarea',
+  'components/Spinner',
+  // Icons are inline SVGs with no hooks: always server-renderable.
+  'icons/LanguagesIcon',
+];
 
 const DIRECTIVE = /^\s*["']use client["'];/;
 const errors = [];
@@ -60,17 +69,15 @@ for (const name of CLIENT) {
   }
 }
 
-for (const name of STATELESS) {
-  const file = dist(`components/${name}.js`);
+for (const path of STATELESS) {
+  const file = dist(`${path}.js`);
   if (!existsSync(file)) {
-    errors.push(`MISSING: dist/components/${name}.js (stateless atom chunk not emitted)`);
+    errors.push(`MISSING: dist/${path}.js (stateless chunk not emitted)`);
     continue;
   }
   const contents = readFileSync(file, 'utf8');
   if (/["']use client["'];/.test(contents)) {
-    errors.push(
-      `UNEXPECTED DIRECTIVE: dist/components/${name}.js is stateless and must NOT be "use client"`,
-    );
+    errors.push(`UNEXPECTED DIRECTIVE: dist/${path}.js is stateless and must NOT be "use client"`);
   }
 }
 

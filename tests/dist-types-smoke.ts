@@ -32,6 +32,7 @@ import {
   Spinner,
   spinnerVariants,
   Separator,
+  LanguagesIcon,
   Card,
   CardHeader,
   CardTitle,
@@ -83,6 +84,7 @@ import {
   type TextareaProps,
   type SpinnerProps,
   type SeparatorProps,
+  type LanguagesIconProps,
   type CardProps,
   type AvatarProps,
   type SelectProps,
@@ -114,6 +116,7 @@ import { Input as InputDeep } from '../dist/components/Input.js';
 import { Textarea as TextareaDeep } from '../dist/components/Textarea.js';
 import { Spinner as SpinnerDeep } from '../dist/components/Spinner.js';
 import { Separator as SeparatorDeep } from '../dist/components/Separator.js';
+import { LanguagesIcon as LanguagesIconDeep } from '../dist/icons/LanguagesIcon.js';
 import { Card as CardDeep } from '../dist/components/Card.js';
 import { Avatar as AvatarDeep } from '../dist/components/Avatar.js';
 import { DropdownMenu as DropdownMenuDeep } from '../dist/components/DropdownMenu.js';
@@ -159,6 +162,7 @@ export type _PublicPropTypes = [
   TextareaProps,
   SpinnerProps,
   SeparatorProps,
+  LanguagesIconProps,
   CardProps,
   SelectProps<string>,
   ComboboxProps<string>,
@@ -186,6 +190,7 @@ export const _smoke = [
   Spinner,
   spinnerVariants,
   Separator,
+  LanguagesIcon,
   Card,
   CardHeader,
   CardTitle,
@@ -233,6 +238,7 @@ export const _smoke = [
   TextareaDeep,
   SpinnerDeep,
   SeparatorDeep,
+  LanguagesIconDeep,
   CardDeep,
   AvatarDeep,
   DropdownMenuDeep,

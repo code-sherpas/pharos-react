@@ -23,6 +23,20 @@ test.describe('App shell', () => {
     await expect(page.getByRole('heading', { name: 'Notifications' })).toHaveCount(0);
   });
 
+  test('language picker shows the languages icon and switches the interface language', async ({
+    page,
+  }) => {
+    const picker = page.getByRole('button', { name: 'Language: English' });
+    const icon = picker.locator('[data-pharos-icon="languages"]');
+    await expect(icon).toHaveAttribute('aria-hidden', 'true');
+    const box = await icon.boundingBox();
+    expect(box?.width ?? 0).toBeGreaterThan(0);
+
+    await picker.click();
+    await page.getByRole('menuitem', { name: 'Español' }).click();
+    await expect(page.getByRole('button', { name: 'Language: Español' })).toBeVisible();
+  });
+
   test('sign out returns to the login screen', async ({ page }) => {
     await page.getByRole('button', { name: 'Account menu' }).click();
     await page.getByRole('menuitem', { name: 'Sign out' }).click();

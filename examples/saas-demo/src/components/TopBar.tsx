@@ -11,13 +11,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   IconButton,
+  LanguagesIcon,
   Popover,
   PopoverClose,
   PopoverContent,
   PopoverTitle,
   PopoverTrigger,
 } from '@code-sherpas/pharos-react';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Bell, LogOut, Settings as SettingsIcon, Users } from 'lucide-react';
 import { NOTIFICATIONS, initials } from '../data';
 import { NewProjectSheet } from './NewProjectSheet';
@@ -29,6 +30,9 @@ interface TopBarProps {
   onNavigate: (page: Page) => void;
   onSignOut: () => void;
 }
+
+const LANGUAGES = ['English', 'Español', 'Français'] as const;
+type Language = (typeof LANGUAGES)[number];
 
 const NAV: { id: Page; label: string }[] = [
   { id: 'dashboard', label: 'Dashboard' },
@@ -47,6 +51,7 @@ const NAV: { id: Page; label: string }[] = [
  */
 export function TopBar({ user, page, onNavigate, onSignOut }: TopBarProps) {
   const bar = useRef<HTMLElement>(null);
+  const [language, setLanguage] = useState<Language>('English');
   useEffect(function publishWhereTheBarEnds() {
     const element = bar.current;
     if (element === null) return;
@@ -84,6 +89,26 @@ export function TopBar({ user, page, onNavigate, onSignOut }: TopBarProps) {
 
       <div className="topbar-actions">
         <NewProjectSheet />
+        {/*
+         * The interface-language picker: LanguagesIcon inside an IconButton,
+         * which carries the accessible name (the icon stays aria-hidden).
+         */}
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={
+              <IconButton aria-label={`Language: ${language}`}>
+                <LanguagesIcon />
+              </IconButton>
+            }
+          />
+          <DropdownMenuContent align="end">
+            {LANGUAGES.map((option) => (
+              <DropdownMenuItem key={option} onClick={() => setLanguage(option)}>
+                {option}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
         <div className="notif">
           <Popover>
             <PopoverTrigger
