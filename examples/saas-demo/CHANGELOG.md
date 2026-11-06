@@ -1,5 +1,12 @@
 # @examples/saas-demo
 
+## 0.0.21
+
+### Patch Changes
+
+- Updated dependencies [fb5970e]
+  - @code-sherpas/pharos-react@2.1.1
+
 ## 0.0.20
 
 ### Patch Changes
