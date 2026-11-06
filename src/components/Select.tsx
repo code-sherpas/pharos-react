@@ -123,11 +123,32 @@ type TriggerVariantProps = VariantProps<typeof triggerVariants>;
  *
  * Give it an accessible name with `aria-label` (or wire a `<label>` /
  * `aria-labelledby`) — the trigger only shows the chosen value, not a label.
+ *
+ * **`render`: open the Select from another control.** Pass an element and
+ * the trigger becomes that element, keeping the select semantics and wiring
+ * (`role="combobox"`, `aria-haspopup`, `aria-expanded`, keyboard, focus
+ * return) but none of the field chrome: no border, no chevron, no `size`
+ * (the rendered control's own size governs). The dominant case is an
+ * icon-only picker, the same composition `DropdownMenuTrigger` documents:
+ * `<SelectTrigger render={<IconButton aria-label="Language: English" />}><LanguagesIcon /></SelectTrigger>`.
+ * Name it on the rendered control (IconButton requires `aria-label`).
  */
 export interface SelectTriggerProps
   extends ComponentProps<typeof BaseSelect.Trigger>, TriggerVariantProps {}
 
-export function SelectTrigger({ size, className, children, ...rest }: SelectTriggerProps) {
+export function SelectTrigger({ size, className, children, render, ...rest }: SelectTriggerProps) {
+  if (render !== undefined) {
+    return (
+      <BaseSelect.Trigger
+        data-pharos-slot="select-trigger"
+        render={render}
+        className={className}
+        {...rest}
+      >
+        {children}
+      </BaseSelect.Trigger>
+    );
+  }
   const resolvedSize = size ?? 'md';
   return (
     <BaseSelect.Trigger

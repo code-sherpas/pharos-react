@@ -23,18 +23,40 @@ test.describe('App shell', () => {
     await expect(page.getByRole('heading', { name: 'Notifications' })).toHaveCount(0);
   });
 
-  test('language picker shows the languages icon and switches the interface language', async ({
+  test('language picker opens a select from an icon button and switches the interface language', async ({
     page,
   }) => {
-    const picker = page.getByRole('button', { name: 'Language: English' });
+    const picker = page.getByRole('combobox', { name: 'Language: English' });
+    await expect(picker).toHaveAttribute('data-pharos-intent', 'ghost');
+    // Only the languages icon: no field chevron.
+    await expect(picker.locator('svg')).toHaveCount(1);
     const icon = picker.locator('[data-pharos-icon="languages"]');
     await expect(icon).toHaveAttribute('aria-hidden', 'true');
-    const box = await icon.boundingBox();
-    expect(box?.width ?? 0).toBeGreaterThan(0);
+    expect((await icon.boundingBox())?.width ?? 0).toBeGreaterThan(0);
 
     await picker.click();
-    await page.getByRole('menuitem', { name: 'Español' }).click();
-    await expect(page.getByRole('button', { name: 'Language: Español' })).toBeVisible();
+    const listbox = page.getByRole('listbox');
+    await expect(listbox).toBeVisible();
+    // The list is wider than the 40px button: every option on one line.
+    for (const name of ['English', 'Español', 'Français']) {
+      const lines = await page.getByRole('option', { name }).evaluate(function countLines(el) {
+        const text = el.firstElementChild ?? el;
+        return Math.round(
+          text.getBoundingClientRect().height / parseFloat(getComputedStyle(el).lineHeight),
+        );
+      });
+      expect(lines, `«${name}» should fit on one line`).toBe(1);
+    }
+    await page.getByRole('option', { name: 'Español' }).click();
+    const renamed = page.getByRole('combobox', { name: 'Language: Español' });
+    await expect(renamed).toBeVisible();
+
+    // Keyboard: Escape closes it and focus goes back to the icon button.
+    await renamed.click();
+    await expect(listbox).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(listbox).toBeHidden();
+    await expect(renamed).toBeFocused();
   });
 
   test('sign out returns to the login screen', async ({ page }) => {
