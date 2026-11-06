@@ -12,14 +12,14 @@
  * is deliberately identical to DropdownMenu and Popover — every anchored
  * overlay reads as the same surface family.
  *
- * Anchor-width: the popup takes `width: var(--anchor-width)` so the listbox
- * matches the trigger that opened it exactly — long options truncate (see
- * `.itemText`) rather than ballooning the panel wider than the field, the
- * Ant / Mantine / MUI / shadcn-combobox default. Base UI sets `--anchor-width`
- * on the Positioner; it cascades to the Popup. This is the affordance that
- * was missing from Popover v1 and forced the picker call-sites to be deferred
- * to this atom. Consumers needing a wider panel override `width` via
- * `className` per call-site.
+ * Width: the popup is at least as wide as the trigger that opened it
+ * (`min-width: var(--anchor-width)`) and grows with its options up to the
+ * width available on screen (`max-width: var(--available-width)`), the Radix /
+ * shadcn Select, MUI and Ant default. A form Select, whose trigger fills the
+ * field, gets a list as wide as the field; a narrow trigger (a filter pill as
+ * wide as its value) gets a list wide enough for its options on one line. Only
+ * an option wider than the screen allows wraps (see `.itemText`). Base UI sets
+ * both variables on the Positioner; they cascade to the Popup.
  *
  * z-index lives on `.positioner` (see below). Base UI portals the popup to
  * the end of `<body>`; that floats it above in-flow content, but not above a
@@ -160,7 +160,8 @@
 /* === Floating surface (Select.Popup) === */
 .content {
   box-sizing: border-box;
-  width: var(--anchor-width);
+  min-width: var(--anchor-width);
+  max-width: var(--available-width);
   max-height: var(--available-height);
   overflow-y: auto;
   padding: var(--pharos-spacing-1);

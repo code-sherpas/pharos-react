@@ -186,3 +186,9 @@ body {
   justify-content: space-between;
   gap: var(--pharos-spacing-4, 1rem);
 }
+
+/* A filter-bar Select: the trigger is a pill as wide as its value, not a
+ * full-width form field (the role filter on Team). */
+.filter-pill {
+  width: auto;
+}

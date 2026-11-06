@@ -31,8 +31,8 @@ import styles from './Select.module.css';
  * `Positioner` + `Popup` + `List` with `side` / `align` / `sideOffset`
  * props; `SelectItem` folds `Item` + `ItemText` + the selected-state
  * `ItemIndicator` — the same ergonomics shadcn exposes over Radix. The popup
- * takes `width: var(--anchor-width)` so it matches the trigger width exactly
- * (long options truncate; override `width` via `className` for a wider panel).
+ * is at least as wide as the trigger and grows with its options up to the
+ * width available on screen; only an option wider than that wraps.
  *
  * Following the form-control composition rule (Escuela 1, D11), the atom owns
  * no label / helper / error message — the consumer composes those, and the
@@ -169,8 +169,9 @@ SelectValue.displayName = 'SelectValue';
  * The floating listbox. Collapses Base UI's `Portal` + `Positioner` +
  * `Popup` + `List` so the consumer positions it with the props that matter
  * at the call site. Defaults match the common select: opens below the
- * trigger, aligned to its start edge, 8px away, and matches the trigger width
- * (`width: var(--anchor-width)`).
+ * trigger, aligned to its start edge, 8px away, and at least as wide as the
+ * trigger (`min-width: var(--anchor-width)`, capped at
+ * `max-width: var(--available-width)`).
  *
  * `alignItemWithTrigger` is forced to `false`. Base UI's `Select.Positioner`
  * defaults it to `true` — the native-`<select>` / macOS behaviour that floats
