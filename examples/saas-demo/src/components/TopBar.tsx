@@ -17,6 +17,10 @@ import {
   PopoverContent,
   PopoverTitle,
   PopoverTrigger,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
 } from '@code-sherpas/pharos-react';
 import { useEffect, useRef, useState } from 'react';
 import { Bell, LogOut, Settings as SettingsIcon, Users } from 'lucide-react';
@@ -90,25 +94,27 @@ export function TopBar({ user, page, onNavigate, onSignOut }: TopBarProps) {
       <div className="topbar-actions">
         <NewProjectSheet />
         {/*
-         * The interface-language picker: LanguagesIcon inside an IconButton,
-         * which carries the accessible name (the icon stays aria-hidden).
+         * The interface-language picker: a Select opened from an IconButton
+         * (SelectTrigger `render`). The IconButton carries the accessible name;
+         * LanguagesIcon stays aria-hidden; no field chrome, no chevron.
          */}
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <IconButton aria-label={`Language: ${language}`}>
-                <LanguagesIcon />
-              </IconButton>
-            }
-          />
-          <DropdownMenuContent align="end">
+        <Select
+          value={language}
+          onValueChange={function pickLanguage(next) {
+            if (next !== null) setLanguage(next as Language);
+          }}
+        >
+          <SelectTrigger render={<IconButton aria-label={`Language: ${language}`} />}>
+            <LanguagesIcon />
+          </SelectTrigger>
+          <SelectContent align="end">
             {LANGUAGES.map((option) => (
-              <DropdownMenuItem key={option} onClick={() => setLanguage(option)}>
+              <SelectItem key={option} value={option}>
                 {option}
-              </DropdownMenuItem>
+              </SelectItem>
             ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+          </SelectContent>
+        </Select>
         <div className="notif">
           <Popover>
             <PopoverTrigger

@@ -10,6 +10,8 @@ import {
   SelectLabel,
   SelectSeparator,
 } from './Select';
+import { IconButton } from './IconButton';
+import { LanguagesIcon } from '../icons/LanguagesIcon';
 
 /**
  * `Select` is the **listbox** half of the selection family (Decision D17):
@@ -166,6 +168,29 @@ export const Grouped: Story = {
 };
 
 /** Error state via the standard `aria-invalid` attribute on the trigger. */
+/** Opened from an icon-only button (`render`): the trigger is the IconButton, with no field chrome or chevron. */
+export const FromIconButton: Story = {
+  render: function FromIconButtonStory() {
+    return (
+      <Select
+        defaultValue="en"
+        items={[
+          { value: 'en', label: 'English' },
+          { value: 'es', label: 'Español' },
+        ]}
+      >
+        <SelectTrigger render={<IconButton intent="secondary" aria-label="Language: English" />}>
+          <LanguagesIcon />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="en">English</SelectItem>
+          <SelectItem value="es">Español</SelectItem>
+        </SelectContent>
+      </Select>
+    );
+  },
+};
+
 export const Invalid: Story = {
   render: () => (
     <Select items={VISIBILITY}>
