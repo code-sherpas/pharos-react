@@ -1,5 +1,11 @@
 # @code-sherpas/pharos-react
 
+## 2.2.0
+
+### Minor Changes
+
+- c2baf46: `SelectTrigger` accepts `render` to open a `Select` from another control, such as an icon-only picker: `<SelectTrigger render={<IconButton aria-label="Language: English" />}><LanguagesIcon /></SelectTrigger>`. The trigger becomes the rendered control and keeps the select semantics (`role="combobox"`, keyboard, focus return), but without the field chrome or the chevron; the rendered control's own size governs. Without `render`, `SelectTrigger` is unchanged.
+
 ## 2.1.1
 
 ### Patch Changes
