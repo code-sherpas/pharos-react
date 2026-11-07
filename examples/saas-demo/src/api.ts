@@ -3,12 +3,27 @@
 
 import type { Member } from './data';
 
-/** How long a request takes, long enough to see (and test) the pending state. */
-export const REQUEST_MS = 1500;
+/** How long a request takes, long enough to see the pending state. */
+export const REQUEST_MS = 1000;
 
 /** Members whose first removal fails, as a dropped connection would. */
 const FAILS_ONCE = new Set<Member['id']>(['4']);
 const attempts = new Map<Member['id'], number>();
+
+/**
+ * Lets an e2e test hold the answers and release them itself, so it can look at
+ * the pending state without racing a timer: set `window.demoRequests` to
+ * `{ held: true, waiting: [] }` before the page loads, then call each function
+ * in `waiting` to answer.
+ */
+interface HeldRequests {
+  held: boolean;
+  waiting: (() => void)[];
+}
+
+function heldRequests(): HeldRequests | undefined {
+  return (window as Window & { demoRequests?: HeldRequests }).demoRequests;
+}
 
 /** What became of a removal request. */
 export type RemovalOutcome = 'removed' | 'failed';
@@ -19,6 +34,11 @@ export function requestRemoval(member: Member): Promise<RemovalOutcome> {
   attempts.set(member.id, attempt);
   const outcome: RemovalOutcome = FAILS_ONCE.has(member.id) && attempt === 1 ? 'failed' : 'removed';
   return new Promise(function answerLater(resolve) {
-    setTimeout(resolve, REQUEST_MS, outcome);
+    function answer() {
+      resolve(outcome);
+    }
+    const held = heldRequests();
+    if (held?.held) held.waiting.push(answer);
+    else setTimeout(answer, REQUEST_MS);
   });
 }

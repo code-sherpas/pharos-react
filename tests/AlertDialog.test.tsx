@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { useRef, useState } from 'react';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Dialog, DialogContent, DialogTitle } from '../src/components/Dialog';
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -264,7 +265,13 @@ describe('AlertDialog', () => {
      * pattern a consumer writes, with the progress and the error composed
      * inside the content.
      */
-    function AsyncRemoval({ remove }: { remove: () => Promise<boolean> }) {
+    function AsyncRemoval({
+      remove,
+      onCancel,
+    }: {
+      remove: () => Promise<boolean>;
+      onCancel?: () => void;
+    }) {
       const [open, setOpen] = useState(false);
       const [pending, setPending] = useState(false);
       const [failed, setFailed] = useState(false);
@@ -289,7 +296,7 @@ describe('AlertDialog', () => {
               <div role="alert">{failed ? 'The member could not be removed.' : ''}</div>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
               <AlertDialogAction intent="destructive" onClick={confirmRemoval}>
                 {failed ? 'Retry' : 'Remove'}
               </AlertDialogAction>
@@ -315,10 +322,10 @@ describe('AlertDialog', () => {
       return { remove, settle };
     }
 
-    async function startRemoval() {
+    async function startRemoval(onCancel?: () => void) {
       const user = userEvent.setup();
       const { remove, settle } = deferredRemoval();
-      render(<AsyncRemoval remove={remove} />);
+      render(<AsyncRemoval remove={remove} onCancel={onCancel} />);
       await user.click(screen.getByRole('button', { name: 'Remove member' }));
       const dialog = await screen.findByRole('alertdialog');
       await user.click(screen.getByRole('button', { name: 'Remove' }));
@@ -366,8 +373,9 @@ describe('AlertDialog', () => {
       expect(screen.getByRole('status')).toHaveTextContent('Removing member…');
     });
 
-    it('does not close on Escape, Cancel or a click outside', async () => {
-      const { user, dialog } = await startRemoval();
+    it("does not close on Escape, Cancel or a click outside, nor run Cancel's onClick", async () => {
+      const onCancel = vi.fn();
+      const { user, dialog } = await startRemoval(onCancel);
       const cancel = screen.getByRole('button', { name: 'Cancel' });
       expect(cancel).toHaveAttribute('aria-disabled', 'true');
 
@@ -376,6 +384,31 @@ describe('AlertDialog', () => {
       await user.click(backdropOf(dialog));
 
       expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+      expect(onCancel).not.toHaveBeenCalled();
+    });
+
+    it('keeps Escape from closing the layer behind it either', async () => {
+      const user = userEvent.setup();
+      render(
+        <Dialog defaultOpen>
+          <DialogContent>
+            <DialogTitle>Project settings</DialogTitle>
+            <AlertDialog defaultOpen pending>
+              <AlertDialogContent>
+                <AlertDialogTitle>Delete project?</AlertDialogTitle>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction intent="destructive">Delete</AlertDialogAction>
+              </AlertDialogContent>
+            </AlertDialog>
+          </DialogContent>
+        </Dialog>,
+      );
+      await screen.findByRole('alertdialog');
+
+      await user.keyboard('{Escape}');
+
+      expect(screen.getByRole('alertdialog', { name: 'Delete project?' })).toBeInTheDocument();
+      expect(screen.getByText('Project settings')).toBeInTheDocument();
     });
 
     it('ignores further presses on Action, so the operation does not start twice', async () => {
