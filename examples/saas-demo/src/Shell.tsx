@@ -19,12 +19,21 @@ export function Shell({ user, onSignOut }: { user: string; onSignOut: () => void
   return (
     <div className="shell">
       <TopBar user={user} page={page} onNavigate={setPage} onSignOut={onSignOut} />
-      <main className="shell-main">
-        {page === 'dashboard' && <DashboardPage user={user} />}
-        {page === 'team' && <TeamPage />}
-        {page === 'report' && <ReportPage />}
-        {page === 'settings' && <SettingsPage />}
-      </main>
+      {/*
+       * The Report page owns its row: its <main> and, beside it, the
+       * SidePanel's <aside>, edge to edge under the top bar — the way an
+       * application lays out a contextual panel. The other pages sit in the
+       * shared centred <main>.
+       */}
+      {page === 'report' ? (
+        <ReportPage />
+      ) : (
+        <main className="shell-main">
+          {page === 'dashboard' && <DashboardPage user={user} />}
+          {page === 'team' && <TeamPage />}
+          {page === 'settings' && <SettingsPage />}
+        </main>
+      )}
     </div>
   );
 }

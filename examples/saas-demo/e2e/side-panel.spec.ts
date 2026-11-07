@@ -49,6 +49,13 @@ test.describe('SidePanel beside the report (wide screen)', () => {
     const reportBox = (await report.boundingBox())!;
     const panelBox = (await panel.boundingBox())!;
     expect(panelBox.x).toBeGreaterThanOrEqual(reportBox.x + reportBox.width);
+    // Edge to edge in the shell: from the top bar down to the bottom of the
+    // viewport, flush with its right edge, and a landmark beside <main>, not in it.
+    const topBar = (await page.getByRole('banner').boundingBox())!;
+    expect(panelBox.y).toBeCloseTo(topBar.y + topBar.height, 0);
+    expect(panelBox.y + panelBox.height).toBeCloseTo(WIDE.height, 0);
+    expect(panelBox.x + panelBox.width).toBeCloseTo(WIDE.width, 0);
+    await expect(page.getByRole('main').getByRole('complementary')).toHaveCount(0);
   });
 
   test('leaves the report usable: a click or tabbing out does not close it', async ({ page }) => {
