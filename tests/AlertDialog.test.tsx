@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { useRef, useState } from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
   AlertDialog,
@@ -256,5 +256,179 @@ describe('AlertDialog', () => {
     expect(await screen.findByRole('alertdialog', { name: 'Remove member?' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Remove' }));
     await waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument());
+  });
+
+  describe('while the confirmed operation is in progress', () => {
+    /**
+     * A removal that fails or succeeds when the test says so: the asynchronous
+     * pattern a consumer writes, with the progress and the error composed
+     * inside the content.
+     */
+    function AsyncRemoval({ remove }: { remove: () => Promise<boolean> }) {
+      const [open, setOpen] = useState(false);
+      const [pending, setPending] = useState(false);
+      const [failed, setFailed] = useState(false);
+
+      async function confirmRemoval(event: { preventDefault: () => void }) {
+        event.preventDefault();
+        setFailed(false);
+        setPending(true);
+        const removed = await remove();
+        setPending(false);
+        if (removed) setOpen(false);
+        else setFailed(true);
+      }
+
+      return (
+        <AlertDialog open={open} onOpenChange={setOpen} pending={pending}>
+          <AlertDialogTrigger>Remove member</AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Remove member?</AlertDialogTitle>
+              <div role="status">{pending ? 'Removing member…' : ''}</div>
+              <div role="alert">{failed ? 'The member could not be removed.' : ''}</div>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction intent="destructive" onClick={confirmRemoval}>
+                {failed ? 'Retry' : 'Remove'}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      );
+    }
+
+    /** A removal the test settles by hand, so it can look at the pending state. */
+    function deferredRemoval() {
+      const settlers: ((removed: boolean) => void)[] = [];
+      const remove = vi.fn(function startRemoval() {
+        return new Promise<boolean>(function holdUntilSettled(resolve) {
+          settlers.push(resolve);
+        });
+      });
+      function settle(removed: boolean) {
+        const next = settlers.shift();
+        if (!next) throw new Error('No removal in progress');
+        next(removed);
+      }
+      return { remove, settle };
+    }
+
+    async function startRemoval() {
+      const user = userEvent.setup();
+      const { remove, settle } = deferredRemoval();
+      render(<AsyncRemoval remove={remove} />);
+      await user.click(screen.getByRole('button', { name: 'Remove member' }));
+      const dialog = await screen.findByRole('alertdialog');
+      await user.click(screen.getByRole('button', { name: 'Remove' }));
+      return { user, dialog, remove, settle };
+    }
+
+    it('stays open when Action calls preventDefault', async () => {
+      const onOpenChange = vi.fn();
+      const user = userEvent.setup();
+      render(
+        <AlertDialog defaultOpen onOpenChange={onOpenChange}>
+          <AlertDialogContent>
+            <AlertDialogTitle>Delete project?</AlertDialogTitle>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={function keepOpen(event) {
+                event.preventDefault();
+              }}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogContent>
+        </AlertDialog>,
+      );
+
+      await user.click(await screen.findByRole('button', { name: 'Delete' }));
+
+      expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+      expect(onOpenChange).not.toHaveBeenCalled();
+    });
+
+    it('marks the panel busy and Action aria-disabled, still focusable, with a hidden Spinner', async () => {
+      const { dialog } = await startRemoval();
+      const action = screen.getByRole('button', { name: 'Remove' });
+
+      expect(dialog).toHaveAttribute('aria-busy', 'true');
+      expect(action).toHaveAttribute('aria-disabled', 'true');
+      expect(action).not.toBeDisabled();
+      expect(action).toHaveFocus();
+      // The Spinner is there for the eye only: its own "Loading…" is hidden, so
+      // the only progress a screen reader hears is the consumer's message.
+      const spinner = action.querySelector('[role="status"]');
+      expect(spinner).toHaveAttribute('aria-hidden', 'true');
+      expect(action).toHaveAccessibleName('Remove');
+      expect(screen.getByRole('status')).toHaveTextContent('Removing member…');
+    });
+
+    it('does not close on Escape, Cancel or a click outside', async () => {
+      const { user, dialog } = await startRemoval();
+      const cancel = screen.getByRole('button', { name: 'Cancel' });
+      expect(cancel).toHaveAttribute('aria-disabled', 'true');
+
+      await user.keyboard('{Escape}');
+      await user.click(cancel);
+      await user.click(backdropOf(dialog));
+
+      expect(screen.getByRole('alertdialog')).toBeInTheDocument();
+    });
+
+    it('ignores further presses on Action, so the operation does not start twice', async () => {
+      const { user, remove } = await startRemoval();
+
+      await user.click(screen.getByRole('button', { name: 'Remove' }));
+      await user.keyboard('{Enter}');
+
+      expect(remove).toHaveBeenCalledTimes(1);
+    });
+
+    it('closes when the operation ends and returns focus to the trigger', async () => {
+      const { settle } = await startRemoval();
+
+      await act(async function finishRemoval() {
+        settle(true);
+      });
+
+      await waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument());
+      await waitFor(() =>
+        expect(screen.getByRole('button', { name: 'Remove member' })).toHaveFocus(),
+      );
+    });
+
+    it('stays open with the error when the operation fails, and Retry runs it again', async () => {
+      const { user, dialog, remove, settle } = await startRemoval();
+
+      await act(async function failRemoval() {
+        settle(false);
+      });
+
+      expect(screen.getByRole('alert')).toHaveTextContent('The member could not be removed.');
+      expect(dialog).not.toHaveAttribute('aria-busy');
+      const retry = screen.getByRole('button', { name: 'Retry' });
+      expect(retry).not.toHaveAttribute('aria-disabled');
+      expect(retry).toHaveFocus();
+
+      await user.click(retry);
+      expect(remove).toHaveBeenCalledTimes(2);
+      expect(dialog).toHaveAttribute('aria-busy', 'true');
+      await act(async function finishRemoval() {
+        settle(true);
+      });
+
+      await waitFor(() => expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument());
+    });
+
+    it('leaves a confirmation without pending exactly as before', async () => {
+      const { dialog } = await openConfirmDelete();
+
+      expect(dialog).not.toHaveAttribute('aria-busy');
+      expect(screen.getByRole('button', { name: 'Delete' })).not.toHaveAttribute('aria-disabled');
+      expect(screen.getByRole('button', { name: 'Cancel' })).not.toHaveAttribute('aria-disabled');
+    });
   });
 });

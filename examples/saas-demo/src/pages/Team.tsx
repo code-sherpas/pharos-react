@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, type MouseEvent } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +28,7 @@ import {
   useToast,
 } from '@code-sherpas/pharos-react';
 import { MoreHorizontal } from 'lucide-react';
+import { requestRemoval } from '../api';
 import { MEMBERS, ROLE_TONE, initials, type Member } from '../data';
 
 /**
@@ -35,8 +36,11 @@ import { MEMBERS, ROLE_TONE, initials, type Member } from '../data';
  * "row actions" composition, and the harness's check that a menu opened deep
  * in a list still works — including a destructive action that mutates the
  * list. Removing asks first in an AlertDialog — opened from the menu item, so
- * it is controlled rather than given a trigger — and the removal is then
- * confirmed by a toast that can undo it. A ToggleGroup above it lays the
+ * it is controlled rather than given a trigger. The removal is a request that
+ * takes time: the confirmation stays open and pending until it answers, says so
+ * in a status region, shows the error and offers Retry if it fails
+ * (Katherine Johnson's first removal does), and is then confirmed by a toast that can undo
+ * it. A ToggleGroup above it lays the
  * members out as a list or a grid, the segmented view switch, next to a role
  * filter: a Select whose trigger is a narrow pill as wide as its value, the
  * filter-bar composition whose list must still fit its options on one line.
@@ -58,6 +62,8 @@ export function TeamPage() {
   // Kept after closing so the title does not empty out during the exit motion.
   const [memberToRemove, setMemberToRemove] = useState<Member | null>(null);
   const [confirmingRemoval, setConfirmingRemoval] = useState(false);
+  const [removing, setRemoving] = useState(false);
+  const [removalFailed, setRemovalFailed] = useState(false);
   // The row's kebab, where focus goes back when the confirmation is cancelled.
   const removalTrigger = useRef<HTMLElement | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
@@ -66,7 +72,27 @@ export function TeamPage() {
   function askToRemove(member: Member) {
     removalTrigger.current = document.getElementById(`actions-${member.id}`);
     setMemberToRemove(member);
+    setRemovalFailed(false);
     setConfirmingRemoval(true);
+  }
+
+  /**
+   * Keeps the confirmation open while the request travels; closes it once the
+   * member is removed, or leaves it open with the error so it can be retried.
+   */
+  async function confirmRemoval(event: MouseEvent) {
+    event.preventDefault();
+    if (!memberToRemove) return;
+    setRemovalFailed(false);
+    setRemoving(true);
+    const outcome = await requestRemoval(memberToRemove);
+    setRemoving(false);
+    if (outcome === 'failed') {
+      setRemovalFailed(true);
+      return;
+    }
+    remove(memberToRemove);
+    setConfirmingRemoval(false);
   }
 
   /** Back to the kebab; if its row was removed, to the page heading. */
@@ -164,23 +190,27 @@ export function TeamPage() {
             ))}
         </ul>
       </Card>
-      <AlertDialog open={confirmingRemoval} onOpenChange={setConfirmingRemoval}>
+      <AlertDialog open={confirmingRemoval} onOpenChange={setConfirmingRemoval} pending={removing}>
         <AlertDialogContent finalFocus={focusAfterRemoval}>
           <AlertDialogHeader>
             <AlertDialogTitle>Remove {memberToRemove?.name} from the team?</AlertDialogTitle>
             <AlertDialogDescription>
               They lose access to every project in Nimbus straight away.
             </AlertDialogDescription>
+            {/* Always rendered, so the text is announced when it arrives. */}
+            <p role="status" className="hint-text">
+              {removing ? `Removing ${memberToRemove?.name}…` : ''}
+            </p>
+            <p role="alert" className="error-text">
+              {removalFailed
+                ? `${memberToRemove?.name} could not be removed. Check your connection and retry.`
+                : ''}
+            </p>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              intent="destructive"
-              onClick={function confirmRemoval() {
-                if (memberToRemove) remove(memberToRemove);
-              }}
-            >
-              Remove
+            <AlertDialogAction intent="destructive" onClick={confirmRemoval}>
+              {removalFailed ? 'Retry' : 'Remove'}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
