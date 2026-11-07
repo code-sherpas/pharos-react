@@ -106,6 +106,7 @@ test.describe('SidePanel beside the report (wide screen)', () => {
     await page.getByRole('button', { name: 'Save action' }).click();
 
     await expect(inlinePanel(page)).toHaveCount(0);
+    await expect(trigger(page)).toBeFocused();
     await expect(page.getByRole('list', { name: 'Coaching plan' })).toContainText(
       'Rotate the on-call schedule · High',
     );

@@ -296,6 +296,39 @@ describe('SidePanel — inline (wide viewport)', () => {
     await panelGone();
   });
 
+  it('moves focus in and back however the owner opens and closes it', async () => {
+    viewport(true);
+    function OwnedElsewhere() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setOpen(true)}>
+            Open from the page
+          </button>
+          <SidePanel open={open} onOpenChange={setOpen}>
+            <SidePanelTrigger>Add action</SidePanelTrigger>
+            <SidePanelContent>
+              <SidePanelTitle>New action</SidePanelTitle>
+              <input aria-label="Name" />
+              <button type="button" onClick={() => setOpen(false)}>
+                Save
+              </button>
+            </SidePanelContent>
+          </SidePanel>
+        </>
+      );
+    }
+    const user = userEvent.setup();
+    render(<OwnedElsewhere />);
+
+    await user.click(screen.getByRole('button', { name: 'Open from the page' }));
+    expect(screen.getByLabelText('Name')).toHaveFocus();
+
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+    await panelGone();
+    expect(trigger()).toHaveFocus();
+  });
+
   it('stays closed when controlled and the owner refuses to open it', async () => {
     viewport(true);
     const user = userEvent.setup();
