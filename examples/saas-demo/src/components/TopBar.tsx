@@ -41,6 +41,7 @@ type Language = (typeof LANGUAGES)[number];
 const NAV: { id: Page; label: string }[] = [
   { id: 'dashboard', label: 'Dashboard' },
   { id: 'team', label: 'Team' },
+  { id: 'report', label: 'Report' },
   { id: 'settings', label: 'Settings' },
 ];
 

@@ -1,0 +1,9 @@
+---
+'@code-sherpas/pharos-react': minor
+---
+
+Add `SidePanel`, a contextual side panel for a task done beside the content, such as a form next to the report it acts on: `SidePanel`, `SidePanelTrigger`, `SidePanelContent`, `SidePanelHeader`, `SidePanelTitle`, `SidePanelDescription`, `SidePanelFooter` and `SidePanelClose`, also at the `@code-sherpas/pharos-react/SidePanel` subpath.
+
+From the panel breakpoint of pharos-tokens (`breakpoint.panel`, 64rem) up, `SidePanelContent` sits **inline**: an `<aside>` placed as a sibling of the content in your flex or grid row, which grows to the panel width and narrows it. It is a complementary landmark named by `SidePanelTitle`, with no backdrop, no focus trap and no scroll lock: the content beside it stays usable, and neither a click outside nor tabbing out closes it. Below the breakpoint the same panel opens as the modal `Sheet`. One API and one open state (`open` / `onOpenChange` / `defaultOpen`); the component reads the breakpoint with `matchMedia`, and if the window crosses it with the panel open, the panel stays open, changes form and keeps focus inside.
+
+In both forms, opening moves focus into the panel (its first focusable element, or `initialFocus` on `SidePanelContent`); Escape with focus inside closes it, after closing any layer opened inside first, such as a `Select`; closing returns focus to `SidePanelTrigger`, which exposes `aria-expanded` and `aria-controls`. `side` is `right` (default) or `left`, mirrored on `data-pharos-side`; `data-pharos-mode` says `inline` or `modal`. With `prefers-reduced-motion: reduce` the panel neither grows nor slides, in either form. Closed, its content unmounts, like `Sheet`'s: keep what was typed in your own state if it must survive closing or a change of form. On the server it renders the inline form, and the browser corrects it after hydration without a mismatch.

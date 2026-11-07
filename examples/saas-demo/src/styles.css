@@ -192,3 +192,46 @@ body {
 .filter-pill {
   width: auto;
 }
+
+/* ---- Report + SidePanel ----
+ * The row the SidePanel sits in: on a wide screen the panel is the second
+ * flex item and narrows the report; below the panel breakpoint it is a modal
+ * Sheet and the report keeps the whole row. */
+.report {
+  display: flex;
+  align-items: stretch;
+  gap: var(--pharos-spacing-6, 1.5rem);
+}
+
+.report-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.report-card {
+  margin-bottom: var(--pharos-spacing-4, 1rem);
+  padding: var(--pharos-spacing-4, 1rem);
+}
+
+.report-card h2 {
+  margin-top: 0;
+  font-size: 1rem;
+}
+
+.report-reviewed {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pharos-spacing-2, 0.5rem);
+}
+
+.report-actions {
+  margin: 0;
+  padding-left: var(--pharos-spacing-4, 1rem);
+}
+
+.report-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pharos-spacing-4, 1rem);
+  flex: 1;
+}

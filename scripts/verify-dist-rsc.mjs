@@ -37,6 +37,7 @@ const CLIENT = [
   'RadioGroup',
   'Select',
   'Sheet',
+  'SidePanel',
   'Switch',
 ];
 

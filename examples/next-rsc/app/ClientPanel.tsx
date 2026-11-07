@@ -45,6 +45,11 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SidePanel,
+  SidePanelTrigger,
+  SidePanelContent,
+  SidePanelHeader,
+  SidePanelTitle,
 } from '@code-sherpas/pharos-react';
 
 const row = { display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' as const };
@@ -151,6 +156,27 @@ export function ClientPanel() {
           </SheetContent>
         </Sheet>
       </div>
+
+      {/*
+        SidePanel open from the first render: the server has no viewport, so
+        it renders the inline form; the browser reads the panel breakpoint
+        with matchMedia after hydration and, on a narrow screen, switches to
+        the modal Sheet — without a hydration mismatch.
+      */}
+      <SidePanel defaultOpen>
+        <div style={{ display: 'flex', gap: 12 }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <SidePanelTrigger>Action panel</SidePanelTrigger>
+          </div>
+          <SidePanelContent>
+            <SidePanelHeader>
+              <SidePanelTitle>Next action</SidePanelTitle>
+            </SidePanelHeader>
+            <label htmlFor="next-action">Action</label>
+            <input id="next-action" />
+          </SidePanelContent>
+        </div>
+      </SidePanel>
     </section>
   );
 }

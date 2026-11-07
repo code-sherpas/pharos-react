@@ -94,6 +94,10 @@
       "types": "./dist/components/Sheet.d.ts",
       "import": "./dist/components/Sheet.js"
     },
+    "./SidePanel": {
+      "types": "./dist/components/SidePanel.d.ts",
+      "import": "./dist/components/SidePanel.js"
+    },
     "./Spinner": {
       "types": "./dist/components/Spinner.d.ts",
       "import": "./dist/components/Spinner.js"
@@ -159,7 +163,7 @@
   },
   "peerDependencies": {
     "@base-ui/react": "^1.4.1",
-    "@code-sherpas/pharos-tokens": "^1.0.0",
+    "@code-sherpas/pharos-tokens": "^1.1.0",
     "react": ">=18",
     "react-dom": ">=18"
   },
@@ -170,7 +174,7 @@
   "devDependencies": {
     "@base-ui/react": "^1.4.1",
     "@changesets/cli": "^3.0.3",
-    "@code-sherpas/pharos-tokens": "^1.0.1",
+    "@code-sherpas/pharos-tokens": "^1.1.0",
     "@fontsource/inter": "^5.2.8",
     "@fontsource/outfit": "^5.2.8",
     "@storybook/addon-a11y": "^10.6.2",
