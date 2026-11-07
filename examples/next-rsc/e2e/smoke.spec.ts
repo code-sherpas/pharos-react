@@ -35,12 +35,44 @@ test.describe('RSC runtime smoke', () => {
     await toggle.click();
     await expect(toggle).toHaveAttribute('aria-checked', 'false');
 
-    // (3) A Base UI overlay opens post-hydration (portal + client behavior).
+    // (3) A SidePanel open from the server render hydrates in its inline form
+    // (before the modal below hides the page from the accessibility tree).
+    await expect(page.getByRole('complementary', { name: 'Next action' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Action panel' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+
+    // (4) A Base UI overlay opens post-hydration (portal + client behavior).
     await page.getByRole('button', { name: 'Invite' }).click();
     await expect(page.getByRole('dialog')).toBeVisible();
     await expect(page.getByText('Invite teammate')).toBeVisible();
 
-    // (4) No hydration mismatch — no console errors, no uncaught page errors.
+    // (5) No hydration mismatch — no console errors, no uncaught page errors.
+    expect(pageErrors, `unexpected page errors:\n${pageErrors.join('\n')}`).toHaveLength(0);
+    expect(consoleErrors, `unexpected console errors:\n${consoleErrors.join('\n')}`).toHaveLength(
+      0,
+    );
+  });
+
+  // The server renders the SidePanel inline (it has no viewport); on a narrow
+  // screen the browser switches it to the modal Sheet once hydrated. That
+  // first client render must not mismatch the server's.
+  test('a SidePanel open on a narrow screen hydrates, then opens as the modal Sheet', async ({
+    page,
+  }) => {
+    const consoleErrors: string[] = [];
+    const pageErrors: string[] = [];
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') consoleErrors.push(msg.text());
+    });
+    page.on('pageerror', (err) => pageErrors.push(err.message));
+    await page.setViewportSize({ width: 800, height: 900 });
+
+    await page.goto('/');
+
+    await expect(page.getByRole('dialog', { name: 'Next action' })).toBeVisible();
+    await expect(page.getByRole('complementary', { name: 'Next action' })).toHaveCount(0);
     expect(pageErrors, `unexpected page errors:\n${pageErrors.join('\n')}`).toHaveLength(0);
     expect(consoleErrors, `unexpected console errors:\n${consoleErrors.join('\n')}`).toHaveLength(
       0,

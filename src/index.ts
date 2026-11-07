@@ -152,6 +152,27 @@ export type {
   SheetCloseProps,
 } from './components/Sheet';
 export {
+  SidePanel,
+  SidePanelTrigger,
+  SidePanelContent,
+  SidePanelHeader,
+  SidePanelTitle,
+  SidePanelDescription,
+  SidePanelFooter,
+  SidePanelClose,
+} from './components/SidePanel';
+export type {
+  SidePanelProps,
+  SidePanelMode,
+  SidePanelTriggerProps,
+  SidePanelContentProps,
+  SidePanelHeaderProps,
+  SidePanelTitleProps,
+  SidePanelDescriptionProps,
+  SidePanelFooterProps,
+  SidePanelCloseProps,
+} from './components/SidePanel';
+export {
   Dialog,
   DialogTrigger,
   DialogContent,

@@ -1,0 +1,91 @@
+/* SidePanel.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). Styles the INLINE form
+ * of SidePanel: an `<aside>` in the consumer's flex / grid row that grows
+ * from 0 to the panel width and narrows its siblings. Below the panel
+ * breakpoint the component renders Pharos' Sheet instead, styled by
+ * `Sheet.module.css`; `.modal` here only adds the reduced-motion rule to it.
+ *
+ * Width: `--pharos-width-panel` (pharos-tokens 1.1.0, D32), the same width
+ * the Sheet uses, capped at the viewport. The breakpoint itself is read in JS
+ * (a custom property does not work inside @media).
+ *
+ * Motion: the aside transitions its width between 0 and the panel width.
+ * `data-starting-style` marks the first frame after opening and
+ * `data-ending-style` the closing transition, after which the component
+ * unmounts. The body keeps its full width the whole time, so its content
+ * slides in clipped instead of reflowing.
+ */
+
+.inline {
+  flex: none;
+  box-sizing: border-box;
+  width: min(var(--pharos-width-panel), 100vw);
+  /* `clip`, not `hidden`: it does not create a scroll container, so the
+   * sticky body below sticks to the page's scroll. */
+  overflow: clip;
+
+  display: flex;
+  background-color: var(--pharos-color-base-white);
+
+  font-family: var(--pharos-font-family-sans);
+  font-size: var(--pharos-font-size-sm);
+  color: var(--pharos-color-neutral-900);
+
+  outline: none;
+  transition: width var(--pharos-duration-normal) var(--pharos-easing-out);
+}
+
+.inline[data-starting-style],
+.inline[data-ending-style] {
+  width: 0;
+}
+
+/* Right: border on the edge that meets the content; the body is anchored to
+ * that edge too, so it slides in from the right as the aside grows. */
+.sideRight {
+  border-left: 1px solid var(--pharos-color-neutral-200);
+  justify-content: flex-start;
+}
+
+/* Left: mirrored. */
+.sideLeft {
+  border-right: 1px solid var(--pharos-color-neutral-200);
+  justify-content: flex-end;
+}
+
+.inlineBody {
+  flex: none;
+  box-sizing: border-box;
+  width: min(var(--pharos-width-panel), 100vw);
+  /* Stays in view while the content beside it scrolls the page, and
+   * scrolls on its own when it is taller than the viewport. */
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  max-height: 100dvh;
+  overflow-y: auto;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--pharos-spacing-4);
+  padding: var(--pharos-spacing-6);
+}
+
+/* Focus lands on the aside itself only when it holds nothing focusable. */
+.inline:focus-visible {
+  outline: 2px solid var(--pharos-color-primary-600);
+  outline-offset: -2px;
+}
+
+/* The modal form (a Sheet). Doubled class: wins over the Sheet's transition
+ * whatever order the bundle puts the two modules in. */
+@media (prefers-reduced-motion: reduce) {
+  .inline {
+    transition: none;
+  }
+
+  .modal.modal {
+    transition: none;
+  }
+}

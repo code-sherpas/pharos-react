@@ -64,6 +64,14 @@ import {
   SheetTrigger,
   SheetContent,
   sheetVariants,
+  SidePanel,
+  SidePanelTrigger,
+  SidePanelContent,
+  SidePanelHeader,
+  SidePanelTitle,
+  SidePanelDescription,
+  SidePanelFooter,
+  SidePanelClose,
   Dialog,
   DialogTrigger,
   DialogContent,
@@ -95,6 +103,8 @@ import {
   type SelectProps,
   type ComboboxProps,
   type SheetProps,
+  type SidePanelProps,
+  type SidePanelContentProps,
   type DialogProps,
   type AlertDialogProps,
   type AlertDialogActionProps,
@@ -131,6 +141,7 @@ import { Popover as PopoverDeep } from '../dist/components/Popover.js';
 import { Select as SelectDeep } from '../dist/components/Select.js';
 import { Combobox as ComboboxDeep } from '../dist/components/Combobox.js';
 import { Sheet as SheetDeep } from '../dist/components/Sheet.js';
+import { SidePanel as SidePanelDeep } from '../dist/components/SidePanel.js';
 import { Dialog as DialogDeep } from '../dist/components/Dialog.js';
 import { AlertDialog as AlertDialogDeep } from '../dist/components/AlertDialog.js';
 import { Checkbox as CheckboxDeep } from '../dist/components/Checkbox.js';
@@ -176,6 +187,8 @@ export type _PublicPropTypes = [
   SelectProps<string>,
   ComboboxProps<string>,
   SheetProps,
+  SidePanelProps,
+  SidePanelContentProps,
   DialogProps,
   AlertDialogProps,
   CheckboxProps,
@@ -232,6 +245,14 @@ export const _smoke = [
   SheetTrigger,
   SheetContent,
   sheetVariants,
+  SidePanel,
+  SidePanelTrigger,
+  SidePanelContent,
+  SidePanelHeader,
+  SidePanelTitle,
+  SidePanelDescription,
+  SidePanelFooter,
+  SidePanelClose,
   Dialog,
   DialogTrigger,
   DialogContent,
@@ -261,6 +282,7 @@ export const _smoke = [
   SelectDeep,
   ComboboxDeep,
   SheetDeep,
+  SidePanelDeep,
   DialogDeep,
   AlertDialogDeep,
   _alertDialogActionProps,

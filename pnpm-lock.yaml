@@ -25,8 +25,8 @@ importers:
         specifier: ^3.0.3
         version: 3.0.3
       '@code-sherpas/pharos-tokens':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.1.0
+        version: 1.1.0
       '@fontsource/inter':
         specifier: ^5.2.8
         version: 5.2.8
@@ -139,8 +139,8 @@ importers:
         specifier: workspace:*
         version: link:../..
       '@code-sherpas/pharos-tokens':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.1.0
+        version: 1.1.0
       next:
         specifier: ^15.5.28
         version: 15.5.28(@babel/core@7.29.0)(@playwright/test@1.61.1)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -176,8 +176,8 @@ importers:
         specifier: workspace:*
         version: link:../..
       '@code-sherpas/pharos-tokens':
-        specifier: ^1.0.1
-        version: 1.0.1
+        specifier: ^1.1.0
+        version: 1.1.0
       '@fontsource/inter':
         specifier: ^5.2.8
         version: 5.2.8
@@ -486,8 +486,8 @@ packages:
     resolution: {integrity: sha512-dlT1m5e/0yUL0kRNcQn7yGLVThkgbB0Ga/1AmfDDC/8ik6AIiSf2QLQO2zPYvefsHP0aFgxO93cVLCCfDp7kzQ==}
     engines: {node: '>= 20.12.0'}
 
-  '@code-sherpas/pharos-tokens@1.0.1':
-    resolution: {integrity: sha512-Bb1d9VYDXgBN85V4EdGL0DLMj1m57BH3C6TNrhBDj/JZYT9O8hhsnUd73TzM1670GK3PVq+w9n1XLfKL6ZU3+g==}
+  '@code-sherpas/pharos-tokens@1.1.0':
+    resolution: {integrity: sha512-VY6RzSkktOByKs24gMoArthgb2jThHOvc9AhgqilQjmqZtMSfkwTQrcovlyMbPl3GtmcHi361fObnEsYc43CtQ==}
     engines: {node: '>=22'}
 
   '@csstools/color-helpers@6.0.2':
@@ -3798,7 +3798,7 @@ snapshots:
       fast-wrap-ansi: 0.2.2
       sisteransi: 1.0.5
 
-  '@code-sherpas/pharos-tokens@1.0.1': {}
+  '@code-sherpas/pharos-tokens@1.1.0': {}
 
   '@csstools/color-helpers@6.0.2': {}
 
