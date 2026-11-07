@@ -195,14 +195,21 @@ body {
 
 /* ---- Report + SidePanel ----
  * The row under the top bar: the report's <main> and the SidePanel's <aside>
- * as siblings. It fills the rest of the viewport, so the inline panel runs
- * from the top bar to the bottom edge, outside the main's centred width and
- * padding; below the panel breakpoint the panel is a modal Sheet and the main
- * keeps the whole row. */
+ * as siblings. The shell becomes a full-height column only on this page (the
+ * others keep their centred main as it was), and the row takes the rest of it,
+ * so the inline panel runs from the top bar to the bottom edge, outside the
+ * main's centred width and padding; below the panel breakpoint the panel is a
+ * modal Sheet and the main keeps the whole row. */
+.shell:has(> .report) {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
 .report {
+  flex: 1;
   display: flex;
   align-items: stretch;
-  min-height: calc(100dvh - var(--nimbus-topbar-bottom, 0px));
 }
 
 .report-body {
