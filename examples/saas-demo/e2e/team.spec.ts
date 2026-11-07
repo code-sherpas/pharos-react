@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { signIn } from './helpers';
 
 // The per-row DropdownMenu (kebab IconButton) inside a list, plus a
-// destructive action that mutates the list.
+// destructive action that mutates the list once an AlertDialog confirms it.
 test.describe('Team page', () => {
   test.beforeEach(async ({ page }) => {
     await signIn(page);
@@ -53,6 +53,10 @@ test.describe('Team page', () => {
     await expect(page.getByText('Alan Turing', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Actions for Alan Turing' }).click();
     await page.getByRole('menuitem', { name: 'Remove from team' }).click();
+    await page
+      .getByRole('alertdialog', { name: 'Remove Alan Turing from the team?' })
+      .getByRole('button', { name: 'Remove' })
+      .click();
     await expect(
       page.getByRole('dialog', { name: 'Alan Turing removed from the team.' }),
     ).toBeVisible();
@@ -62,6 +66,7 @@ test.describe('Team page', () => {
   test('undoes the removal from the toast that confirms it', async ({ page }) => {
     await page.getByRole('button', { name: 'Actions for Alan Turing' }).click();
     await page.getByRole('menuitem', { name: 'Remove from team' }).click();
+    await page.getByRole('alertdialog').getByRole('button', { name: 'Remove' }).click();
     const toast = page.getByRole('dialog', { name: 'Alan Turing removed from the team.' });
 
     await toast.getByRole('button', { name: 'Undo' }).click();
@@ -114,5 +119,74 @@ test.describe('Team page', () => {
     });
     expect(paper200).not.toBe('rgba(0, 0, 0, 0)');
     await expect(layout).toHaveCSS('background-color', paper200);
+  });
+
+  test.describe('confirming a removal', () => {
+    test.beforeEach(async ({ page }) => {
+      await page.getByRole('button', { name: 'Actions for Alan Turing' }).click();
+      await page.getByRole('menuitem', { name: 'Remove from team' }).click();
+    });
+
+    test('asks first, as an alert named and described for screen readers', async ({ page }) => {
+      const confirm = page.getByRole('alertdialog', { name: 'Remove Alan Turing from the team?' });
+      await expect(confirm).toBeVisible();
+      await expect(confirm).toHaveAccessibleDescription(
+        'They lose access to every project in Nimbus straight away.',
+      );
+      // Nothing is removed until it is confirmed.
+      await expect(page.getByText('Alan Turing', { exact: true })).toBeVisible();
+    });
+
+    test('starts on Cancel, so Enter backs out instead of removing', async ({ page }) => {
+      const confirm = page.getByRole('alertdialog');
+      await expect(confirm.getByRole('button', { name: 'Cancel' })).toBeFocused();
+
+      await page.keyboard.press('Enter');
+
+      await expect(confirm).toHaveCount(0);
+      await expect(page.getByText('Alan Turing', { exact: true })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Actions for Alan Turing' })).toBeFocused();
+    });
+
+    test('ignores a click outside', async ({ page }) => {
+      const confirm = page.getByRole('alertdialog');
+      await expect(confirm).toBeVisible();
+
+      // The backdrop covers the page; click well away from the centered panel.
+      await page.mouse.click(5, 5);
+
+      await expect(confirm).toBeVisible();
+      await expect(page.getByText('Alan Turing', { exact: true })).toBeVisible();
+    });
+
+    test('backs out on Escape and returns focus to the row menu', async ({ page }) => {
+      const confirm = page.getByRole('alertdialog');
+      await expect(confirm.getByRole('button', { name: 'Cancel' })).toBeFocused();
+
+      await page.keyboard.press('Escape');
+
+      await expect(confirm).toHaveCount(0);
+      await expect(page.getByText('Alan Turing', { exact: true })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Actions for Alan Turing' })).toBeFocused();
+    });
+
+    test('backs out on Cancel and returns focus to the row menu', async ({ page }) => {
+      const confirm = page.getByRole('alertdialog');
+      await confirm.getByRole('button', { name: 'Cancel' }).click();
+
+      await expect(confirm).toHaveCount(0);
+      await expect(page.getByText('Alan Turing', { exact: true })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Actions for Alan Turing' })).toBeFocused();
+    });
+
+    test('removes on confirm and moves focus to the page heading', async ({ page }) => {
+      const confirm = page.getByRole('alertdialog');
+      await confirm.getByRole('button', { name: 'Remove' }).click();
+
+      await expect(confirm).toHaveCount(0);
+      await expect(page.getByText('Alan Turing', { exact: true })).toHaveCount(0);
+      // The row and its menu are gone: focus lands somewhere meaningful.
+      await expect(page.getByRole('heading', { name: 'Team', exact: true })).toBeFocused();
+    });
   });
 });
