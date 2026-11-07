@@ -32,7 +32,10 @@ const EMPTY_DRAFT = { name: '', priority: 'medium' as Priority, notes: '' };
 
 /**
  * An assessment report with a coaching plan, and a SidePanel holding the form
- * that adds an action to it. On a wide screen the panel sits beside the report
+ * that adds an action to it. The page owns the row under the top bar: its
+ * <main> and, as a sibling landmark, the panel's <aside>, which runs edge to
+ * edge from the top bar to the bottom of the viewport, outside the main's
+ * centred width and padding. On a wide screen the panel sits beside the report
  * and narrows it, and the report stays usable (the «Reviewed» checkbox); on a
  * narrow one the same panel opens as the modal Sheet. The draft lives here, in
  * the page, so it survives the panel switching form when the window crosses
@@ -60,9 +63,9 @@ export function ReportPage() {
   return (
     <div className="report">
       <SidePanel open={open} onOpenChange={setOpen}>
-        <section className="report-body" aria-labelledby="report-heading">
+        <main className="shell-main report-body">
           <div className="page-head">
-            <h1 id="report-heading">Assessment report</h1>
+            <h1>Assessment report</h1>
             <SidePanelTrigger render={<Button size="sm">Add action</Button>} />
           </div>
           <Card className="report-card">
@@ -92,7 +95,7 @@ export function ReportPage() {
               ))}
             </ul>
           </Card>
-        </section>
+        </main>
 
         <SidePanelContent>
           <form className="report-form" onSubmit={addAction} noValidate>
