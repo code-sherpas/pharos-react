@@ -29,7 +29,7 @@ test.describe('SidePanel beside the report (wide screen)', () => {
   });
 
   test('opens beside the report, narrows it, and takes focus', async ({ page }) => {
-    const report = page.locator('.report-body');
+    const report = page.getByRole('main');
     const widthBefore = (await report.boundingBox())!.width;
     await expect(trigger(page)).toHaveAttribute('aria-expanded', 'false');
 
