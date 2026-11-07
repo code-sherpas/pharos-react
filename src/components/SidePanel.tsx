@@ -72,7 +72,7 @@ interface SidePanelContextValue {
   setHasDescription: (present: boolean) => void;
   triggerRef: RefObject<HTMLElement | null>;
   contentRef: RefObject<HTMLElement | null>;
-  /** Set when the next inline surface to mount must take focus. */
+  /** Set when the breakpoint swaps the surface while focus is in it. */
   focusOnShowRef: RefObject<boolean>;
   /** The latest open state, for callbacks that run outside render. */
   openRef: RefObject<boolean>;
@@ -172,7 +172,6 @@ export function SidePanel({
   const triggerRef = useRef<HTMLElement | null>(null);
   const contentRef = useRef<HTMLElement | null>(null);
   const focusOnShowRef = useRef(false);
-  const returnFocusRef = useRef(false);
   const openRef = useRef(open);
   useBrowserLayoutEffect(
     function trackOpen() {
@@ -192,23 +191,24 @@ export function SidePanel({
   const setOpen = useCallback(
     function setOpen(next: boolean) {
       if (next === open) return;
-      if (next) {
-        focusOnShowRef.current = true;
-      } else {
-        returnFocusRef.current = isFocusInside(contentRef.current);
-      }
       if (openProp === undefined) setUncontrolledOpen(next);
       onOpenChange?.(next);
     },
     [open, openProp, onOpenChange],
   );
 
+  const wasOpenRef = useRef(open);
   useBrowserLayoutEffect(
     function returnFocusToTrigger() {
+      const closed = wasOpenRef.current && !open;
+      wasOpenRef.current = open;
       // Inline only: the modal surface returns focus itself (`finalFocus`).
-      if (open || mode !== 'inline' || !returnFocusRef.current) return;
-      returnFocusRef.current = false;
-      triggerRef.current?.focus();
+      // However it closed — the trigger, Escape, SidePanelClose or the
+      // owner of a controlled panel — the closing panel is still mounted
+      // here, so focus inside it goes back to the trigger.
+      if (closed && mode === 'inline' && isFocusInside(contentRef.current)) {
+        triggerRef.current?.focus();
+      }
     },
     [open, mode],
   );
@@ -453,7 +453,10 @@ function InlineSurface({
 
   useBrowserLayoutEffect(
     function focusOnShow() {
-      if (status === 'closed' || status === 'ending' || !focusOnShowRef.current) return;
+      // `starting`: opened after the first render, however it was opened. A
+      // panel open from the first render (`defaultOpen`) does not take focus,
+      // unless it arrives from the other form with focus in it.
+      if (status !== 'starting' && !(status === 'open' && focusOnShowRef.current)) return;
       focusOnShowRef.current = false;
       const panel = contentRef.current;
       if (panel === null) return;
@@ -482,7 +485,6 @@ function InlineSurface({
       {...labelling}
       {...rest}
       onKeyDown={handleKeyDown}
-      inert={status === 'ending' ? true : undefined}
       data-pharos-slot="side-panel-content"
       data-pharos-side={side}
       data-pharos-mode="inline"
