@@ -48,6 +48,15 @@ async function openConfirmDelete(props: ConfirmDeleteProps = {}) {
   return { user, dialog };
 }
 
+/** The backdrop Base UI renders next to the panel, inside the same portal. */
+function backdropOf(dialog: HTMLElement): HTMLElement {
+  const backdrop = dialog.parentElement?.querySelector<HTMLElement>(
+    ':scope > [role="presentation"]',
+  );
+  if (!backdrop) throw new Error('No backdrop next to the alert dialog');
+  return backdrop;
+}
+
 describe('AlertDialog', () => {
   it('stays closed until its trigger is pressed', () => {
     render(<ConfirmDelete />);
@@ -123,10 +132,12 @@ describe('AlertDialog', () => {
   it('ignores a click outside: it neither closes nor confirms', async () => {
     const onDelete = vi.fn();
     const onOpenChange = vi.fn();
-    const { user } = await openConfirmDelete({ onDelete, onOpenChange });
+    const { user, dialog } = await openConfirmDelete({ onDelete, onOpenChange });
     onOpenChange.mockClear();
 
-    await user.click(document.body);
+    // The backdrop is where an outside click lands on a modal: a click there
+    // is what closes a Dialog.
+    await user.click(backdropOf(dialog));
 
     expect(screen.getByRole('alertdialog')).toBeInTheDocument();
     expect(onOpenChange).not.toHaveBeenCalled();
