@@ -67,6 +67,11 @@ import {
   Dialog,
   DialogTrigger,
   DialogContent,
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogAction,
+  AlertDialogCancel,
   Checkbox,
   Switch,
   RadioGroup,
@@ -91,6 +96,8 @@ import {
   type ComboboxProps,
   type SheetProps,
   type DialogProps,
+  type AlertDialogProps,
+  type AlertDialogActionProps,
   type CheckboxProps,
   type SwitchProps,
   type RadioGroupProps,
@@ -125,6 +132,7 @@ import { Select as SelectDeep } from '../dist/components/Select.js';
 import { Combobox as ComboboxDeep } from '../dist/components/Combobox.js';
 import { Sheet as SheetDeep } from '../dist/components/Sheet.js';
 import { Dialog as DialogDeep } from '../dist/components/Dialog.js';
+import { AlertDialog as AlertDialogDeep } from '../dist/components/AlertDialog.js';
 import { Checkbox as CheckboxDeep } from '../dist/components/Checkbox.js';
 import { Switch as SwitchDeep } from '../dist/components/Switch.js';
 import {
@@ -152,6 +160,7 @@ const _toasterProps: ToasterProps = {
   closeLabel: 'Close',
 };
 const _toastOptions: ToastOptions = { title: 'Saved', variant: 'success' };
+const _alertDialogActionProps: AlertDialogActionProps = { intent: 'destructive' };
 const _buttonPropsDeep: ButtonPropsDeep = { intent: 'secondary' };
 
 // Type-level presence guard for the remaining public prop types (referencing
@@ -168,6 +177,7 @@ export type _PublicPropTypes = [
   ComboboxProps<string>,
   SheetProps,
   DialogProps,
+  AlertDialogProps,
   CheckboxProps,
   RadioGroupProps,
   ToggleGroupProps,
@@ -225,6 +235,11 @@ export const _smoke = [
   Dialog,
   DialogTrigger,
   DialogContent,
+  AlertDialog,
+  AlertDialogTrigger,
+  AlertDialogContent,
+  AlertDialogAction,
+  AlertDialogCancel,
   Checkbox,
   Switch,
   RadioGroup,
@@ -247,6 +262,8 @@ export const _smoke = [
   ComboboxDeep,
   SheetDeep,
   DialogDeep,
+  AlertDialogDeep,
+  _alertDialogActionProps,
   CheckboxDeep,
   SwitchDeep,
   RadioGroupDeep,
