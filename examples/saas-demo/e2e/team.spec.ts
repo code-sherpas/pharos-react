@@ -1,5 +1,22 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
 import { signIn } from './helpers';
+
+/** Makes the demo backend wait for {@link answerRequests} instead of a timer. */
+async function holdRequests(page: Page) {
+  await page.addInitScript(function holdDemoRequests() {
+    (window as Window & { demoRequests?: unknown }).demoRequests = { held: true, waiting: [] };
+  });
+}
+
+/** Answers every request the demo backend is holding. */
+async function answerRequests(page: Page) {
+  await page.evaluate(function answerHeldRequests() {
+    const held = (window as Window & { demoRequests?: { waiting: (() => void)[] } }).demoRequests;
+    held?.waiting.splice(0).forEach(function answer(respond) {
+      respond();
+    });
+  });
+}
 
 // The per-row DropdownMenu (kebab IconButton) inside a list, plus a
 // destructive action that mutates the list once an AlertDialog confirms it.
@@ -188,41 +205,57 @@ test.describe('Team page', () => {
       // The row and its menu are gone: focus lands somewhere meaningful.
       await expect(page.getByRole('heading', { name: 'Team', exact: true })).toBeFocused();
     });
+  });
+});
 
-    test('stays open and busy while the removal is in progress, then closes', async ({ page }) => {
-      const confirm = page.getByRole('alertdialog', { name: 'Remove Alan Turing from the team?' });
-      const action = confirm.getByRole('button', { name: 'Remove' });
-      const cancel = confirm.getByRole('button', { name: 'Cancel' });
+// The removal as a request that takes time. The backend holds its answers
+// until the test releases them, so the pending state is looked at without
+// racing a timer.
+test.describe('Team page, removing through a request', () => {
+  test.beforeEach(async ({ page }) => {
+    await holdRequests(page);
+    await signIn(page);
+    await page.getByRole('button', { name: 'Team', exact: true }).click();
+    await expect(page.getByRole('heading', { name: 'Team' })).toBeVisible();
+  });
 
-      await action.click();
+  test('stays open and busy while the removal is in progress, then closes', async ({ page }) => {
+    await page.getByRole('button', { name: 'Actions for Alan Turing' }).click();
+    await page.getByRole('menuitem', { name: 'Remove from team' }).click();
+    const confirm = page.getByRole('alertdialog', { name: 'Remove Alan Turing from the team?' });
+    const action = confirm.getByRole('button', { name: 'Remove' });
+    const cancel = confirm.getByRole('button', { name: 'Cancel' });
 
-      // In progress: busy, the progress said in the status region, Action
-      // aria-disabled yet still focused, and its Spinner hidden from the
-      // accessibility tree (only the consumer's message is announced).
-      await expect(confirm).toHaveAttribute('aria-busy', 'true');
-      await expect(confirm.getByRole('status')).toHaveText('Removing Alan Turing…');
-      await expect(action).toHaveAttribute('aria-disabled', 'true');
-      await expect(action).toBeFocused();
-      await expect(action).toHaveAccessibleName('Remove');
-      await expect(action.locator('[role="status"]')).toHaveAttribute('aria-hidden', 'true');
-      await expect(cancel).toHaveAttribute('aria-disabled', 'true');
+    await action.click();
 
-      // Nothing closes it meanwhile: Escape, Cancel, a click outside.
-      // Cancel by keyboard: aria-disabled keeps it focusable, and Playwright
-      // refuses to click an aria-disabled element that a person can still press.
-      await page.keyboard.press('Escape');
-      await page.keyboard.press('Shift+Tab');
-      await expect(cancel).toBeFocused();
-      await page.keyboard.press('Enter');
-      await page.mouse.click(5, 5);
-      await expect(confirm).toBeVisible();
-      await expect(page.getByText('Alan Turing', { exact: true })).toBeVisible();
+    // In progress: busy, the progress said in the status region, Action
+    // aria-disabled yet still focused, and its Spinner hidden from the
+    // accessibility tree (only the consumer's message is announced).
+    await expect(confirm).toHaveAttribute('aria-busy', 'true');
+    await expect(confirm.getByRole('status')).toHaveText('Removing Alan Turing…');
+    await expect(action).toHaveAttribute('aria-disabled', 'true');
+    await expect(action).toBeFocused();
+    await expect(action).toHaveAccessibleName('Remove');
+    await expect(action.locator('[role="status"]')).toHaveAttribute('aria-hidden', 'true');
+    await expect(cancel).toHaveAttribute('aria-disabled', 'true');
 
-      // When it answers, it closes; the row is gone, so focus goes to the heading.
-      await expect(confirm).toHaveCount(0);
-      await expect(page.getByText('Alan Turing', { exact: true })).toHaveCount(0);
-      await expect(page.getByRole('heading', { name: 'Team', exact: true })).toBeFocused();
-    });
+    // Nothing closes it meanwhile: Escape, Cancel, a click outside.
+    // Cancel by keyboard: aria-disabled keeps it focusable, and Playwright
+    // refuses to click an aria-disabled element that a person can still press.
+    await page.keyboard.press('Escape');
+    await page.keyboard.press('Shift+Tab');
+    await expect(cancel).toBeFocused();
+    await page.keyboard.press('Enter');
+    await page.mouse.click(5, 5);
+    await expect(confirm).toBeVisible();
+    await expect(page.getByText('Alan Turing', { exact: true })).toBeVisible();
+
+    await answerRequests(page);
+
+    // When it answers, it closes; the row is gone, so focus goes to the heading.
+    await expect(confirm).toHaveCount(0);
+    await expect(page.getByText('Alan Turing', { exact: true })).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Team', exact: true })).toBeFocused();
   });
 
   test('shows the error when a removal fails, and Retry removes with the dialog open', async ({
@@ -236,6 +269,8 @@ test.describe('Team page', () => {
     });
 
     await confirm.getByRole('button', { name: 'Remove' }).click();
+    await expect(confirm).toHaveAttribute('aria-busy', 'true');
+    await answerRequests(page);
 
     await expect(confirm.getByRole('alert')).toHaveText(
       'Katherine Johnson could not be removed. Check your connection and retry.',
@@ -250,6 +285,7 @@ test.describe('Team page', () => {
 
     await expect(confirm).toHaveAttribute('aria-busy', 'true');
     await expect(confirm.getByRole('alert')).toHaveText('');
+    await answerRequests(page);
     await expect(confirm).toHaveCount(0);
     await expect(page.getByText('Katherine Johnson', { exact: true })).toHaveCount(0);
     await expect(
