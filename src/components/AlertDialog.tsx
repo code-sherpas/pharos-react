@@ -12,6 +12,7 @@ import {
 } from 'react';
 import { AlertDialog as BaseAlertDialog } from '@base-ui/react/alert-dialog';
 import { Button, type ButtonProps } from './Button';
+import { Spinner } from './Spinner';
 import { cn } from '../lib/cn';
 // Same look as Dialog (decision 9 of the AlertDialog task: no new tokens, the
 // appearance is Dialog's). One stylesheet for both keeps them from drifting.
@@ -31,7 +32,18 @@ import styles from './Dialog.module.css';
  * - **Escape equals Cancel**: both close and reach `onOpenChange(false)`.
  *   Escape does not run Cancel's `onClick`; put a cancel side effect in
  *   `onOpenChange`.
- * - **`AlertDialogAction` confirms and closes.**
+ * - **`AlertDialogAction` confirms and closes**, unless its `onClick` calls
+ *   `event.preventDefault()`: then the confirmation stays open.
+ * - **`pending`** marks the operation in progress: Escape, Cancel and any
+ *   other close do nothing, Action is `aria-disabled` (still focusable) with a
+ *   Spinner hidden from screen readers, and the panel carries `aria-busy`.
+ *
+ * The asynchronous pattern: control `open`; in Action's `onClick` call
+ * `event.preventDefault()` and set `pending`; when the operation ends, clear
+ * `pending` and set `open` to `false` (focus goes back to the trigger). If it
+ * fails, clear `pending` and keep it open. Pharos adds no text: the "in
+ * progress" message (in a `role="status"` region) and the error (in a
+ * `role="alert"` region) are composed by the consumer inside the content.
  *
  * Use it for every confirmation, destructive (`intent="destructive"` on the
  * action) or not (`intent="primary"`).
@@ -51,10 +63,42 @@ import styles from './Dialog.module.css';
  *   </AlertDialogContent>
  * </AlertDialog>
  */
-export type AlertDialogProps = ComponentProps<typeof BaseAlertDialog.Root>;
+export interface AlertDialogProps extends ComponentProps<typeof BaseAlertDialog.Root> {
+  /**
+   * The confirmed operation is in progress. While `true`, nothing closes the
+   * confirmation (Escape, Cancel, Action): `onOpenChange` is not called with
+   * `false`. Action is `aria-disabled` and shows a Spinner hidden from screen
+   * readers; the panel carries `aria-busy`. The consumer controls it and
+   * announces the progress itself, inside the content.
+   *
+   * @default false
+   */
+  pending?: boolean;
+}
 
-export function AlertDialog(props: AlertDialogProps) {
-  return <BaseAlertDialog.Root {...props} />;
+type OpenChangeDetails = Parameters<NonNullable<AlertDialogProps['onOpenChange']>>[1];
+
+/**
+ * Whether the operation is in progress, for the parts that change with it.
+ * Internal: not exported from the package.
+ */
+const PendingContext = createContext(false);
+
+export function AlertDialog({ pending = false, onOpenChange, ...rest }: AlertDialogProps) {
+  /** While pending, every request to close is refused before it reaches the consumer. */
+  function keepOpenWhilePending(open: boolean, details: OpenChangeDetails): void {
+    if (pending && !open) {
+      details.cancel();
+      return;
+    }
+    onOpenChange?.(open, details);
+  }
+
+  return (
+    <PendingContext.Provider value={pending}>
+      <BaseAlertDialog.Root onOpenChange={keepOpenWhilePending} {...rest} />
+    </PendingContext.Provider>
+  );
 }
 
 AlertDialog.displayName = 'AlertDialog';
@@ -93,6 +137,7 @@ export function AlertDialogContent({
   ...rest
 }: AlertDialogContentProps) {
   const cancelRef = useRef<HTMLElement | null>(null);
+  const pending = useContext(PendingContext);
 
   /** Cancel when it is there; otherwise Base UI's default (the first tabbable). */
   function focusCancel(): HTMLElement | boolean {
@@ -106,6 +151,7 @@ export function AlertDialogContent({
         data-pharos-slot="alert-dialog-content"
         className={cn(styles.content, className)}
         initialFocus={initialFocus ?? focusCancel}
+        aria-busy={pending || undefined}
         {...rest}
       >
         <CancelRefContext.Provider value={cancelRef}>{children}</CancelRefContext.Provider>
@@ -183,21 +229,54 @@ export function AlertDialogFooter({ className, ...rest }: AlertDialogFooterProps
 AlertDialogFooter.displayName = 'AlertDialogFooter';
 
 type CloseProps = Omit<ComponentProps<typeof BaseAlertDialog.Close>, 'render' | 'nativeButton'>;
+type CloseClickEvent = Parameters<NonNullable<CloseProps['onClick']>>[0];
 
 /**
  * Confirms and closes. A `Button` (accepts its `intent` and `size`): use
  * `intent="destructive"` for a deletion, `intent="primary"` (the default) for a
  * confirmation that destroys nothing, such as publishing.
+ *
+ * Calling `event.preventDefault()` in `onClick` keeps the confirmation open:
+ * the start of the asynchronous pattern (see `AlertDialog`'s `pending`). While
+ * pending it is `aria-disabled`, stays focusable, ignores presses (`onClick`
+ * does not run) and shows a Spinner hidden from screen readers.
  */
 export interface AlertDialogActionProps extends CloseProps, Pick<ButtonProps, 'intent' | 'size'> {}
 
-export function AlertDialogAction({ intent, size, ...rest }: AlertDialogActionProps) {
+export function AlertDialogAction({
+  intent,
+  size,
+  onClick,
+  children,
+  ...rest
+}: AlertDialogActionProps) {
+  const pending = useContext(PendingContext);
+
+  /**
+   * Runs the consumer's `onClick`, then closes unless it called
+   * `preventDefault()`: Base UI closes regardless, so the default is
+   * translated into stopping its handler.
+   */
+  function confirm(event: CloseClickEvent): void {
+    if (pending) {
+      event.preventBaseUIHandler();
+      return;
+    }
+    onClick?.(event);
+    if (event.defaultPrevented) event.preventBaseUIHandler();
+  }
+
   return (
     <BaseAlertDialog.Close
       data-pharos-slot="alert-dialog-action"
       render={<Button intent={intent ?? 'primary'} size={size} />}
+      aria-disabled={pending || undefined}
+      onClick={confirm}
       {...rest}
-    />
+    >
+      {pending && <Spinner size={size === 'lg' ? 'md' : 'sm'} aria-hidden="true" />}
+      {children}
+    </BaseAlertDialog.Close>
   );
 }
 
@@ -206,11 +285,14 @@ AlertDialogAction.displayName = 'AlertDialogAction';
 /**
  * Backs out and closes. A `Button` (`intent="secondary"` by default). Focus
  * starts here when the confirmation opens; Escape does the same as clicking it.
+ * While `pending`, it is `aria-disabled` and ignores presses: there is nothing
+ * to back out of once the operation has started.
  */
 export interface AlertDialogCancelProps extends CloseProps, Pick<ButtonProps, 'intent' | 'size'> {}
 
-export function AlertDialogCancel({ intent, size, ref, ...rest }: AlertDialogCancelProps) {
+export function AlertDialogCancel({ intent, size, ref, onClick, ...rest }: AlertDialogCancelProps) {
   const cancelRef = useContext(CancelRefContext);
+  const pending = useContext(PendingContext);
   const setRefs = useCallback(
     function registerCancel(node: HTMLButtonElement | null) {
       if (cancelRef) cancelRef.current = node;
@@ -218,11 +300,23 @@ export function AlertDialogCancel({ intent, size, ref, ...rest }: AlertDialogCan
     },
     [cancelRef, ref],
   );
+
+  /** Backs out, unless the operation is already in progress. */
+  function cancel(event: CloseClickEvent): void {
+    if (pending) {
+      event.preventBaseUIHandler();
+      return;
+    }
+    onClick?.(event);
+  }
+
   return (
     <BaseAlertDialog.Close
       data-pharos-slot="alert-dialog-cancel"
       ref={setRefs}
       render={<Button intent={intent ?? 'secondary'} size={size} />}
+      aria-disabled={pending || undefined}
+      onClick={cancel}
       {...rest}
     />
   );

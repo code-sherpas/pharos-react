@@ -47,7 +47,7 @@ body {
 
 .error-text {
   margin: 0;
-  color: var(--pharos-color-semantic-error, #dc2626);
+  color: var(--pharos-color-semantic-error-fg, #dc2626);
   font-size: 0.875rem;
 }
 

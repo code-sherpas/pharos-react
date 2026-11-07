@@ -188,5 +188,72 @@ test.describe('Team page', () => {
       // The row and its menu are gone: focus lands somewhere meaningful.
       await expect(page.getByRole('heading', { name: 'Team', exact: true })).toBeFocused();
     });
+
+    test('stays open and busy while the removal is in progress, then closes', async ({ page }) => {
+      const confirm = page.getByRole('alertdialog', { name: 'Remove Alan Turing from the team?' });
+      const action = confirm.getByRole('button', { name: 'Remove' });
+      const cancel = confirm.getByRole('button', { name: 'Cancel' });
+
+      await action.click();
+
+      // In progress: busy, the progress said in the status region, Action
+      // aria-disabled yet still focused, and its Spinner hidden from the
+      // accessibility tree (only the consumer's message is announced).
+      await expect(confirm).toHaveAttribute('aria-busy', 'true');
+      await expect(confirm.getByRole('status')).toHaveText('Removing Alan Turing…');
+      await expect(action).toHaveAttribute('aria-disabled', 'true');
+      await expect(action).toBeFocused();
+      await expect(action).toHaveAccessibleName('Remove');
+      await expect(action.locator('[role="status"]')).toHaveAttribute('aria-hidden', 'true');
+      await expect(cancel).toHaveAttribute('aria-disabled', 'true');
+
+      // Nothing closes it meanwhile: Escape, Cancel, a click outside.
+      // Cancel by keyboard: aria-disabled keeps it focusable, and Playwright
+      // refuses to click an aria-disabled element that a person can still press.
+      await page.keyboard.press('Escape');
+      await page.keyboard.press('Shift+Tab');
+      await expect(cancel).toBeFocused();
+      await page.keyboard.press('Enter');
+      await page.mouse.click(5, 5);
+      await expect(confirm).toBeVisible();
+      await expect(page.getByText('Alan Turing', { exact: true })).toBeVisible();
+
+      // When it answers, it closes; the row is gone, so focus goes to the heading.
+      await expect(confirm).toHaveCount(0);
+      await expect(page.getByText('Alan Turing', { exact: true })).toHaveCount(0);
+      await expect(page.getByRole('heading', { name: 'Team', exact: true })).toBeFocused();
+    });
+  });
+
+  test('shows the error when a removal fails, and Retry removes with the dialog open', async ({
+    page,
+  }) => {
+    // Katherine Johnson's first removal fails, as a dropped connection would.
+    await page.getByRole('button', { name: 'Actions for Katherine Johnson' }).click();
+    await page.getByRole('menuitem', { name: 'Remove from team' }).click();
+    const confirm = page.getByRole('alertdialog', {
+      name: 'Remove Katherine Johnson from the team?',
+    });
+
+    await confirm.getByRole('button', { name: 'Remove' }).click();
+
+    await expect(confirm.getByRole('alert')).toHaveText(
+      'Katherine Johnson could not be removed. Check your connection and retry.',
+    );
+    await expect(confirm).not.toHaveAttribute('aria-busy', 'true');
+    await expect(page.getByText('Katherine Johnson', { exact: true })).toBeVisible();
+    const retry = confirm.getByRole('button', { name: 'Retry' });
+    await expect(retry).toBeFocused();
+    await expect(retry).not.toHaveAttribute('aria-disabled', 'true');
+
+    await retry.click();
+
+    await expect(confirm).toHaveAttribute('aria-busy', 'true');
+    await expect(confirm.getByRole('alert')).toHaveText('');
+    await expect(confirm).toHaveCount(0);
+    await expect(page.getByText('Katherine Johnson', { exact: true })).toHaveCount(0);
+    await expect(
+      page.getByRole('dialog', { name: 'Katherine Johnson removed from the team.' }),
+    ).toBeVisible();
   });
 });
