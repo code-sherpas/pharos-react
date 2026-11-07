@@ -50,14 +50,14 @@ test.describe('App shell', () => {
     await page.getByRole('option', { name: 'Español' }).click();
     const renamed = page.getByRole('combobox', { name: 'Language: Español' });
     await expect(renamed).toBeVisible();
-    // Let the list finish closing before reopening it: reopening during the
-    // close transition loses the first Escape (a Base UI quirk, every Select;
-    // tracked in Notion → Tasks).
-    await expect(listbox).toBeHidden();
 
     // Keyboard: Escape closes it and focus goes back to the icon button.
+    // Reopened at once, while the list is still closing: wait for the button
+    // to report it open. Base UI opens on the frame after the mousedown, and
+    // the closing list is still visible, so waiting for the list would send
+    // Escape to a Select that has not reopened yet.
     await renamed.click();
-    await expect(listbox).toBeVisible();
+    await expect(renamed).toHaveAttribute('aria-expanded', 'true');
     await page.keyboard.press('Escape');
     await expect(listbox).toBeHidden();
     await expect(renamed).toBeFocused();

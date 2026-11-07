@@ -53,6 +53,22 @@ test.describe('Settings form', () => {
     await expect(trigger).toHaveText(/public/i);
   });
 
+  test('closes the profile visibility list on the first Escape when reopened right after picking', async ({
+    page,
+  }) => {
+    const trigger = page.getByRole('combobox', { name: 'Profile visibility' });
+    await trigger.click();
+    await page.getByRole('option', { name: 'Public' }).click();
+    // Reopen at once, while the list is still closing. Wait for the trigger to
+    // report it open, not for the list to be visible: Base UI opens on the
+    // frame after the mousedown, and the closing list is still visible.
+    await trigger.click();
+    await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('listbox')).toBeHidden();
+    await expect(trigger).toBeFocused();
+  });
+
   test('removes a skill chip in the multi-select combobox', async ({ page }) => {
     await expect(page.getByText('React', { exact: true })).toBeVisible();
     await page.getByRole('button', { name: 'Remove' }).click();
