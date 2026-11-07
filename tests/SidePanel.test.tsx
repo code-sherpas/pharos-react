@@ -326,7 +326,37 @@ describe('SidePanel — inline (wide viewport)', () => {
 
     await user.click(screen.getByRole('button', { name: 'Save' }));
     await panelGone();
-    expect(trigger()).toHaveFocus();
+    // Back to what opened it, not to the SidePanel's own trigger.
+    expect(screen.getByRole('button', { name: 'Open from the page' })).toHaveFocus();
+  });
+
+  it('returns focus to what opened it when there is no SidePanelTrigger at all', async () => {
+    viewport(true);
+    function WithoutTrigger() {
+      const [open, setOpen] = useState(false);
+      return (
+        <>
+          <button type="button" onClick={() => setOpen(true)}>
+            Edit action
+          </button>
+          <SidePanel open={open} onOpenChange={setOpen}>
+            <SidePanelContent>
+              <SidePanelTitle>Edit action</SidePanelTitle>
+              <SidePanelClose>Done</SidePanelClose>
+            </SidePanelContent>
+          </SidePanel>
+        </>
+      );
+    }
+    const user = userEvent.setup();
+    render(<WithoutTrigger />);
+
+    await user.click(screen.getByRole('button', { name: 'Edit action' }));
+    expect(screen.getByRole('button', { name: 'Done' })).toHaveFocus();
+    await user.keyboard('{Escape}');
+
+    await panelGone();
+    expect(screen.getByRole('button', { name: 'Edit action' })).toHaveFocus();
   });
 
   it('stays closed when controlled and the owner refuses to open it', async () => {

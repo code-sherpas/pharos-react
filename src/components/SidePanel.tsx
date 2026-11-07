@@ -37,7 +37,8 @@ import styles from './SidePanel.module.css';
  * Keyboard contract (both modes): opening moves focus into the panel (its
  * first focusable element, or `initialFocus`); Escape with focus inside
  * closes it — a layer opened inside it, such as a Select, closes first;
- * closing returns focus to the trigger. Closed, the content unmounts, like
+ * closing returns focus to what opened it — the trigger, or the control of
+ * the page that opened a controlled panel. Closed, the content unmounts, like
  * Sheet's: keeping what was typed is the consumer's job.
  *
  * @example
@@ -76,6 +77,8 @@ interface SidePanelContextValue {
   focusOnShowRef: RefObject<boolean>;
   /** The latest open state, for callbacks that run outside render. */
   openRef: RefObject<boolean>;
+  /** Where focus goes back when the panel closes. */
+  returnFocusTarget: () => HTMLElement | null;
 }
 
 const SidePanelContext = createContext<SidePanelContextValue | null>(null);
@@ -197,20 +200,46 @@ export function SidePanel({
     [open, openProp, onOpenChange],
   );
 
+  // The element that had focus before the panel opened: the trigger, or the
+  // control of a page that opens a controlled panel. Recorded while the panel
+  // is closed; focus moving into the panel (or a modal focus guard) is not it.
+  const openerRef = useRef<HTMLElement | null>(null);
+  useEffect(function recordOpener() {
+    function handleFocusIn(event: FocusEvent) {
+      const target = event.target;
+      if (openRef.current || !(target instanceof HTMLElement)) return;
+      if (contentRef.current?.contains(target) || target.hasAttribute('data-base-ui-focus-guard'))
+        return;
+      openerRef.current = target;
+    }
+    document.addEventListener('focusin', handleFocusIn);
+    return function stopRecordingOpener() {
+      document.removeEventListener('focusin', handleFocusIn);
+    };
+  }, []);
+
+  const returnFocusTarget = useCallback(function returnFocusTarget(): HTMLElement | null {
+    const opener = openerRef.current;
+    if (opener !== null && opener.isConnected && !contentRef.current?.contains(opener)) {
+      return opener;
+    }
+    return triggerRef.current;
+  }, []);
+
   const wasOpenRef = useRef(open);
   useBrowserLayoutEffect(
-    function returnFocusToTrigger() {
+    function returnFocusOnClose() {
       const closed = wasOpenRef.current && !open;
       wasOpenRef.current = open;
       // Inline only: the modal surface returns focus itself (`finalFocus`).
       // However it closed — the trigger, Escape, SidePanelClose or the
       // owner of a controlled panel — the closing panel is still mounted
-      // here, so focus inside it goes back to the trigger.
+      // here, so focus inside it goes back to what opened it.
       if (closed && mode === 'inline' && isFocusInside(contentRef.current)) {
-        triggerRef.current?.focus();
+        returnFocusTarget()?.focus();
       }
     },
-    [open, mode],
+    [open, mode, returnFocusTarget],
   );
 
   const baseId = useId();
@@ -233,8 +262,9 @@ export function SidePanel({
       contentRef,
       focusOnShowRef,
       openRef,
+      returnFocusTarget,
     }),
-    [open, mode, setOpen, baseId, hasTitle, hasDescription],
+    [open, mode, setOpen, baseId, hasTitle, hasDescription, returnFocusTarget],
   );
 
   const handleModalOpenChange = useCallback(
@@ -398,7 +428,7 @@ export function SidePanelContent({
         finalFocus={function returnFocusOnClose() {
           // Still open means the breakpoint swapped the surface: the inline
           // panel takes focus instead of the trigger.
-          return context.openRef.current ? false : context.triggerRef.current;
+          return context.openRef.current ? false : context.returnFocusTarget();
         }}
         {...labelling}
         {...rest}
@@ -485,6 +515,9 @@ function InlineSurface({
       {...labelling}
       {...rest}
       onKeyDown={handleKeyDown}
+      // Collapsing: already closed for the trigger (aria-expanded="false"),
+      // so it can no longer be reached nor read while it animates out.
+      inert={status === 'ending' ? true : undefined}
       data-pharos-slot="side-panel-content"
       data-pharos-side={side}
       data-pharos-mode="inline"
@@ -580,7 +613,7 @@ export function SidePanelFooter({ className, ...rest }: SidePanelFooterProps) {
 SidePanelFooter.displayName = 'SidePanelFooter';
 
 /**
- * A button that closes the panel and returns focus to the trigger. Renders a
+ * A button that closes the panel and returns focus to what opened it. Renders a
  * native `<button>`; compose any control via `render`.
  */
 export type SidePanelCloseProps = useRender.ComponentProps<'button'>;
