@@ -1,5 +1,13 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
   Avatar,
   AvatarFallback,
   Badge,
@@ -26,7 +34,9 @@ import { MEMBERS, ROLE_TONE, initials, type Member } from '../data';
  * A member list with a per-row DropdownMenu (kebab IconButton). The canonical
  * "row actions" composition, and the harness's check that a menu opened deep
  * in a list still works — including a destructive action that mutates the
- * list, confirmed by a toast that can undo it. A ToggleGroup above it lays the
+ * list. Removing asks first in an AlertDialog — opened from the menu item, so
+ * it is controlled rather than given a trigger — and the removal is then
+ * confirmed by a toast that can undo it. A ToggleGroup above it lays the
  * members out as a list or a grid, the segmented view switch, next to a role
  * filter: a Select whose trigger is a narrow pill as wide as its value, the
  * filter-bar composition whose list must still fit its options on one line.
@@ -45,7 +55,25 @@ export function TeamPage() {
   const [members, setMembers] = useState<Member[]>(MEMBERS);
   const [layout, setLayout] = useState<Layout>('list');
   const [roleFilter, setRoleFilter] = useState<RoleFilter>('any');
+  // Kept after closing so the title does not empty out during the exit motion.
+  const [memberToRemove, setMemberToRemove] = useState<Member | null>(null);
+  const [confirmingRemoval, setConfirmingRemoval] = useState(false);
+  // The row's kebab, where focus goes back when the confirmation is cancelled.
+  const removalTrigger = useRef<HTMLElement | null>(null);
+  const heading = useRef<HTMLHeadingElement>(null);
   const toast = useToast();
+
+  function askToRemove(member: Member) {
+    removalTrigger.current = document.getElementById(`actions-${member.id}`);
+    setMemberToRemove(member);
+    setConfirmingRemoval(true);
+  }
+
+  /** Back to the kebab; if its row was removed, to the page heading. */
+  function focusAfterRemoval(): HTMLElement | null {
+    const trigger = removalTrigger.current;
+    return trigger?.isConnected ? trigger : heading.current;
+  }
 
   function remove(member: Member) {
     setMembers((current) => current.filter((m) => m.id !== member.id));
@@ -65,7 +93,9 @@ export function TeamPage() {
   return (
     <section>
       <div className="page-head">
-        <h1>Team</h1>
+        <h1 ref={heading} tabIndex={-1}>
+          Team
+        </h1>
         <Select
           value={roleFilter}
           onValueChange={function filterByRole(next) {
@@ -113,7 +143,11 @@ export function TeamPage() {
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     render={
-                      <IconButton size="sm" aria-label={`Actions for ${m.name}`}>
+                      <IconButton
+                        id={`actions-${m.id}`}
+                        size="sm"
+                        aria-label={`Actions for ${m.name}`}
+                      >
                         <MoreHorizontal size={16} aria-hidden="true" />
                       </IconButton>
                     }
@@ -121,7 +155,7 @@ export function TeamPage() {
                   <DropdownMenuContent align="end">
                     <DropdownMenuItem onClick={() => resend(m)}>Resend invite</DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem variant="destructive" onClick={() => remove(m)}>
+                    <DropdownMenuItem variant="destructive" onClick={() => askToRemove(m)}>
                       Remove from team
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -130,6 +164,27 @@ export function TeamPage() {
             ))}
         </ul>
       </Card>
+      <AlertDialog open={confirmingRemoval} onOpenChange={setConfirmingRemoval}>
+        <AlertDialogContent finalFocus={focusAfterRemoval}>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove {memberToRemove?.name} from the team?</AlertDialogTitle>
+            <AlertDialogDescription>
+              They lose access to every project in Nimbus straight away.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              intent="destructive"
+              onClick={function confirmRemoval() {
+                if (memberToRemove) remove(memberToRemove);
+              }}
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </section>
   );
 }

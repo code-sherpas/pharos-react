@@ -25,6 +25,7 @@ const dist = (p) => resolve(root, 'dist', p);
 
 // Atoms that use React hooks / context / a Base UI primitive → client-only.
 const CLIENT = [
+  'AlertDialog',
   'Avatar',
   'Button',
   'IconButton',
