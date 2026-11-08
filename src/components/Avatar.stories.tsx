@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Avatar, AvatarImage, AvatarFallback, AvatarGroup } from './Avatar';
+import { Avatar, AvatarImage, AvatarFallback, AvatarGroup } from './Avatar.js';
 
 /* Inline Lucide-shaped icons for fallback demos. Same convention as
  * IconButton.stories.tsx — Pharos does not pull lucide-react as a

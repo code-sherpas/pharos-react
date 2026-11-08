@@ -2,8 +2,8 @@
 
 import { useRender } from '@base-ui/react/use-render';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../lib/cn';
-import { Spinner } from './Spinner';
+import { cn } from '../lib/cn.js';
+import { Spinner } from './Spinner.js';
 import styles from './IconButton.module.css';
 
 /**

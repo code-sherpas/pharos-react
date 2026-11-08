@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { IconButton } from './IconButton';
+import { IconButton } from './IconButton.js';
 
 /* Inline SVGs in the shape Lucide ships (24x24 viewBox, currentColor stroke).
  * The repo does not bundle Lucide as a dependency — Decision D4 names Lucide

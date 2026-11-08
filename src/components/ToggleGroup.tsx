@@ -4,7 +4,7 @@ import type { ComponentProps } from 'react';
 import { ToggleGroup as BaseToggleGroup } from '@base-ui/react/toggle-group';
 import { Toggle as BaseToggle } from '@base-ui/react/toggle';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 import styles from './ToggleGroup.module.css';
 
 const toggleGroupVariants = cva(styles.group, {

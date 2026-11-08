@@ -3,7 +3,7 @@
 import type { ComponentProps } from 'react';
 import { RadioGroup as BaseRadioGroup } from '@base-ui/react/radio-group';
 import { Radio as BaseRadio } from '@base-ui/react/radio';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 import styles from './RadioGroup.module.css';
 
 /**

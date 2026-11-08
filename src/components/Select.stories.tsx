@@ -9,9 +9,9 @@ import {
   SelectGroup,
   SelectLabel,
   SelectSeparator,
-} from './Select';
-import { IconButton } from './IconButton';
-import { LanguagesIcon } from '../icons/LanguagesIcon';
+} from './Select.js';
+import { IconButton } from './IconButton.js';
+import { LanguagesIcon } from '../icons/LanguagesIcon.js';
 
 /**
  * `Select` is the **listbox** half of the selection family (Decision D17):

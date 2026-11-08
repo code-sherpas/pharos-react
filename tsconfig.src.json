@@ -1,0 +1,21 @@
+{
+  // The library's source, checked as the ESM it is published as. Under
+  // NodeNext a relative import without its file extension is an error
+  // (TS2835), so `src/` cannot go back to writing `'./Button'`: the `.d.ts`
+  // copy those specifiers verbatim, and node16/nodenext consumers reject them
+  // (every release from 0.2.2 to 3.0.2). `tsconfig.build.json`, which emits the
+  // `.d.ts`, extends this file, so what is checked is what is published.
+  //
+  // tsconfig.json stays on Bundler because it also checks the tests and the
+  // Vite/Vitest configs, which run only through Vite and are never published:
+  // under NodeNext, `@testing-library/user-event`'s CommonJS types make every
+  // `userEvent.setup()` a type error (TS2339), and the tests would need
+  // extensions nothing reads.
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "types": ["vite/client"]
+  },
+  "include": ["src/**/*"]
+}

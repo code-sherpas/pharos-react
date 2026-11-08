@@ -8,8 +8,8 @@ import {
   SheetDescription,
   SheetFooter,
   SheetClose,
-} from './Sheet';
-import { Button } from './Button';
+} from './Sheet.js';
+import { Button } from './Button.js';
 
 /**
  * `Sheet` is a **modal** panel docked to a viewport edge (Decision D18). It

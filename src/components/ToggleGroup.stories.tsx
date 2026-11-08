@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { ToggleGroup, ToggleGroupItem } from './ToggleGroup';
+import { ToggleGroup, ToggleGroupItem } from './ToggleGroup.js';
 
 /**
  * `ToggleGroup` shows two to five options side by side, where choosing one

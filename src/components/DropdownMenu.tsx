@@ -2,7 +2,7 @@
 
 import type { ComponentProps } from 'react';
 import { Menu } from '@base-ui/react/menu';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 import styles from './DropdownMenu.module.css';
 
 /**

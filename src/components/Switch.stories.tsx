@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Switch } from './Switch';
+import { Switch } from './Switch.js';
 
 /**
  * `Switch` is a single on/off toggle (Decision D21). It wraps Base UI's

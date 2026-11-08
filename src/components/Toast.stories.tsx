@@ -1,7 +1,13 @@
 import { useEffect, useRef } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Button } from './Button';
-import { ToastProvider, Toaster, useToast, type ToasterPosition, type ToastOptions } from './Toast';
+import { Button } from './Button.js';
+import {
+  ToastProvider,
+  Toaster,
+  useToast,
+  type ToasterPosition,
+  type ToastOptions,
+} from './Toast.js';
 
 /**
  * `Toast` is brief feedback about something that just happened, shown in a

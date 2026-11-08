@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, within } from 'storybook/test';
-import { Button } from './Button';
+import { Button } from './Button.js';
 
 const INTENTS = ['primary', 'secondary', 'ghost', 'destructive'] as const;
 const SIZES = ['sm', 'md', 'lg'] as const;

@@ -20,6 +20,6 @@
     "noEmit": true,
     "types": ["node", "vite/client"]
   },
-  "include": ["src/**/*", "tests/**/*", "vite.config.ts", "vitest.config.ts"],
+  "include": ["src/**/*", "tests/**/*", "styles.css.d.ts", "vite.config.ts", "vitest.config.ts"],
   "exclude": ["node_modules", "dist"]
 }

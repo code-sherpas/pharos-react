@@ -9,10 +9,10 @@ import {
   SidePanelDescription,
   SidePanelFooter,
   SidePanelClose,
-} from './SidePanel';
-import { Button } from './Button';
-import { Input } from './Input';
-import { Textarea } from './Textarea';
+} from './SidePanel.js';
+import { Button } from './Button.js';
+import { Input } from './Input.js';
+import { Textarea } from './Textarea.js';
 
 /**
  * `SidePanel` is a contextual panel for a task done beside the content: a

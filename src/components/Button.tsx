@@ -2,7 +2,7 @@
 
 import { useRender } from '@base-ui/react/use-render';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 import styles from './Button.module.css';
 
 /**

@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { RadioGroup, RadioGroupItem } from './RadioGroup';
+import { RadioGroup, RadioGroupItem } from './RadioGroup.js';
 
 /**
  * `RadioGroup` is a set of mutually exclusive options (Decision D22). It wraps

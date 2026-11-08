@@ -1,5 +1,5 @@
 import type { ComponentPropsWithoutRef } from 'react';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 import styles from './Separator.module.css';
 
 /**

@@ -14,7 +14,7 @@ import {
   ComboboxList,
   ComboboxItem,
   ComboboxEmpty,
-} from './Combobox';
+} from './Combobox.js';
 
 /**
  * `Combobox` is the **filtering** half of the selection family (Decision

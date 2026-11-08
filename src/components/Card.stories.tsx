@@ -1,8 +1,8 @@
 import { Fragment } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './Card';
-import { Button } from './Button';
-import { Separator } from './Separator';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './Card.js';
+import { Button } from './Button.js';
+import { Separator } from './Separator.js';
 
 const VARIANTS = ['default', 'elevated', 'outlined'] as const;
 

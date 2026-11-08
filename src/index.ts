@@ -4,20 +4,20 @@
 // resets — only the hashed CSS Modules class names that the components below
 // reference at runtime.
 
-export { Button, buttonVariants } from './components/Button';
-export type { ButtonProps } from './components/Button';
-export { IconButton, iconButtonVariants } from './components/IconButton';
-export type { IconButtonProps } from './components/IconButton';
-export { Badge, badgeVariants } from './components/Badge';
-export type { BadgeProps } from './components/Badge';
-export { Input, inputVariants } from './components/Input';
-export type { InputProps } from './components/Input';
-export { Textarea, textareaVariants } from './components/Textarea';
-export type { TextareaProps } from './components/Textarea';
-export { Spinner, spinnerVariants } from './components/Spinner';
-export type { SpinnerProps } from './components/Spinner';
-export { Separator } from './components/Separator';
-export type { SeparatorProps } from './components/Separator';
+export { Button, buttonVariants } from './components/Button.js';
+export type { ButtonProps } from './components/Button.js';
+export { IconButton, iconButtonVariants } from './components/IconButton.js';
+export type { IconButtonProps } from './components/IconButton.js';
+export { Badge, badgeVariants } from './components/Badge.js';
+export type { BadgeProps } from './components/Badge.js';
+export { Input, inputVariants } from './components/Input.js';
+export type { InputProps } from './components/Input.js';
+export { Textarea, textareaVariants } from './components/Textarea.js';
+export type { TextareaProps } from './components/Textarea.js';
+export { Spinner, spinnerVariants } from './components/Spinner.js';
+export type { SpinnerProps } from './components/Spinner.js';
+export { Separator } from './components/Separator.js';
+export type { SeparatorProps } from './components/Separator.js';
 export {
   Card,
   CardHeader,
@@ -26,7 +26,7 @@ export {
   CardContent,
   CardFooter,
   cardVariants,
-} from './components/Card';
+} from './components/Card.js';
 export type {
   CardProps,
   CardHeaderProps,
@@ -34,14 +34,14 @@ export type {
   CardDescriptionProps,
   CardContentProps,
   CardFooterProps,
-} from './components/Card';
-export { Avatar, AvatarImage, AvatarFallback, AvatarGroup } from './components/Avatar';
+} from './components/Card.js';
+export { Avatar, AvatarImage, AvatarFallback, AvatarGroup } from './components/Avatar.js';
 export type {
   AvatarProps,
   AvatarImageProps,
   AvatarFallbackProps,
   AvatarGroupProps,
-} from './components/Avatar';
+} from './components/Avatar.js';
 export {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -50,7 +50,7 @@ export {
   DropdownMenuSeparator,
   DropdownMenuLabel,
   DropdownMenuGroup,
-} from './components/DropdownMenu';
+} from './components/DropdownMenu.js';
 export type {
   DropdownMenuProps,
   DropdownMenuTriggerProps,
@@ -59,7 +59,7 @@ export type {
   DropdownMenuSeparatorProps,
   DropdownMenuLabelProps,
   DropdownMenuGroupProps,
-} from './components/DropdownMenu';
+} from './components/DropdownMenu.js';
 export {
   Popover,
   PopoverTrigger,
@@ -67,7 +67,7 @@ export {
   PopoverTitle,
   PopoverDescription,
   PopoverClose,
-} from './components/Popover';
+} from './components/Popover.js';
 export type {
   PopoverProps,
   PopoverTriggerProps,
@@ -75,7 +75,7 @@ export type {
   PopoverTitleProps,
   PopoverDescriptionProps,
   PopoverCloseProps,
-} from './components/Popover';
+} from './components/Popover.js';
 export {
   Select,
   SelectTrigger,
@@ -85,7 +85,7 @@ export {
   SelectGroup,
   SelectLabel,
   SelectSeparator,
-} from './components/Select';
+} from './components/Select.js';
 export type {
   SelectProps,
   SelectTriggerProps,
@@ -95,7 +95,7 @@ export type {
   SelectGroupProps,
   SelectLabelProps,
   SelectSeparatorProps,
-} from './components/Select';
+} from './components/Select.js';
 export {
   Combobox,
   ComboboxControl,
@@ -112,7 +112,7 @@ export {
   ComboboxGroup,
   ComboboxGroupLabel,
   ComboboxSeparator,
-} from './components/Combobox';
+} from './components/Combobox.js';
 export type {
   ComboboxProps,
   ComboboxControlProps,
@@ -129,7 +129,7 @@ export type {
   ComboboxGroupProps,
   ComboboxGroupLabelProps,
   ComboboxSeparatorProps,
-} from './components/Combobox';
+} from './components/Combobox.js';
 export {
   Sheet,
   SheetTrigger,
@@ -140,7 +140,7 @@ export {
   SheetFooter,
   SheetClose,
   sheetVariants,
-} from './components/Sheet';
+} from './components/Sheet.js';
 export type {
   SheetProps,
   SheetTriggerProps,
@@ -150,7 +150,7 @@ export type {
   SheetDescriptionProps,
   SheetFooterProps,
   SheetCloseProps,
-} from './components/Sheet';
+} from './components/Sheet.js';
 export {
   SidePanel,
   SidePanelTrigger,
@@ -160,7 +160,7 @@ export {
   SidePanelDescription,
   SidePanelFooter,
   SidePanelClose,
-} from './components/SidePanel';
+} from './components/SidePanel.js';
 export type {
   SidePanelProps,
   SidePanelMode,
@@ -171,7 +171,7 @@ export type {
   SidePanelDescriptionProps,
   SidePanelFooterProps,
   SidePanelCloseProps,
-} from './components/SidePanel';
+} from './components/SidePanel.js';
 export {
   Dialog,
   DialogTrigger,
@@ -181,7 +181,7 @@ export {
   DialogDescription,
   DialogFooter,
   DialogClose,
-} from './components/Dialog';
+} from './components/Dialog.js';
 export type {
   DialogProps,
   DialogTriggerProps,
@@ -191,7 +191,7 @@ export type {
   DialogDescriptionProps,
   DialogFooterProps,
   DialogCloseProps,
-} from './components/Dialog';
+} from './components/Dialog.js';
 export {
   AlertDialog,
   AlertDialogTrigger,
@@ -202,7 +202,7 @@ export {
   AlertDialogFooter,
   AlertDialogAction,
   AlertDialogCancel,
-} from './components/AlertDialog';
+} from './components/AlertDialog.js';
 export type {
   AlertDialogProps,
   AlertDialogTriggerProps,
@@ -213,16 +213,16 @@ export type {
   AlertDialogFooterProps,
   AlertDialogActionProps,
   AlertDialogCancelProps,
-} from './components/AlertDialog';
-export { Checkbox } from './components/Checkbox';
-export type { CheckboxProps } from './components/Checkbox';
-export { Switch } from './components/Switch';
-export type { SwitchProps } from './components/Switch';
-export { RadioGroup, RadioGroupItem } from './components/RadioGroup';
-export type { RadioGroupProps, RadioGroupItemProps } from './components/RadioGroup';
-export { ToggleGroup, ToggleGroupItem } from './components/ToggleGroup';
-export type { ToggleGroupProps, ToggleGroupItemProps } from './components/ToggleGroup';
-export { ToastProvider, Toaster, useToast } from './components/Toast';
+} from './components/AlertDialog.js';
+export { Checkbox } from './components/Checkbox.js';
+export type { CheckboxProps } from './components/Checkbox.js';
+export { Switch } from './components/Switch.js';
+export type { SwitchProps } from './components/Switch.js';
+export { RadioGroup, RadioGroupItem } from './components/RadioGroup.js';
+export type { RadioGroupProps, RadioGroupItemProps } from './components/RadioGroup.js';
+export { ToggleGroup, ToggleGroupItem } from './components/ToggleGroup.js';
+export type { ToggleGroupProps, ToggleGroupItemProps } from './components/ToggleGroup.js';
+export { ToastProvider, Toaster, useToast } from './components/Toast.js';
 export type {
   ToastProviderProps,
   ToasterProps,
@@ -230,7 +230,7 @@ export type {
   ToastOptions,
   ToastVariant,
   UseToastReturnValue,
-} from './components/Toast';
-export { LanguagesIcon } from './icons/LanguagesIcon';
-export type { LanguagesIconProps } from './icons/LanguagesIcon';
-export { cn } from './lib/cn';
+} from './components/Toast.js';
+export { LanguagesIcon } from './icons/LanguagesIcon.js';
+export type { LanguagesIconProps } from './icons/LanguagesIcon.js';
+export { cn } from './lib/cn.js';

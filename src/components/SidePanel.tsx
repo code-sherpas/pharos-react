@@ -20,8 +20,8 @@ import { useRender } from '@base-ui/react/use-render';
 import { mergeProps } from '@base-ui/react/merge-props';
 import { tokens } from '@code-sherpas/pharos-tokens';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../lib/cn';
-import { Sheet, SheetContent } from './Sheet';
+import { cn } from '../lib/cn.js';
+import { Sheet, SheetContent } from './Sheet.js';
 import sheetStyles from './Sheet.module.css';
 import styles from './SidePanel.module.css';
 

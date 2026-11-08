@@ -8,8 +8,8 @@ import {
   DialogDescription,
   DialogFooter,
   DialogClose,
-} from './Dialog';
-import { Button } from './Button';
+} from './Dialog.js';
+import { Button } from './Button.js';
 
 /**
  * `Dialog` is a **centered** modal panel (Decision D19). It wraps Base UI's

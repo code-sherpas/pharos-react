@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { LanguagesIcon } from './LanguagesIcon';
-import { IconButton } from '../components/IconButton';
-import { Badge } from '../components/Badge';
+import { LanguagesIcon } from './LanguagesIcon.js';
+import { IconButton } from '../components/IconButton.js';
+import { Badge } from '../components/Badge.js';
 
 const meta: Meta<typeof LanguagesIcon> = {
   title: 'Icons/LanguagesIcon',

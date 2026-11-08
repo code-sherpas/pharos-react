@@ -28,7 +28,7 @@ import {
   type Ref,
 } from 'react';
 import { useRender } from '@base-ui/react/use-render';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 import styles from './Avatar.module.css';
 
 /**

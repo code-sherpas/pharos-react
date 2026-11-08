@@ -8,9 +8,9 @@ import {
   type ReactNode,
 } from 'react';
 import { Toast as BaseToast } from '@base-ui/react/toast';
-import { cn } from '../lib/cn';
-import { Button } from './Button';
-import { IconButton } from './IconButton';
+import { cn } from '../lib/cn.js';
+import { Button } from './Button.js';
+import { IconButton } from './IconButton.js';
 import styles from './Toast.module.css';
 
 /**

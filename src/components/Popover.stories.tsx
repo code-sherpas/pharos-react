@@ -6,10 +6,10 @@ import {
   PopoverTitle,
   PopoverDescription,
   PopoverClose,
-} from './Popover';
-import { Button } from './Button';
-import { IconButton } from './IconButton';
-import { Separator } from './Separator';
+} from './Popover.js';
+import { Button } from './Button.js';
+import { IconButton } from './IconButton.js';
+import { Separator } from './Separator.js';
 
 /* Inline SVGs in the shape Lucide ships (24x24 viewBox, currentColor).
  * Pharos demos do not pull Lucide as a peer dep just for stories (D4

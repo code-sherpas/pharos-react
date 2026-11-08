@@ -1,7 +1,7 @@
 import { Fragment } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Spinner } from './Spinner';
-import { Button } from './Button';
+import { Spinner } from './Spinner.js';
+import { Button } from './Button.js';
 
 const SIZES = ['sm', 'md', 'lg'] as const;
 

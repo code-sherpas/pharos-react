@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Checkbox } from './Checkbox';
+import { Checkbox } from './Checkbox.js';
 
 /**
  * `Checkbox` is a single square control (Decision D20). It wraps Base UI's

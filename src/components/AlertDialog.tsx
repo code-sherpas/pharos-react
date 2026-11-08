@@ -11,9 +11,9 @@ import {
   type RefObject,
 } from 'react';
 import { AlertDialog as BaseAlertDialog } from '@base-ui/react/alert-dialog';
-import { Button, type ButtonProps } from './Button';
-import { Spinner } from './Spinner';
-import { cn } from '../lib/cn';
+import { Button, type ButtonProps } from './Button.js';
+import { Spinner } from './Spinner.js';
+import { cn } from '../lib/cn.js';
 // Same look as Dialog (decision 9 of the AlertDialog task: no new tokens, the
 // appearance is Dialog's). One stylesheet for both keeps them from drifting.
 import styles from './Dialog.module.css';

@@ -239,19 +239,32 @@ the swap PR opens.
 
 ## Build outputs
 
-`pnpm build` (Vite library mode + `pnpm verify:dist-types`) generates:
+`pnpm build` (Vite library mode + `pnpm verify:dist-types` + `pnpm verify:dist-rsc`)
+generates:
 
-- `dist/index.js` — ESM barrel.
-- `dist/index.d.ts` — per-file types rolled to a single barrel via
-  `tsconfig.build.json`.
+- `dist/index.js` — ESM barrel, plus one file per component under
+  `dist/components/` (per-component subpaths in `exports`).
+- `dist/index.d.ts` — the barrel's types, with one `.d.ts` per source file
+  emitted through `tsconfig.build.json` (which extends `tsconfig.src.json`).
 - `dist/styles.css` — bundled CSS Modules of every component (hashed class
   names like `Button_button__a3f2`). Consumers import it once at their
   entry point.
 - `dist/*.map` — source maps.
 
-`prepublishOnly` runs the same script so a release cannot ship without the
-type smoke check (`tests/dist-types-smoke.ts`) passing. See `fix/dts-rollup-empty`
-PR for the rationale.
+`prepublishOnly` runs the same script, so a release cannot ship unless
+`verify:dist-types` passes: `scripts/verify-dist-types.sh` packs the tarball,
+installs it into a throwaway project and compiles `tests/dist-types/consumer.ts`
+plus every subpath of `exports` **by package name**, with `skipLibCheck: false`,
+in `moduleResolution` `bundler`, `node16` and `nodenext`, failing too if a symbol
+arrives as `any`. It guards the empty barrel of 0.2.1 (`fix/dts-rollup-empty`)
+and the extensionless `.d.ts` imports of 0.2.2–3.0.2 that node16/nodenext
+consumers rejected (TS2835).
+
+**Relative imports in `src/` carry the `.js` extension** (`from './Button.js'`),
+as ESM requires: the `.d.ts` copy them verbatim. `tsconfig.src.json` checks
+`src/` with `module`/`moduleResolution: NodeNext`, so an import without it fails
+`pnpm typecheck` (TS2835). `tsconfig.json` stays on `Bundler` for the tests and
+the Vite/Vitest configs, which are never published.
 
 Externals: `react`, `react-dom`, `react/jsx-runtime`,
 `@code-sherpas/pharos-tokens` (and subpaths), `@base-ui/react`.
@@ -317,7 +330,7 @@ Skeleton (with both files side by side under `src/components/`):
 ```tsx
 // Button.tsx
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '../lib/cn';
+import { cn } from '../lib/cn.js';
 import styles from './Button.module.css';
 
 const buttonVariants = cva(styles.button, {
@@ -381,9 +394,11 @@ This repo has `.mcp.json` with: `context7`, `github`, `shadcn`, `notion`.
 - `pnpm test:storybook` — story a11y (axe) in a real Chromium (needs Playwright).
 - `pnpm test:e2e` — Playwright e2e over the consumer harness (run `pnpm build` first).
 - `pnpm dev:demo` — run the `examples/saas-demo` app locally (Vite dev).
-- `pnpm typecheck` — `tsc --noEmit`.
-- `pnpm verify:dist-types` — smoke-check the published `.d.ts` exposes
-  every public symbol (regression guard for `dist/index.d.ts`).
+- `pnpm typecheck` — `tsc --noEmit` (Bundler: src, tests, configs) and
+  `tsc --noEmit -p tsconfig.src.json` (NodeNext: src as published).
+- `pnpm verify:dist-types` — compile a consumer of the packed tarball, by
+  package name, in bundler/node16/nodenext with `skipLibCheck: false` (needs
+  `dist/`).
 - `pnpm lint` — ESLint.
 - `pnpm format` / `pnpm format:check` — Prettier.
 - `pnpm changeset` — create a changeset.

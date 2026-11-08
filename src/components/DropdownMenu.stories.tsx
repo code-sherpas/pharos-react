@@ -7,9 +7,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuLabel,
   DropdownMenuGroup,
-} from './DropdownMenu';
-import { Button } from './Button';
-import { IconButton } from './IconButton';
+} from './DropdownMenu.js';
+import { Button } from './Button.js';
+import { IconButton } from './IconButton.js';
 
 /* Inline SVGs in the shape Lucide ships (24x24 viewBox, currentColor).
  * Pharos demos do not pull Lucide as a peer dep just for stories (D4

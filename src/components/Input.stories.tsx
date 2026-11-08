@@ -1,6 +1,6 @@
 import { Fragment } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { Input } from './Input';
+import { Input } from './Input.js';
 
 const SIZES = ['sm', 'md', 'lg'] as const;
 const STATES = ['default', 'disabled', 'readonly', 'invalid'] as const;

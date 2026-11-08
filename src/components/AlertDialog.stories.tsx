@@ -10,8 +10,8 @@ import {
   AlertDialogFooter,
   AlertDialogAction,
   AlertDialogCancel,
-} from './AlertDialog';
-import { Button } from './Button';
+} from './AlertDialog.js';
+import { Button } from './Button.js';
 
 /**
  * `AlertDialog` asks for explicit permission before an action. It wraps Base
