@@ -79,6 +79,8 @@ interface SidePanelContextValue {
   openRef: RefObject<boolean>;
   /** Where focus goes back when the panel closes. */
   returnFocusTarget: () => HTMLElement | null;
+  /** The modal Sheet asks to open or close; only closing reaches the state. */
+  closeFromModal: (open: boolean) => void;
 }
 
 const SidePanelContext = createContext<SidePanelContextValue | null>(null);
@@ -242,6 +244,13 @@ export function SidePanel({
     [open, mode, returnFocusTarget],
   );
 
+  const closeFromModal = useCallback(
+    function closeFromModal(next: boolean) {
+      if (!next) setOpen(false);
+    },
+    [setOpen],
+  );
+
   const baseId = useId();
   const [hasTitle, setHasTitle] = useState(false);
   const [hasDescription, setHasDescription] = useState(false);
@@ -263,25 +272,15 @@ export function SidePanel({
       focusOnShowRef,
       openRef,
       returnFocusTarget,
+      closeFromModal,
     }),
-    [open, mode, setOpen, baseId, hasTitle, hasDescription, returnFocusTarget],
+    [open, mode, setOpen, baseId, hasTitle, hasDescription, returnFocusTarget, closeFromModal],
   );
 
-  const handleModalOpenChange = useCallback(
-    function handleModalOpenChange(next: boolean) {
-      if (!next) setOpen(false);
-    },
-    [setOpen],
-  );
-
-  return (
-    <SidePanelContext.Provider value={context}>
-      {/* The modal surface is Pharos' Sheet; it only opens below the breakpoint. */}
-      <Sheet open={open && mode === 'modal'} onOpenChange={handleModalOpenChange}>
-        {children}
-      </Sheet>
-    </SidePanelContext.Provider>
-  );
+  // No dialog root here: the content beside the panel is not inside any
+  // dialog, so a Sheet, Dialog or AlertDialog opened from it is a modal of its
+  // own, with its backdrop. Only the modal form of SidePanelContent is one.
+  return <SidePanelContext.Provider value={context}>{children}</SidePanelContext.Provider>;
 }
 
 SidePanel.displayName = 'SidePanel';
@@ -419,26 +418,29 @@ export function SidePanelContent({
   };
 
   if (context.mode === 'modal') {
+    // The modal surface is Pharos' Sheet, and its root wraps only the panel.
     return (
-      <SheetContent
-        side={resolvedSide}
-        id={context.contentId}
-        ref={context.contentRef as RefObject<HTMLDivElement | null>}
-        initialFocus={initialFocus}
-        finalFocus={function returnFocusOnClose() {
-          // Still open means the breakpoint swapped the surface: the inline
-          // panel takes focus instead of the trigger.
-          return context.openRef.current ? false : context.returnFocusTarget();
-        }}
-        {...labelling}
-        {...rest}
-        onKeyDown={onKeyDown}
-        data-pharos-slot="side-panel-content"
-        data-pharos-mode="modal"
-        className={className}
-      >
-        {children}
-      </SheetContent>
+      <Sheet open={context.open} onOpenChange={context.closeFromModal}>
+        <SheetContent
+          side={resolvedSide}
+          id={context.contentId}
+          ref={context.contentRef as RefObject<HTMLDivElement | null>}
+          initialFocus={initialFocus}
+          finalFocus={function returnFocusOnClose() {
+            // Still open means the breakpoint swapped the surface: the inline
+            // panel takes focus instead of the trigger.
+            return context.openRef.current ? false : context.returnFocusTarget();
+          }}
+          {...labelling}
+          {...rest}
+          onKeyDown={onKeyDown}
+          data-pharos-slot="side-panel-content"
+          data-pharos-mode="modal"
+          className={className}
+        >
+          {children}
+        </SheetContent>
+      </Sheet>
     );
   }
 

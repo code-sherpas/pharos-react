@@ -19,6 +19,11 @@ import {
   SelectContent,
   SelectItem,
 } from '../src/components/Select';
+import { Sheet, SheetContent, SheetTitle } from '../src/components/Sheet';
+import { Dialog, DialogContent, DialogTitle } from '../src/components/Dialog';
+import { AlertDialog, AlertDialogContent, AlertDialogTitle } from '../src/components/AlertDialog';
+import sheetStyles from '../src/components/Sheet.module.css';
+import dialogStyles from '../src/components/Dialog.module.css';
 
 /**
  * jsdom has no `matchMedia`, so the viewport is a double: the smallest one
@@ -446,4 +451,92 @@ describe('SidePanel — crossing the breakpoint while open', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     await waitFor(() => expect(panel).toContainElement(document.activeElement as HTMLElement));
   });
+});
+
+/**
+ * A page that wraps its report in a SidePanel and opens an overlay from the
+ * report: the overlay is a modal of its own, not one nested in the panel.
+ */
+const overlays = [
+  {
+    name: 'Sheet',
+    backdropClass: sheetStyles.backdrop,
+    render: function OpenSheet() {
+      return (
+        <Sheet open>
+          <SheetContent>
+            <SheetTitle>Filters</SheetTitle>
+            <button type="button">Apply</button>
+          </SheetContent>
+        </Sheet>
+      );
+    },
+  },
+  {
+    name: 'Dialog',
+    backdropClass: dialogStyles.backdrop,
+    render: function OpenDialog() {
+      return (
+        <Dialog open>
+          <DialogContent>
+            <DialogTitle>Filters</DialogTitle>
+            <button type="button">Apply</button>
+          </DialogContent>
+        </Dialog>
+      );
+    },
+  },
+  {
+    name: 'AlertDialog',
+    backdropClass: dialogStyles.backdrop,
+    render: function OpenAlertDialog() {
+      return (
+        <AlertDialog open>
+          <AlertDialogContent>
+            <AlertDialogTitle>Filters</AlertDialogTitle>
+            <button type="button">Apply</button>
+          </AlertDialogContent>
+        </AlertDialog>
+      );
+    },
+  },
+] as const;
+
+const layouts = [
+  { viewportName: 'wide', wide: true, panelOpen: false },
+  { viewportName: 'wide', wide: true, panelOpen: true },
+  { viewportName: 'narrow', wide: false, panelOpen: false },
+  { viewportName: 'narrow', wide: false, panelOpen: true },
+] as const;
+
+describe('SidePanel — an overlay opened from the content beside it', () => {
+  for (const overlay of overlays) {
+    for (const layout of layouts) {
+      it(`a ${overlay.name} dims the page (${layout.viewportName}, panel ${
+        layout.panelOpen ? 'open' : 'closed'
+      })`, () => {
+        viewport(layout.wide);
+        const Overlay = overlay.render;
+        render(
+          <div>
+            <SidePanel defaultOpen={layout.panelOpen}>
+              <main>
+                <Overlay />
+              </main>
+              <SidePanelContent>
+                <SidePanelTitle>New action</SidePanelTitle>
+              </SidePanelContent>
+            </SidePanel>
+          </div>,
+        );
+
+        const title = screen.getByText('Filters');
+        const popup = title.closest('[role="dialog"], [role="alertdialog"]') as HTMLElement;
+        expect(popup).not.toHaveAttribute('data-nested');
+        // The overlay's own backdrop, in its own portal beside its popup.
+        const portal = popup.parentElement as HTMLElement;
+        expect(portal.querySelector(`.${overlay.backdropClass}`)).not.toBeNull();
+      });
+    }
+  }
 });

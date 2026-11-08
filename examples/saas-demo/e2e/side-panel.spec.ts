@@ -1,5 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { signIn } from './helpers';
+import { layerAtTheCorner, layerOf, signIn } from './helpers';
 
 // The SidePanel on the Report page: a form that adds an action to the
 // coaching plan. From the panel breakpoint (64rem) up it sits beside the
@@ -206,5 +206,54 @@ test.describe('SidePanel crossing the breakpoint while open', () => {
         }),
       )
       .toBe(true);
+  });
+});
+
+// A modal opened from the report is a modal of its own, not one nested in the
+// SidePanel: it dims the whole page with its backdrop, wherever the panel is.
+// What paints at the top-left corner (over the top bar) is a translucent
+// layer outside the app, on the dialog's modal layer — not the page itself.
+const scoring = (page: Page) => page.getByRole('dialog', { name: 'How it was scored' });
+
+async function expectPageDimmedBy(page: Page, dialog: ReturnType<typeof scoring>) {
+  await expect(dialog).toBeVisible();
+  await expect
+    .poll(function readCorner() {
+      return page.evaluate(function isCornerDimmed() {
+        const corner = document.elementFromPoint(1, 1);
+        if (corner === null || document.getElementById('root')!.contains(corner)) return false;
+        const style = getComputedStyle(corner);
+        // Faded in, and painting a colour over the page.
+        return style.opacity === '1' && style.backgroundColor !== 'rgba(0, 0, 0, 0)';
+      });
+    })
+    .toBe(true);
+  expect(await layerAtTheCorner(page)).toBe(await layerOf(dialog));
+}
+
+async function openScoring(page: Page) {
+  await page.getByRole('button', { name: 'How it was scored' }).click();
+  await expectPageDimmedBy(page, scoring(page));
+  await page.getByRole('button', { name: 'Close' }).click();
+  await expect(scoring(page)).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'How it was scored' })).toBeFocused();
+}
+
+test.describe('A dialog opened from the report dims the page', () => {
+  test('on a wide screen, with the panel closed and open', async ({ page }) => {
+    await page.setViewportSize(WIDE);
+    await openReport(page);
+    await openScoring(page);
+
+    await trigger(page).click();
+    await expect(inlinePanel(page)).toBeVisible();
+    await openScoring(page);
+    await expect(inlinePanel(page)).toBeVisible();
+  });
+
+  test('on a narrow screen', async ({ page }) => {
+    await page.setViewportSize(NARROW);
+    await openReport(page);
+    await openScoring(page);
   });
 });

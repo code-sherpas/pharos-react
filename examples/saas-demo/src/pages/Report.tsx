@@ -3,6 +3,14 @@ import {
   Button,
   Card,
   Checkbox,
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
   Input,
   Select,
   SelectContent,
@@ -40,7 +48,9 @@ const EMPTY_DRAFT = { name: '', priority: 'medium' as Priority, notes: '' };
  * narrow one the same panel opens as the modal Sheet. The draft lives here, in
  * the page, so it survives the panel switching form when the window crosses
  * the breakpoint — the panel unmounts its content, keeping it is the
- * consumer's job.
+ * consumer's job. A Dialog opened from the report («How it was scored») is a
+ * modal of its own, not one nested in the panel: it dims the page with its
+ * backdrop, beside the panel open or closed.
  */
 export function ReportPage() {
   const [actions, setActions] = useState<Action[]>([
@@ -84,6 +94,27 @@ export function ReportPage() {
               />
               Reviewed
             </label>
+            <Dialog>
+              <DialogTrigger
+                render={
+                  <Button size="sm" intent="secondary" className="report-scoring">
+                    How it was scored
+                  </Button>
+                }
+              />
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>How it was scored</DialogTitle>
+                  <DialogDescription>
+                    Each goal counts as met when the team reached its target by the end of the
+                    quarter.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <DialogClose render={<Button intent="ghost">Close</Button>} />
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </Card>
           <Card className="report-card">
             <h2>Coaching plan</h2>
