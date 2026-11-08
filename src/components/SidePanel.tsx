@@ -417,44 +417,51 @@ export function SidePanelContent({
     'aria-describedby': context.hasDescription ? context.descriptionId : undefined,
   };
 
-  if (context.mode === 'modal') {
-    // The modal surface is Pharos' Sheet, and its root wraps only the panel.
-    return (
-      <Sheet open={context.open} onOpenChange={context.closeFromModal}>
-        <SheetContent
+  const modal = context.mode === 'modal';
+
+  // The modal surface is Pharos' Sheet. Its root wraps only that surface, so
+  // nothing beside the panel, nor the inline panel, is inside a dialog. It
+  // stays mounted in both forms, closed while inline, so crossing the
+  // breakpoint into the modal form opens it — and it slides in — instead of
+  // mounting it already open.
+  return (
+    <>
+      <Sheet open={context.open && modal} onOpenChange={context.closeFromModal}>
+        {modal ? (
+          <SheetContent
+            side={resolvedSide}
+            id={context.contentId}
+            ref={context.contentRef as RefObject<HTMLDivElement | null>}
+            initialFocus={initialFocus}
+            finalFocus={function returnFocusOnClose() {
+              // Still open means the breakpoint swapped the surface: the inline
+              // panel takes focus instead of the trigger.
+              return context.openRef.current ? false : context.returnFocusTarget();
+            }}
+            {...labelling}
+            {...rest}
+            onKeyDown={onKeyDown}
+            data-pharos-slot="side-panel-content"
+            data-pharos-mode="modal"
+            className={className}
+          >
+            {children}
+          </SheetContent>
+        ) : null}
+      </Sheet>
+      {modal ? null : (
+        <InlineSurface
           side={resolvedSide}
-          id={context.contentId}
-          ref={context.contentRef as RefObject<HTMLDivElement | null>}
           initialFocus={initialFocus}
-          finalFocus={function returnFocusOnClose() {
-            // Still open means the breakpoint swapped the surface: the inline
-            // panel takes focus instead of the trigger.
-            return context.openRef.current ? false : context.returnFocusTarget();
-          }}
-          {...labelling}
-          {...rest}
-          onKeyDown={onKeyDown}
-          data-pharos-slot="side-panel-content"
-          data-pharos-mode="modal"
           className={className}
+          onKeyDown={onKeyDown}
+          labelling={labelling}
+          rest={rest}
         >
           {children}
-        </SheetContent>
-      </Sheet>
-    );
-  }
-
-  return (
-    <InlineSurface
-      side={resolvedSide}
-      initialFocus={initialFocus}
-      className={className}
-      onKeyDown={onKeyDown}
-      labelling={labelling}
-      rest={rest}
-    >
-      {children}
-    </InlineSurface>
+        </InlineSurface>
+      )}
+    </>
   );
 }
 
