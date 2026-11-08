@@ -233,6 +233,11 @@ body {
   gap: var(--pharos-spacing-2, 0.5rem);
 }
 
+/* A button in the card's column, as wide as its label. */
+.report-scoring {
+  align-self: flex-start;
+}
+
 .report-actions {
   margin: 0;
   padding-left: var(--pharos-spacing-4, 1rem);
