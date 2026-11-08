@@ -207,6 +207,27 @@ test.describe('SidePanel crossing the breakpoint while open', () => {
       )
       .toBe(true);
   });
+
+  // The modal form opens as a Sheet does when the window narrows: it slides
+  // in from its edge, rather than appearing already in place.
+  test('slides in as the modal Sheet when the window narrows', async ({ page }) => {
+    await openReport(page);
+    await trigger(page).click();
+    await expect(inlinePanel(page)).toBeVisible();
+
+    await page.setViewportSize(NARROW);
+    const firstFrame = await modalPanel(page).evaluate(function readTransform(panel) {
+      return getComputedStyle(panel).transform;
+    });
+    expect(firstFrame).not.toBe('none');
+    await expect
+      .poll(() =>
+        modalPanel(page).evaluate(function readTransform(panel) {
+          return getComputedStyle(panel).transform;
+        }),
+      )
+      .toBe('none');
+  });
 });
 
 // A modal opened from the report is a modal of its own, not one nested in the
