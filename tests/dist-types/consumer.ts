@@ -1,21 +1,24 @@
-// Regression guard for the published artifact's public surface.
+// What a consumer's TypeScript sees of the published package.
 //
-// Originally added for the empty-barrel bug (fix/dts-rollup-empty), where
-// `dist/index.d.ts` shipped as a 12-byte `export {}` and consumers got
-// "Module has no exported member 'Button'" at typecheck time even though the
-// runtime JS exported everything. `pnpm typecheck` only checks `src/`, never
-// the built artifact, so the bug was silent.
+// `scripts/verify-dist-types.sh` (`pnpm verify:dist-types`, run by
+// `pnpm build`, so by CI, the release and `prepublishOnly`) packs the tarball,
+// installs it into a throwaway project and compiles this file there by package
+// name, with `skipLibCheck: false`, in `moduleResolution` `bundler`, `node16`
+// and `nodenext`. It is never compiled against `dist/` by relative path: that
+// skips the `exports` map and the tarball's file list, which are what a
+// consumer installs.
 //
-// Extended for #80 (per-component RSC build): the library now ships one file
-// per atom (`dist/components/Button.js`) with per-file `"use client"`, plus an
-// additive deep-import subpath per component in `package.json` `exports`. This
-// file asserts, against the BUILT `dist/`, that
-//   (1) every public symbol still resolves from the barrel (surface unchanged),
-//   (2) every deep-import subpath resolves WITH types.
-// Any release that drops a barrel export or breaks a subpath fails
-// `pnpm verify:dist-types` — which runs in `prepublishOnly` and CI, so the
-// regression cannot ship. Directive placement + single-CSS bundle are checked
-// separately by `scripts/verify-dist-rsc.mjs` (`pnpm verify:dist-rsc`).
+// It guards, in the order they cost a release:
+//   - the empty barrel of 0.2.1 (fix/dts-rollup-empty): `dist/index.d.ts`
+//     shipped as `export {}` and every named import failed;
+//   - #80: every deep-import subpath resolves with its types (the script also
+//     imports every subpath of `exports`, read from `package.json`, so a new
+//     one is covered without editing this file);
+//   - 0.2.2 to 3.0.2: the `.d.ts` imported each other without a file
+//     extension, which node16/nodenext reject (TS2835) and which, with
+//     `skipLibCheck: true`, left the whole barrel typed as `any`. The
+//     `@ts-expect-error` lines below fail the check if a symbol arrives as
+//     `any` again, whatever the cause.
 
 // (1) Full public surface, from the barrel.
 import {
@@ -118,7 +121,7 @@ import {
   type ToastOptions,
   type ToastProviderProps,
   type UseToastReturnValue,
-} from '../dist/index.js';
+} from '@code-sherpas/pharos-react';
 
 // (2) Deep-import subpaths (#80): each component's primary symbol (and a type
 // for a representative one), resolved from its own subpath, proving the
@@ -126,35 +129,38 @@ import {
 import {
   Button as ButtonDeep,
   type ButtonProps as ButtonPropsDeep,
-} from '../dist/components/Button.js';
-import { IconButton as IconButtonDeep } from '../dist/components/IconButton.js';
-import { Badge as BadgeDeep } from '../dist/components/Badge.js';
-import { Input as InputDeep } from '../dist/components/Input.js';
-import { Textarea as TextareaDeep } from '../dist/components/Textarea.js';
-import { Spinner as SpinnerDeep } from '../dist/components/Spinner.js';
-import { Separator as SeparatorDeep } from '../dist/components/Separator.js';
-import { LanguagesIcon as LanguagesIconDeep } from '../dist/icons/LanguagesIcon.js';
-import { Card as CardDeep } from '../dist/components/Card.js';
-import { Avatar as AvatarDeep } from '../dist/components/Avatar.js';
-import { DropdownMenu as DropdownMenuDeep } from '../dist/components/DropdownMenu.js';
-import { Popover as PopoverDeep } from '../dist/components/Popover.js';
-import { Select as SelectDeep } from '../dist/components/Select.js';
-import { Combobox as ComboboxDeep } from '../dist/components/Combobox.js';
-import { Sheet as SheetDeep } from '../dist/components/Sheet.js';
-import { SidePanel as SidePanelDeep } from '../dist/components/SidePanel.js';
-import { Dialog as DialogDeep } from '../dist/components/Dialog.js';
-import { AlertDialog as AlertDialogDeep } from '../dist/components/AlertDialog.js';
-import { Checkbox as CheckboxDeep } from '../dist/components/Checkbox.js';
-import { Switch as SwitchDeep } from '../dist/components/Switch.js';
+} from '@code-sherpas/pharos-react/Button';
+import { IconButton as IconButtonDeep } from '@code-sherpas/pharos-react/IconButton';
+import { Badge as BadgeDeep } from '@code-sherpas/pharos-react/Badge';
+import { Input as InputDeep } from '@code-sherpas/pharos-react/Input';
+import { Textarea as TextareaDeep } from '@code-sherpas/pharos-react/Textarea';
+import { Spinner as SpinnerDeep } from '@code-sherpas/pharos-react/Spinner';
+import { Separator as SeparatorDeep } from '@code-sherpas/pharos-react/Separator';
+import { LanguagesIcon as LanguagesIconDeep } from '@code-sherpas/pharos-react/LanguagesIcon';
+import { Card as CardDeep } from '@code-sherpas/pharos-react/Card';
+import { Avatar as AvatarDeep } from '@code-sherpas/pharos-react/Avatar';
+import { DropdownMenu as DropdownMenuDeep } from '@code-sherpas/pharos-react/DropdownMenu';
+import { Popover as PopoverDeep } from '@code-sherpas/pharos-react/Popover';
+import { Select as SelectDeep } from '@code-sherpas/pharos-react/Select';
+import { Combobox as ComboboxDeep } from '@code-sherpas/pharos-react/Combobox';
+import { Sheet as SheetDeep } from '@code-sherpas/pharos-react/Sheet';
+import { SidePanel as SidePanelDeep } from '@code-sherpas/pharos-react/SidePanel';
+import { Dialog as DialogDeep } from '@code-sherpas/pharos-react/Dialog';
+import {
+  AlertDialog as AlertDialogDeep,
+  type AlertDialogActionProps as AlertDialogActionPropsDeep,
+} from '@code-sherpas/pharos-react/AlertDialog';
+import { Checkbox as CheckboxDeep } from '@code-sherpas/pharos-react/Checkbox';
+import { Switch as SwitchDeep } from '@code-sherpas/pharos-react/Switch';
 import {
   RadioGroup as RadioGroupDeep,
   RadioGroupItem as RadioGroupItemDeep,
-} from '../dist/components/RadioGroup.js';
-import { Toaster as ToasterDeep } from '../dist/components/Toast.js';
+} from '@code-sherpas/pharos-react/RadioGroup';
+import { Toaster as ToasterDeep } from '@code-sherpas/pharos-react/Toast';
 import {
   ToggleGroup as ToggleGroupDeep,
   ToggleGroupItem as ToggleGroupItemDeep,
-} from '../dist/components/ToggleGroup.js';
+} from '@code-sherpas/pharos-react/ToggleGroup';
 
 // A couple of representative typed prop checks (surface shape, not just names).
 const _buttonProps: ButtonProps = { intent: 'primary', size: 'md' };
@@ -173,6 +179,22 @@ const _toasterProps: ToasterProps = {
 const _toastOptions: ToastOptions = { title: 'Saved', variant: 'success' };
 const _alertDialogActionProps: AlertDialogActionProps = { intent: 'destructive' };
 const _buttonPropsDeep: ButtonPropsDeep = { intent: 'secondary' };
+
+// A symbol typed as `any` accepts anything, so each line below stops being an
+// error and its `@ts-expect-error` fails the check (TS2578): the barrel, a
+// subpath, and a type one subpath's `.d.ts` imports from another.
+// @ts-expect-error -- `Button` is a component, not a number.
+const _buttonIsNotAny: number = Button;
+// @ts-expect-error -- `Sheet` from the barrel is a component, not a number.
+const _sheetIsNotAny: number = Sheet;
+// @ts-expect-error -- `SidePanel` from its subpath is a component, not a number.
+const _sidePanelDeepIsNotAny: number = SidePanelDeep;
+// The AlertDialog subpath takes `ButtonProps` from `./Button`, whose intents
+// are a closed set.
+const _alertDialogActionDeepIntentIsChecked: AlertDialogActionPropsDeep = {
+  // @ts-expect-error -- not one of the intents.
+  intent: 'not-an-intent',
+};
 
 // Type-level presence guard for the remaining public prop types (referencing
 // each here counts as a use, so `noUnusedLocals` / no-unused-vars pass while
@@ -200,6 +222,10 @@ export type _PublicPropTypes = [
 
 // Touch every binding so nothing is flagged as unused (surface presence check).
 export const _smoke = [
+  _buttonIsNotAny,
+  _sheetIsNotAny,
+  _sidePanelDeepIsNotAny,
+  _alertDialogActionDeepIntentIsChecked,
   Button,
   buttonVariants,
   IconButton,

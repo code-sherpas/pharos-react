@@ -148,7 +148,7 @@
     "test:e2e": "pnpm --filter @examples/saas-demo test:e2e",
     "dev:demo": "bash scripts/check-node-version.sh && pnpm --filter @examples/saas-demo dev",
     "typecheck": "tsc --noEmit",
-    "verify:dist-types": "tsc --noEmit -p tsconfig.dist-smoke.json && tsc --noEmit -p tsconfig.css-entry-types.json",
+    "verify:dist-types": "bash scripts/verify-dist-types.sh",
     "verify:dist-rsc": "node scripts/verify-dist-rsc.mjs",
     "lint": "eslint .",
     "format": "prettier --write .",
