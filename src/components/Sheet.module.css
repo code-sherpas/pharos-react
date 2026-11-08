@@ -4,7 +4,9 @@
  * `dist/styles.css`. Styles a modal panel that docks to a viewport edge and
  * slides in — the shadcn "Sheet" contract over Base UI's `Dialog` (modal:
  * focus trap, scroll lock, backdrop). Motion is driven by Base UI's
- * `data-starting-style` / `data-ending-style` state attributes.
+ * `data-starting-style` / `data-ending-style` state attributes. With
+ * `prefers-reduced-motion: reduce` the panel does not slide, on any side: it
+ * opens and closes in place, and only the backdrop's opacity fade remains.
  *
  * z-index: the backdrop and the panel share `--pharos-z-index-modal`
  * (decision D29, modal 1400), like Dialog: one layer for both, so a modal
@@ -103,6 +105,19 @@
 .sideBottom[data-starting-style],
 .sideBottom[data-ending-style] {
   transform: translateY(100%);
+}
+
+/* Reduced motion: no slide on any side. Same specificity as the side rules
+ * above and later in the file, so it wins over all four. With no transition
+ * left on the panel, Base UI mounts and unmounts it at once; the backdrop
+ * keeps its fade, which does not move anything. */
+@media (prefers-reduced-motion: reduce) {
+  .content,
+  .content[data-starting-style],
+  .content[data-ending-style] {
+    transform: none;
+    transition: none;
+  }
 }
 
 /* === Slots === */

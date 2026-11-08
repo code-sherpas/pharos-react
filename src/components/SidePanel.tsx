@@ -435,7 +435,7 @@ export function SidePanelContent({
         onKeyDown={onKeyDown}
         data-pharos-slot="side-panel-content"
         data-pharos-mode="modal"
-        className={cn(styles.modal, className)}
+        className={className}
       >
         {children}
       </SheetContent>

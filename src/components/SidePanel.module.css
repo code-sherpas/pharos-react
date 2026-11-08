@@ -3,8 +3,8 @@
  * Per-component CSS Modules definition (Decision D9). Styles the INLINE form
  * of SidePanel: an `<aside>` in the consumer's flex / grid row that grows
  * from 0 to the panel width and narrows its siblings. Below the panel
- * breakpoint the component renders Pharos' Sheet instead, styled by
- * `Sheet.module.css`; `.modal` here only adds the reduced-motion rule to it.
+ * breakpoint the component renders Pharos' Sheet instead, styled entirely by
+ * `Sheet.module.css`, reduced motion included.
  *
  * Width: `--pharos-width-panel` (pharos-tokens 1.1.0, D32), the same width
  * the Sheet uses, capped at the viewport. The breakpoint itself is read in JS
@@ -78,14 +78,9 @@
   outline-offset: -2px;
 }
 
-/* The modal form (a Sheet). Doubled class: wins over the Sheet's transition
- * whatever order the bundle puts the two modules in. */
+/* The modal form is the Sheet, which carries its own reduced-motion rule. */
 @media (prefers-reduced-motion: reduce) {
   .inline {
-    transition: none;
-  }
-
-  .modal.modal {
     transition: none;
   }
 }

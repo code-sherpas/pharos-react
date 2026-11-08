@@ -40,6 +40,36 @@ test.describe('New project sheet', () => {
     expect(await layerOf(list)).toBeGreaterThan(panelLayer);
   });
 
+  // prefers-reduced-motion: the panel opens and closes where it rests, with no
+  // slide in from its edge. Sampled every frame, from before the click until
+  // the panel is gone, so the starting and ending frames are both seen.
+  test('with reduced motion, it opens and closes without sliding', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.evaluate(function samplePanelEdgeEveryFrame() {
+      const positions: number[] = [];
+      (window as unknown as { sheetPositions: number[] }).sheetPositions = positions;
+      function sample() {
+        const panel = document.querySelector('[data-pharos-slot="sheet-content"]');
+        if (panel) positions.push(Math.round(panel.getBoundingClientRect().left));
+        requestAnimationFrame(sample);
+      }
+      requestAnimationFrame(sample);
+    });
+
+    await page.getByRole('button', { name: 'New project' }).click();
+    const panel = page.getByRole('dialog', { name: 'New project' });
+    await expect(panel).toBeVisible();
+    const restingLeft = Math.round((await panel.boundingBox())!.x);
+    await page.keyboard.press('Escape');
+    await expect(panel).toHaveCount(0);
+
+    const positions = await page.evaluate(function readPositions() {
+      return (window as unknown as { sheetPositions: number[] }).sheetPositions;
+    });
+    expect(positions.length).toBeGreaterThan(0);
+    expect(new Set(positions)).toEqual(new Set([restingLeft]));
+  });
+
   test('closes on Escape and returns focus to the trigger', async ({ page }) => {
     const trigger = page.getByRole('button', { name: 'New project' });
     await trigger.click();
