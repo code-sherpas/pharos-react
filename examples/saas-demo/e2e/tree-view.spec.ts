@@ -1,5 +1,25 @@
+import AxeBuilder from '@axe-core/playwright';
 import { test, expect, type Page } from '@playwright/test';
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { signIn } from './helpers';
+
+// axe-core, followed by the configuration the TreeView contract gives
+// consumers: label-content-name-mismatch keeps running on everything but the
+// tree's items, whose visible text holds their description and their open
+// children besides their label (the label is their accessible name).
+const AXE_WITH_TREE_ITEMS_EXCLUDED = `${readFileSync(
+  createRequire(import.meta.url).resolve('axe-core/axe.min.js'),
+  'utf8',
+)}
+axe.configure({
+  rules: [
+    {
+      id: 'label-content-name-mismatch',
+      selector: '*:not([data-pharos-slot="tree-view-item"])',
+    },
+  ],
+});`;
 
 // The TreeView on the Taxonomy page: a five-level hierarchy walked with the
 // keyboard, an element chosen to see its detail — beside the tree in the
@@ -67,6 +87,48 @@ test.describe('TreeView with its detail beside it (wide screen)', () => {
     await page.keyboard.press('ArrowLeft');
     await expect(item(page, /Active listening$/)).toHaveAttribute('aria-expanded', 'false');
     await expect(paraphrases).toHaveCount(0);
+  });
+
+  test('typing a letter goes to the next name that starts with it, not to the next level', async ({
+    page,
+  }) => {
+    await openTaxonomy(page);
+    await item(page, /People$/).focus();
+
+    // Every label starts with its level badge; typing matches the name.
+    await page.keyboard.press('d');
+    await expect(item(page, /Delivery$/)).toBeFocused();
+    await page.keyboard.press('ArrowRight');
+    await page.waitForTimeout(600);
+    await page.keyboard.press('p');
+    await expect(item(page, /Planning$/)).toBeFocused();
+    // The badge is still part of the accessible name.
+    await expect(item(page, /Planning$/)).toHaveAccessibleName('Category Planning');
+  });
+
+  test('passes axe with every branch open once the treeitem is excluded from label-in-name', async ({
+    page,
+  }) => {
+    await openTaxonomy(page);
+    const people = item(page, /People$/);
+    await people.focus();
+    // Open every branch, descriptions included.
+    for (const name of [
+      /People$/,
+      /Collaboration across teams/,
+      /Feedback$/,
+      /Active listening$/,
+    ]) {
+      await item(page, name).focus();
+      await page.keyboard.press('*');
+    }
+    await expect(item(page, /Paraphrases$/)).toBeVisible();
+
+    const results = await new AxeBuilder({ page, axeSource: AXE_WITH_TREE_ITEMS_EXCLUDED })
+      .include('[role="tree"]')
+      .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+      .analyze();
+    expect(results.violations).toEqual([]);
   });
 
   test('chooses with a click, and the chevron opens without choosing', async ({ page }) => {

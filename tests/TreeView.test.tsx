@@ -214,6 +214,37 @@ describe('TreeView', () => {
     expect(item('Emma')).toHaveFocus();
   });
 
+  it('matches typing against textValue when the label starts with something else, keeping the label as the name', async () => {
+    const user = userEvent.setup();
+    render(
+      <TreeView aria-label="Competency taxonomy">
+        <TreeViewItem value="core" textValue="Core Skills">
+          <TreeViewItemLabel>Pillar: Core Skills</TreeViewItemLabel>
+        </TreeViewItem>
+        <TreeViewItem value="planning" textValue="Planning">
+          <TreeViewItemLabel>Category: Planning</TreeViewItemLabel>
+        </TreeViewItem>
+        <TreeViewItem value="collaboration" textValue="Collaboration">
+          <TreeViewItemLabel>Category: Collaboration</TreeViewItemLabel>
+        </TreeViewItem>
+        <TreeViewItem value="people" textValue="People">
+          <TreeViewItemLabel>Pillar: People</TreeViewItemLabel>
+        </TreeViewItem>
+      </TreeView>,
+    );
+    await user.tab();
+    expect(item('Pillar: Core Skills')).toHaveFocus();
+
+    // «c» goes to the next name that starts with C, skipping «Category: Planning».
+    await user.keyboard('c');
+    expect(item('Category: Collaboration')).toHaveFocus();
+    // «p» from the first item goes to «Planning», not to the next «Pillar».
+    await user.keyboard('{Home}');
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    await user.keyboard('p');
+    expect(item('Category: Planning')).toHaveFocus();
+  });
+
   it('chooses with Enter, Space or a click, and reports every choice', async () => {
     const user = userEvent.setup();
     const onValueChange = vi.fn();

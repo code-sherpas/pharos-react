@@ -112,6 +112,9 @@ function Items({ elements, chosenRef, chosen }: ItemsProps) {
       <TreeViewItem
         key={element.id}
         value={element.id}
+        // Typing matches the name; the level badge stays in the label, so it
+        // is still part of the accessible name (WCAG 2.5.3).
+        textValue={element.name}
         ref={element.id === chosen ? chosenRef : undefined}
       >
         <TreeViewItemLabel>
