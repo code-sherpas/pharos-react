@@ -86,6 +86,11 @@ import {
   RadioGroupItem,
   ToggleGroup,
   ToggleGroupItem,
+  TreeView,
+  TreeViewItem,
+  TreeViewItemLabel,
+  TreeViewItemDescription,
+  TreeViewGroup,
   ToastProvider,
   Toaster,
   useToast,
@@ -114,6 +119,11 @@ import {
   type RadioGroupItemProps,
   type ToggleGroupProps,
   type ToggleGroupItemProps,
+  type TreeViewProps,
+  type TreeViewItemProps,
+  type TreeViewItemLabelProps,
+  type TreeViewItemDescriptionProps,
+  type TreeViewGroupProps,
   type ToasterProps,
   type ToastOptions,
   type ToastProviderProps,
@@ -155,6 +165,7 @@ import {
   ToggleGroup as ToggleGroupDeep,
   ToggleGroupItem as ToggleGroupItemDeep,
 } from '../dist/components/ToggleGroup.js';
+import { TreeView as TreeViewDeep } from '../dist/components/TreeView.js';
 
 // A couple of representative typed prop checks (surface shape, not just names).
 const _buttonProps: ButtonProps = { intent: 'primary', size: 'md' };
@@ -165,6 +176,8 @@ const _switchProps: SwitchProps = { checked: true };
 const _radioItemProps: RadioGroupItemProps = { value: 'a' };
 const _toggleGroupProps: ToggleGroupProps = { size: 'sm', defaultValue: ['list'] };
 const _toggleGroupItemProps: ToggleGroupItemProps = { value: 'list' };
+const _treeViewProps: TreeViewProps = { 'aria-label': 'Taxonomy', defaultExpanded: ['a'] };
+const _treeViewItemProps: TreeViewItemProps = { value: 'a', disabled: true };
 const _toasterProps: ToasterProps = {
   position: 'top-center',
   label: 'Notifications',
@@ -194,6 +207,9 @@ export type _PublicPropTypes = [
   CheckboxProps,
   RadioGroupProps,
   ToggleGroupProps,
+  TreeViewItemLabelProps,
+  TreeViewItemDescriptionProps,
+  TreeViewGroupProps,
   ToastProviderProps,
   UseToastReturnValue,
 ];
@@ -296,6 +312,14 @@ export const _smoke = [
   ToggleGroupItem,
   _toggleGroupProps,
   _toggleGroupItemProps,
+  TreeView,
+  TreeViewItem,
+  TreeViewItemLabel,
+  TreeViewItemDescription,
+  TreeViewGroup,
+  TreeViewDeep,
+  _treeViewProps,
+  _treeViewItemProps,
   ToasterDeep,
   ToastProvider,
   Toaster,

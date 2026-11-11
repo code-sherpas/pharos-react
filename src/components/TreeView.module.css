@@ -1,0 +1,156 @@
+/* TreeView.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). Styles the ARIA APG
+ * Tree View: rows on the control grid (min 40px, spacing-10), one indent step
+ * (spacing-4) per level drawn as a decorative guide, a 24px chevron that opens
+ * and closes, and the name wrapping on as many lines as it needs — never
+ * truncated — so a five-level tree reads at 320px and at 200% zoom.
+ *
+ * State lives on the item (`aria-selected`, `aria-disabled`, `aria-expanded`)
+ * and is painted on its row, never on the whole <li>, which also holds its
+ * children. The chosen row carries a bar on its inline-start edge besides its
+ * tint: colour is not the only channel. Logical properties only.
+ */
+
+.tree,
+.group {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tree {
+  min-width: 0;
+  font-family: var(--pharos-font-family-sans);
+  font-size: var(--pharos-font-size-sm);
+  line-height: var(--pharos-font-line-height-normal);
+  color: var(--pharos-color-neutral-900);
+}
+
+.item {
+  min-width: 0;
+  outline: none;
+}
+
+.row {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: stretch;
+  min-height: var(--pharos-spacing-10);
+  padding-inline: var(--pharos-spacing-2) var(--pharos-spacing-3);
+  border-radius: var(--pharos-radius-md);
+  cursor: pointer;
+  transition: background-color var(--pharos-duration-fast) var(--pharos-easing-out);
+}
+
+.item:not([aria-disabled='true']) > .row:hover {
+  background-color: var(--pharos-color-neutral-100);
+}
+
+/* Chosen: a primary tint and a bar on the inline-start edge. */
+.item[aria-selected='true'] > .row {
+  background-color: var(--pharos-color-primary-50);
+}
+
+.item[aria-selected='true'] > .row:hover {
+  background-color: var(--pharos-color-primary-100);
+}
+
+.item[aria-selected='true'] > .row::before {
+  content: '';
+  position: absolute;
+  inset-block: var(--pharos-spacing-1);
+  inset-inline-start: 0;
+  width: var(--pharos-spacing-1);
+  border-radius: var(--pharos-radius-full);
+  background-color: var(--pharos-color-primary-600);
+}
+
+/* Focus is on the <li>, drawn on its row and inset, so that rows stacked
+ * edge to edge never cover each other's ring. */
+.item:focus-visible > .row {
+  box-shadow: inset 0 0 0 2px var(--pharos-color-primary-600);
+}
+
+.item[aria-disabled='true'] > .row {
+  color: var(--pharos-color-neutral-600);
+  cursor: not-allowed;
+}
+
+/* One indent step per level, with a decorative vertical guide under the
+ * centre of the ancestor's chevron (half of its 24px, spacing-3, in). */
+.guide {
+  flex: none;
+  width: var(--pharos-spacing-4);
+}
+
+.guide::before {
+  content: '';
+  display: block;
+  height: 100%;
+  margin-inline-start: calc(var(--pharos-spacing-3) - 0.5px);
+  border-inline-start: 1px solid var(--pharos-color-border-strong);
+}
+
+/* 24×24 (WCAG 2.5.8), aligned with the first line of the name. */
+.toggle {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--pharos-spacing-6);
+  height: var(--pharos-spacing-6);
+  margin-block: var(--pharos-spacing-2);
+  margin-inline-end: var(--pharos-spacing-1);
+  border-radius: var(--pharos-radius-sm);
+  color: var(--pharos-color-neutral-600);
+}
+
+.item[aria-expanded] > .row > .toggle:hover {
+  background-color: var(--pharos-color-neutral-200);
+  color: var(--pharos-color-neutral-900);
+}
+
+.chevron {
+  width: var(--pharos-spacing-4);
+  height: var(--pharos-spacing-4);
+  transition: transform var(--pharos-duration-fast) var(--pharos-easing-out);
+}
+
+.chevron:dir(rtl) {
+  transform: scaleX(-1);
+}
+
+.item[aria-expanded='true'] > .row .chevron {
+  transform: rotate(90deg);
+}
+
+.content {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pharos-spacing-0-5);
+  padding-block: var(--pharos-spacing-2-5);
+}
+
+.label {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.description {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: var(--pharos-font-size-xs);
+  line-height: var(--pharos-font-line-height-normal);
+  color: var(--pharos-color-neutral-600);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .row,
+  .chevron {
+    transition: none;
+  }
+}

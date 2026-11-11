@@ -118,6 +118,10 @@
       "types": "./dist/components/ToggleGroup.d.ts",
       "import": "./dist/components/ToggleGroup.js"
     },
+    "./TreeView": {
+      "types": "./dist/components/TreeView.d.ts",
+      "import": "./dist/components/TreeView.js"
+    },
     "./LanguagesIcon": {
       "types": "./dist/icons/LanguagesIcon.d.ts",
       "import": "./dist/icons/LanguagesIcon.js"
