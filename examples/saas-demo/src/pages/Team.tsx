@@ -208,9 +208,11 @@ export function TeamPage() {
             </p>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            {/* Labels that say what each does, not «Cancel» / «Remove»: at 320px
+             * they no longer fit side by side, and the footer wraps them. */}
+            <AlertDialogCancel>Keep {memberToRemove?.name} on the team</AlertDialogCancel>
             <AlertDialogAction intent="destructive" onClick={confirmRemoval}>
-              {removalFailed ? 'Retry' : 'Remove'}
+              {removalFailed ? 'Retry' : `Remove ${memberToRemove?.name}`}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -97,6 +97,35 @@ export const Open: Story = {
   ),
 };
 
+/**
+ * Actions that say what they do, at 320px (what 1280px at 400% zoom leaves):
+ * they do not fit side by side, so the footer wraps them onto two rows, at the
+ * end and in reading order, and a label wider than a row wraps inside its
+ * Button. Nothing runs off the edge. Shared by Dialog and Sheet.
+ */
+export const LongActionsNarrow: Story = {
+  render: () => (
+    <AlertDialog defaultOpen>
+      <AlertDialogTrigger render={<Button>Leave the assessment</Button>} />
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Leave without saving your answer?</AlertDialogTitle>
+          <AlertDialogDescription>
+            The level you marked for «Customer care skills» is not saved yet.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Keep answering</AlertDialogCancel>
+          <AlertDialogAction intent="destructive">
+            Leave without saving the answer you have just marked
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  ),
+  parameters: { chromatic: { viewports: [320] } },
+};
+
 /** Waits `ms`, standing in for a request; resolves to whether it succeeded. */
 function simulateRequest(ms: number, succeeds: boolean): Promise<boolean> {
   return new Promise(function settleLater(resolve) {

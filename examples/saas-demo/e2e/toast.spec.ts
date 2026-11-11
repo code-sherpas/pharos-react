@@ -114,7 +114,10 @@ test.describe('Toast', () => {
     await page.getByRole('button', { name: 'Team', exact: true }).click();
     await page.getByRole('button', { name: 'Actions for Grace Hopper' }).click();
     await page.getByRole('menuitem', { name: 'Remove from team' }).click();
-    await page.getByRole('alertdialog').getByRole('button', { name: 'Remove' }).click();
+    await page
+      .getByRole('alertdialog')
+      .getByRole('button', { name: /^Remove [A-Z]/ })
+      .click();
 
     // The harness's own top bar overflows at 320 px; what is measured here is
     // the toast's region, which must sit inside the screen whatever the page.
