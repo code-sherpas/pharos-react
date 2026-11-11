@@ -42,7 +42,17 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  white-space: nowrap;
+  /* The label stays on one line: in a row a Button does not shrink, as
+   * before (`flex-shrink: 0`). Only a label wider than the whole container
+   * (a dialog footer at 320px, 200% zoom) wraps, between words, inside a
+   * Button that is never wider than its container, instead of overflowing
+   * (WCAG 1.4.10); never truncated. Heights are minimums: one line keeps the
+   * 32 / 40 / 48 grid, more lines grow it. */
+  flex-shrink: 0;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: break-word;
+  text-align: center;
 
   /* === Optical text centering ===
    * `text-box-trim` strips the leading above the cap-line and below the
@@ -210,25 +220,25 @@
  * preserved across the migration. */
 
 .sizeSm {
-  height: var(--pharos-spacing-8);
+  min-height: var(--pharos-spacing-8);
   gap: var(--pharos-spacing-1-5);
-  padding: 0 var(--pharos-spacing-3);
+  padding: var(--pharos-spacing-1-5) var(--pharos-spacing-3);
   font-size: var(--pharos-font-size-sm);
   line-height: calc(1.25 / 0.875);
 }
 
 .sizeMd {
-  height: var(--pharos-spacing-10);
+  min-height: var(--pharos-spacing-10);
   gap: var(--pharos-spacing-2);
-  padding: 0 var(--pharos-spacing-4);
+  padding: var(--pharos-spacing-2) var(--pharos-spacing-4);
   font-size: var(--pharos-font-size-sm);
   line-height: calc(1.25 / 0.875);
 }
 
 .sizeLg {
-  height: var(--pharos-spacing-12);
+  min-height: var(--pharos-spacing-12);
   gap: var(--pharos-spacing-2);
-  padding: 0 var(--pharos-spacing-6);
+  padding: var(--pharos-spacing-3) var(--pharos-spacing-6);
   font-size: var(--pharos-font-size-base);
   line-height: 1.5;
 }

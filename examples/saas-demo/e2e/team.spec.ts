@@ -72,7 +72,7 @@ test.describe('Team page', () => {
     await page.getByRole('menuitem', { name: 'Remove from team' }).click();
     await page
       .getByRole('alertdialog', { name: 'Remove Alan Turing from the team?' })
-      .getByRole('button', { name: 'Remove' })
+      .getByRole('button', { name: /^Remove [A-Z]/ })
       .click();
     await expect(
       page.getByRole('dialog', { name: 'Alan Turing removed from the team.' }),
@@ -83,7 +83,10 @@ test.describe('Team page', () => {
   test('undoes the removal from the toast that confirms it', async ({ page }) => {
     await page.getByRole('button', { name: 'Actions for Alan Turing' }).click();
     await page.getByRole('menuitem', { name: 'Remove from team' }).click();
-    await page.getByRole('alertdialog').getByRole('button', { name: 'Remove' }).click();
+    await page
+      .getByRole('alertdialog')
+      .getByRole('button', { name: /^Remove [A-Z]/ })
+      .click();
     const toast = page.getByRole('dialog', { name: 'Alan Turing removed from the team.' });
 
     await toast.getByRole('button', { name: 'Undo' }).click();
@@ -156,7 +159,7 @@ test.describe('Team page', () => {
 
     test('starts on Cancel, so Enter backs out instead of removing', async ({ page }) => {
       const confirm = page.getByRole('alertdialog');
-      await expect(confirm.getByRole('button', { name: 'Cancel' })).toBeFocused();
+      await expect(confirm.getByRole('button', { name: /^Keep .+ on the team$/ })).toBeFocused();
 
       await page.keyboard.press('Enter');
 
@@ -178,7 +181,7 @@ test.describe('Team page', () => {
 
     test('backs out on Escape and returns focus to the row menu', async ({ page }) => {
       const confirm = page.getByRole('alertdialog');
-      await expect(confirm.getByRole('button', { name: 'Cancel' })).toBeFocused();
+      await expect(confirm.getByRole('button', { name: /^Keep .+ on the team$/ })).toBeFocused();
 
       await page.keyboard.press('Escape');
 
@@ -189,7 +192,7 @@ test.describe('Team page', () => {
 
     test('backs out on Cancel and returns focus to the row menu', async ({ page }) => {
       const confirm = page.getByRole('alertdialog');
-      await confirm.getByRole('button', { name: 'Cancel' }).click();
+      await confirm.getByRole('button', { name: /^Keep .+ on the team$/ }).click();
 
       await expect(confirm).toHaveCount(0);
       await expect(page.getByText('Alan Turing', { exact: true })).toBeVisible();
@@ -198,7 +201,7 @@ test.describe('Team page', () => {
 
     test('removes on confirm and moves focus to the page heading', async ({ page }) => {
       const confirm = page.getByRole('alertdialog');
-      await confirm.getByRole('button', { name: 'Remove' }).click();
+      await confirm.getByRole('button', { name: /^Remove [A-Z]/ }).click();
 
       await expect(confirm).toHaveCount(0);
       await expect(page.getByText('Alan Turing', { exact: true })).toHaveCount(0);
@@ -223,8 +226,8 @@ test.describe('Team page, removing through a request', () => {
     await page.getByRole('button', { name: 'Actions for Alan Turing' }).click();
     await page.getByRole('menuitem', { name: 'Remove from team' }).click();
     const confirm = page.getByRole('alertdialog', { name: 'Remove Alan Turing from the team?' });
-    const action = confirm.getByRole('button', { name: 'Remove' });
-    const cancel = confirm.getByRole('button', { name: 'Cancel' });
+    const action = confirm.getByRole('button', { name: /^Remove [A-Z]/ });
+    const cancel = confirm.getByRole('button', { name: /^Keep .+ on the team$/ });
 
     await action.click();
 
@@ -235,7 +238,7 @@ test.describe('Team page, removing through a request', () => {
     await expect(confirm.getByRole('status')).toHaveText('Removing Alan Turing…');
     await expect(action).toHaveAttribute('aria-disabled', 'true');
     await expect(action).toBeFocused();
-    await expect(action).toHaveAccessibleName('Remove');
+    await expect(action).toHaveAccessibleName('Remove Alan Turing');
     await expect(action.locator('[role="status"]')).toHaveAttribute('aria-hidden', 'true');
     await expect(cancel).toHaveAttribute('aria-disabled', 'true');
 
@@ -268,7 +271,7 @@ test.describe('Team page, removing through a request', () => {
       name: 'Remove Katherine Johnson from the team?',
     });
 
-    await confirm.getByRole('button', { name: 'Remove' }).click();
+    await confirm.getByRole('button', { name: /^Remove [A-Z]/ }).click();
     await expect(confirm).toHaveAttribute('aria-busy', 'true');
     await answerRequests(page);
 
@@ -291,5 +294,81 @@ test.describe('Team page, removing through a request', () => {
     await expect(
       page.getByRole('dialog', { name: 'Katherine Johnson removed from the team.' }),
     ).toBeVisible();
+  });
+});
+
+// The confirmation's two actions say what they do, so they are long. At 320px
+// (what 1280px at 400% zoom, or a phone, leaves) they do not fit side by side:
+// the footer shared by Dialog, AlertDialog and Sheet wraps them onto two rows,
+// at the end, in DOM order, and nothing runs off the edge (WCAG 1.4.10). On a
+// wide screen they stay on one row.
+test.describe('Team page, confirming a removal on a narrow screen', () => {
+  async function openConfirmation(page: Page, member: string) {
+    await signIn(page);
+    await page.getByRole('button', { name: 'Team', exact: true }).click();
+    await page.getByRole('button', { name: `Actions for ${member}` }).click();
+    await page.getByRole('menuitem', { name: 'Remove from team' }).click();
+    const confirm = page.getByRole('alertdialog', { name: `Remove ${member} from the team?` });
+    await expect(confirm).toBeVisible();
+    // Measure once the open transition (a 0.96 scale) has finished.
+    await confirm.evaluate(function transitionsFinished(node) {
+      return Promise.all(node.getAnimations().map((animation) => animation.finished));
+    });
+    return {
+      confirm,
+      keep: confirm.getByRole('button', { name: `Keep ${member} on the team` }),
+      remove: confirm.getByRole('button', { name: `Remove ${member}` }),
+    };
+  }
+
+  test('at 320px both actions are whole on screen, one under the other, in reading order', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 640 });
+    const { confirm, keep, remove } = await openConfirmation(page, 'Katherine Johnson');
+
+    const panel = (await confirm.boundingBox())!;
+    const keepBox = (await keep.boundingBox())!;
+    const removeBox = (await remove.boundingBox())!;
+    for (const box of [keepBox, removeBox]) {
+      expect(box.x).toBeGreaterThanOrEqual(panel.x);
+      expect(box.x + box.width).toBeLessThanOrEqual(panel.x + panel.width);
+      expect(box.x + box.width).toBeLessThanOrEqual(320);
+      // Still a comfortable target (WCAG 2.5.8 asks for 24px).
+      expect(box.height).toBeGreaterThanOrEqual(32);
+    }
+    // Two rows, the first in the DOM on top, both at the end of the footer.
+    expect(removeBox.y).toBeGreaterThanOrEqual(keepBox.y + keepBox.height);
+    expect(keepBox.x + keepBox.width).toBeCloseTo(removeBox.x + removeBox.width, 0);
+    const overflow = await confirm.evaluate(function sidewaysOverflow(node) {
+      return node.scrollWidth - node.clientWidth;
+    });
+    expect(overflow).toBeLessThanOrEqual(0);
+
+    // Focus starts on the first action and Tab follows the visual order.
+    await expect(keep).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(remove).toBeFocused();
+  });
+
+  test('a Button in a row does not shrink: its label stays on one line', async ({ page }) => {
+    // The top bar's nav does not fit at 320px; its Buttons keep their one-line
+    // height instead of squeezing their labels onto several lines.
+    await page.setViewportSize({ width: 320, height: 640 });
+    await signIn(page);
+    const nav = page.getByRole('button', { name: 'Taxonomy', exact: true });
+    const narrow = (await nav.boundingBox())!.height;
+    await page.setViewportSize({ width: 1280, height: 800 });
+    expect((await nav.boundingBox())!.height).toBe(narrow);
+  });
+
+  test('on a wide screen both actions stay on one row', async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 800 });
+    const { keep, remove } = await openConfirmation(page, 'Alan Turing');
+    const keepBox = (await keep.boundingBox())!;
+    const removeBox = (await remove.boundingBox())!;
+    expect(keepBox.y).toBeCloseTo(removeBox.y, 0);
+    expect(removeBox.x).toBeGreaterThan(keepBox.x + keepBox.width);
+    expect(keepBox.height).toBe(40);
   });
 });
