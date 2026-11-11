@@ -76,6 +76,23 @@ const preview: Preview = {
       // their Base-UI-specific attribute) so the rule keeps running on all real
       // content. Revisit if a future Base UI release makes the guards tabindex=-1.
       context: { exclude: [['[data-base-ui-focus-guard]']] },
+      // label-content-name-mismatch (WCAG 2.5.3) is on by default from
+      // axe-core 4.14 (experimental and off before it; `enabled` keeps it on
+      // whichever version resolves). It runs on every component but the
+      // TreeView's items: the rule takes all of an element's visible text as
+      // its label, and a treeitem's holds its description and its open
+      // children besides its label, which is its accessible name — a false
+      // positive, written in the TreeView contract with this same
+      // configuration for consumers. examples/saas-demo checks it too.
+      config: {
+        rules: [
+          {
+            id: 'label-content-name-mismatch',
+            enabled: true,
+            selector: '*:not([data-pharos-slot="tree-view-item"])',
+          },
+        ],
+      },
     },
     // Belt-and-braces for Chromatic specifically: even with the loader
     // above, give the headless renderer a small extra window before the

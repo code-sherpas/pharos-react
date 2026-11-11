@@ -18,7 +18,8 @@ import { Badge } from './Badge';
  * list; for navigation between pages use links.
  *
  * Keyboard: ↓ ↑ move, → opens or goes in, ← closes or goes up, Home / End,
- * Enter or Space choose, `*` opens the siblings, typing jumps to a name. One
+ * Enter or Space choose, `*` opens the siblings, typing jumps to a name (give
+ * `textValue` the name when the label starts with a level badge). One
  * tab stop. Choosing never follows focus. A `disabled` item stays visible,
  * focusable and openable, and cannot be chosen.
  *
@@ -70,7 +71,7 @@ const TAXONOMY = taxonomy();
 
 function Items({ nodes }: { nodes: Node[] }) {
   return nodes.map((node) => (
-    <TreeViewItem key={node.id} value={node.id}>
+    <TreeViewItem key={node.id} value={node.id} textValue={node.name}>
       <TreeViewItemLabel>
         <Badge variant="accent-soft">{node.kind}</Badge> {node.name}
       </TreeViewItemLabel>

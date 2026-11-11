@@ -48,11 +48,20 @@ import styles from './TreeView.module.css';
  * moves into an open one; ← closes an open branch, or moves to the parent (both
  * mirrored right-to-left); Home and End go to the ends; Enter and Space choose;
  * `*` opens every sibling branch; typing a name's first letters moves to it.
+ * Typing matches the label's text, or the item's `textValue` when the label
+ * starts with something that is not the name (a level badge, an icon's text).
  * One item takes Tab: the chosen one when it is visible, otherwise the one
  * focused last, otherwise the first.
  *
  * A `disabled` item (`aria-disabled`) is still visible, focusable and
  * openable — it is context — but it cannot be chosen.
+ *
+ * axe's `label-content-name-mismatch` (WCAG 2.5.3) flags an open branch and
+ * an item with a description: it takes all of the item's visible text as its
+ * label. The label is `TreeViewItemLabel`, and it is the accessible name; the
+ * description is read as the description and the children are items of their
+ * own, so 2.5.3 is met. Run that rule with the selector
+ * `*:not([data-pharos-slot="tree-view-item"])` so it keeps checking the rest.
  *
  * Every part forwards `ref` and `className`. To give focus back to the chosen
  * item after the tree was unmounted (a detail shown as a view of its own on a
@@ -111,6 +120,7 @@ interface RegisteredItem {
   value: string;
   isBranch: boolean;
   disabled: boolean;
+  textValue: string | undefined;
 }
 
 interface ItemContextValue {
@@ -150,8 +160,9 @@ function parentItemOf(item: HTMLElement, tree: HTMLElement): HTMLElement | null 
   return parent !== null && tree.contains(parent) ? parent : null;
 }
 
-/** The text a person reads as the item's name, for typeahead. */
-function nameOf(item: HTMLElement): string {
+/** The text typing is matched against: the item's `textValue`, else its label's text. */
+function typeaheadTextOf(item: HTMLElement, registered: RegisteredItem | undefined): string {
+  if (registered?.textValue !== undefined) return registered.textValue.trim();
   const labelId = item.getAttribute('aria-labelledby');
   const label = labelId === null ? null : item.ownerDocument.getElementById(labelId);
   return (label?.textContent ?? '').trim();
@@ -292,7 +303,7 @@ export function TreeView({
     const collator = new Intl.Collator(undefined, { sensitivity: 'base', usage: 'search' });
     for (let step = 0; step < visible.length; step += 1) {
       const candidate = visible[(start + offset + step) % visible.length]!;
-      const name = nameOf(candidate);
+      const name = typeaheadTextOf(candidate, items.current.get(candidate));
       if (collator.compare(name.slice(0, text.length), text) === 0) {
         moveFocusTo(candidate);
         return;
@@ -447,6 +458,12 @@ export interface TreeViewItemProps extends Omit<
    * (`aria-disabled`). Say why in a `TreeViewItemDescription`.
    */
   disabled?: boolean;
+  /**
+   * The text typing is matched against, when it is not the label's text: the
+   * name alone, without the level badge or other words placed before it in
+   * `TreeViewItemLabel`. The accessible name is still the label.
+   */
+  textValue?: string;
   ref?: Ref<HTMLLIElement>;
 }
 
@@ -461,6 +478,7 @@ function isDescription(node: ReactNode): boolean {
 export function TreeViewItem({
   value,
   disabled = false,
+  textValue,
   className,
   onFocus,
   ref,
@@ -487,10 +505,10 @@ export function TreeViewItem({
     function registerTheItem() {
       const node = element.current;
       if (node === null) return;
-      register(node, { value, isBranch, disabled });
+      register(node, { value, isBranch, disabled, textValue });
       return () => unregister(node);
     },
-    [register, unregister, value, isBranch, disabled],
+    [register, unregister, value, isBranch, disabled, textValue],
   );
 
   const setRefs = useCallback(
@@ -582,7 +600,10 @@ export interface TreeViewItemLabelProps extends ComponentPropsWithoutRef<'span'>
   ref?: Ref<HTMLSpanElement>;
 }
 
-/** The item's name: what a screen reader announces and typeahead matches. */
+/**
+ * The item's name: what a screen reader announces, and what typing matches
+ * unless the item has a `textValue`.
+ */
 export function TreeViewItemLabel({ className, ...rest }: TreeViewItemLabelProps) {
   const { labelId } = useItemContext('TreeViewItemLabel');
   return (
