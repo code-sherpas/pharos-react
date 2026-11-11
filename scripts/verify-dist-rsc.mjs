@@ -39,6 +39,7 @@ const CLIENT = [
   'Sheet',
   'SidePanel',
   'Switch',
+  'TreeView',
 ];
 
 // Presentational atoms with no hooks → server-renderable, no directive.

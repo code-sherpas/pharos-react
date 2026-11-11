@@ -4,8 +4,9 @@ import { DashboardPage } from './pages/Dashboard';
 import { TeamPage } from './pages/Team';
 import { SettingsPage } from './pages/Settings';
 import { ReportPage } from './pages/Report';
+import { TaxonomyPage } from './pages/Taxonomy';
 
-export type Page = 'dashboard' | 'team' | 'report' | 'settings';
+export type Page = 'dashboard' | 'team' | 'report' | 'taxonomy' | 'settings';
 
 /**
  * The signed-in application shell: a persistent top bar (composing Avatar +
@@ -27,6 +28,8 @@ export function Shell({ user, onSignOut }: { user: string; onSignOut: () => void
        */}
       {page === 'report' ? (
         <ReportPage />
+      ) : page === 'taxonomy' ? (
+        <TaxonomyPage />
       ) : (
         <main className="shell-main">
           {page === 'dashboard' && <DashboardPage user={user} />}
