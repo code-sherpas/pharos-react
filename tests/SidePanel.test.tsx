@@ -385,6 +385,24 @@ describe('SidePanel — inline (wide viewport)', () => {
       '<SidePanelTrigger> must be rendered inside <SidePanel>.',
     );
   });
+
+  it('refuses a title or a description outside the panel surface they label', () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    expect(() =>
+      render(
+        <SidePanel>
+          <SidePanelTitle>Loose title</SidePanelTitle>
+        </SidePanel>,
+      ),
+    ).toThrow('<SidePanelTitle> must be rendered inside <SidePanelContent>.');
+    expect(() =>
+      render(
+        <SidePanel>
+          <SidePanelDescription>Loose description</SidePanelDescription>
+        </SidePanel>,
+      ),
+    ).toThrow('<SidePanelDescription> must be rendered inside <SidePanelContent>.');
+  });
 });
 
 describe('SidePanel — modal (narrow viewport)', () => {

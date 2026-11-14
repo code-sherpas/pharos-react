@@ -21,6 +21,12 @@ boundary).
   context, Base UI primitives — including `Avatar` and `Combobox`, the two atoms
   that call `createContext` at module scope (the original D14 RSC crash).
 
+- **`app/streamed/` (a page streamed beside a `SidePanel`)**: a shell wrapped
+  by `<SidePanel>` and a page that arrives later inside the Suspense boundary
+  of `loading.tsx`. `e2e/streamed.spec.ts` checks, on a phone and on a
+  desktop, that the page hydrates from the HTML the server streamed instead of
+  being rendered again in the browser.
+
 So a green `next build` means: stateless atoms are server-renderable, client
 atoms carry their directive, and the deep-import subpaths resolve under Next's
 resolver.

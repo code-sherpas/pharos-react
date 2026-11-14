@@ -60,21 +60,27 @@ import styles from './SidePanel.module.css';
  */
 export type SidePanelMode = 'inline' | 'modal';
 
+/**
+ * The root's context. Nothing in it may change while the page hydrates: React
+ * propagates a context change through the whole subtree, and a Suspense
+ * boundary still waiting for its streamed HTML would then be rendered in the
+ * browser instead of hydrated. So the mode, which the browser only knows after
+ * hydrating, is read by each part that needs it (`useSidePanelMode`) through
+ * the stable `subscribeToMode`, and whether there is a title or a description
+ * lives in `SidePanelContent`.
+ */
 interface SidePanelContextValue {
   open: boolean;
-  mode: SidePanelMode;
   setOpen: (open: boolean) => void;
   contentId: string;
   titleId: string;
   descriptionId: string;
-  hasTitle: boolean;
-  hasDescription: boolean;
-  setHasTitle: (present: boolean) => void;
-  setHasDescription: (present: boolean) => void;
   triggerRef: RefObject<HTMLElement | null>;
   contentRef: RefObject<HTMLElement | null>;
   /** Set when the breakpoint swaps the surface while focus is in it. */
   focusOnShowRef: RefObject<boolean>;
+  /** Subscribes a part to the breakpoint; records focus before it swaps the surface. */
+  subscribeToMode: (notify: () => void) => () => void;
   /** The latest open state, for callbacks that run outside render. */
   openRef: RefObject<boolean>;
   /** Where focus goes back when the panel closes. */
@@ -84,6 +90,24 @@ interface SidePanelContextValue {
 }
 
 const SidePanelContext = createContext<SidePanelContextValue | null>(null);
+
+/** What the title and description register with: the surface they label. */
+interface SidePanelSurfaceContextValue {
+  titleId: string;
+  descriptionId: string;
+  setHasTitle: (present: boolean) => void;
+  setHasDescription: (present: boolean) => void;
+}
+
+const SidePanelSurfaceContext = createContext<SidePanelSurfaceContextValue | null>(null);
+
+function useSidePanelSurfaceContext(part: string): SidePanelSurfaceContextValue {
+  const context = useContext(SidePanelSurfaceContext);
+  if (context === null) {
+    throw new Error(`<${part}> must be rendered inside <SidePanelContent>.`);
+  }
+  return context;
+}
 
 function useSidePanelContext(part: string): SidePanelContextValue {
   const context = useContext(SidePanelContext);
@@ -111,29 +135,26 @@ function readInlineMatch(): boolean {
 /**
  * The server has no viewport: it renders the inline form, and the browser
  * corrects it right after hydration (useSyncExternalStore re-renders with the
- * client snapshot without a hydration mismatch).
+ * client snapshot without a hydration mismatch). Only the parts that read the
+ * mode re-render then, never the content the root wraps.
  */
 function readServerInlineMatch(): boolean {
   return true;
 }
 
-function useInlineMode(onBeforeChange: () => void): boolean {
-  const subscribe = useCallback(
-    function subscribeToBreakpoint(notify: () => void) {
-      if (!canMatchMedia()) return function noop() {};
-      const query = window.matchMedia(INLINE_QUERY);
-      function handleChange() {
-        onBeforeChange();
-        notify();
-      }
-      query.addEventListener('change', handleChange);
-      return function unsubscribe() {
-        query.removeEventListener('change', handleChange);
-      };
-    },
-    [onBeforeChange],
-  );
-  return useSyncExternalStore(subscribe, readInlineMatch, readServerInlineMatch);
+function subscribeToBreakpoint(notify: () => void): () => void {
+  if (!canMatchMedia()) return function noop() {};
+  const query = window.matchMedia(INLINE_QUERY);
+  query.addEventListener('change', notify);
+  return function unsubscribe() {
+    query.removeEventListener('change', notify);
+  };
+}
+
+/** The form the panel takes at the current viewport width. */
+function useSidePanelMode(subscribeToMode: (notify: () => void) => () => void): SidePanelMode {
+  const inline = useSyncExternalStore(subscribeToMode, readInlineMatch, readServerInlineMatch);
+  return inline ? 'inline' : 'modal';
 }
 
 const FOCUSABLE =
@@ -185,13 +206,22 @@ export function SidePanel({
     [open],
   );
 
-  const rememberFocusAcrossModes = useCallback(function rememberFocusAcrossModes() {
-    // The breakpoint is about to swap the surface: if focus is in the one
-    // leaving, the one arriving takes it.
-    focusOnShowRef.current = isFocusInside(contentRef.current);
+  // The breakpoint is about to swap the surface: if focus is in the one
+  // leaving, the one arriving takes it. The browser lets React re-render
+  // between two listeners of the same change, so focus is recorded by the
+  // first listener to run, before any part is told, and only once per change.
+  const inlineSeenRef = useRef<boolean | null>(null);
+  const subscribeToMode = useCallback(function subscribeToMode(notify: () => void) {
+    return subscribeToBreakpoint(function recordFocusThenNotify() {
+      const inline = readInlineMatch();
+      if (inline !== inlineSeenRef.current) {
+        inlineSeenRef.current = inline;
+        focusOnShowRef.current = isFocusInside(contentRef.current);
+      }
+      notify();
+    });
   }, []);
-  const inline = useInlineMode(rememberFocusAcrossModes);
-  const mode: SidePanelMode = inline ? 'inline' : 'modal';
+  const mode = useSidePanelMode(subscribeToMode);
 
   const setOpen = useCallback(
     function setOpen(next: boolean) {
@@ -252,29 +282,23 @@ export function SidePanel({
   );
 
   const baseId = useId();
-  const [hasTitle, setHasTitle] = useState(false);
-  const [hasDescription, setHasDescription] = useState(false);
 
   const context = useMemo<SidePanelContextValue>(
     () => ({
       open,
-      mode,
       setOpen,
       contentId: `${baseId}-content`,
       titleId: `${baseId}-title`,
       descriptionId: `${baseId}-description`,
-      hasTitle,
-      hasDescription,
-      setHasTitle,
-      setHasDescription,
       triggerRef,
       contentRef,
       focusOnShowRef,
+      subscribeToMode,
       openRef,
       returnFocusTarget,
       closeFromModal,
     }),
-    [open, mode, setOpen, baseId, hasTitle, hasDescription, returnFocusTarget, closeFromModal],
+    [open, setOpen, baseId, subscribeToMode, returnFocusTarget, closeFromModal],
   );
 
   // No dialog root here: the content beside the panel is not inside any
@@ -294,7 +318,9 @@ SidePanel.displayName = 'SidePanel';
 export type SidePanelTriggerProps = useRender.ComponentProps<'button'>;
 
 export function SidePanelTrigger({ render, ref, ...rest }: SidePanelTriggerProps) {
-  const { open, mode, setOpen, contentId, triggerRef } = useSidePanelContext('SidePanelTrigger');
+  const { open, setOpen, contentId, triggerRef, subscribeToMode } =
+    useSidePanelContext('SidePanelTrigger');
+  const mode = useSidePanelMode(subscribeToMode);
   function toggle() {
     setOpen(!open);
   }
@@ -412,12 +438,23 @@ export function SidePanelContent({
 }: SidePanelContentProps) {
   const context = useSidePanelContext('SidePanelContent');
   const resolvedSide = side ?? 'right';
+  const [hasTitle, setHasTitle] = useState(false);
+  const [hasDescription, setHasDescription] = useState(false);
   const labelling = {
-    'aria-labelledby': context.hasTitle ? context.titleId : undefined,
-    'aria-describedby': context.hasDescription ? context.descriptionId : undefined,
+    'aria-labelledby': hasTitle ? context.titleId : undefined,
+    'aria-describedby': hasDescription ? context.descriptionId : undefined,
   };
+  const surface = useMemo<SidePanelSurfaceContextValue>(
+    () => ({
+      titleId: context.titleId,
+      descriptionId: context.descriptionId,
+      setHasTitle,
+      setHasDescription,
+    }),
+    [context.titleId, context.descriptionId],
+  );
 
-  const modal = context.mode === 'modal';
+  const modal = useSidePanelMode(context.subscribeToMode) === 'modal';
 
   // The modal surface is Pharos' Sheet. Its root wraps only that surface, so
   // nothing beside the panel, nor the inline panel, is inside a dialog. It
@@ -425,7 +462,7 @@ export function SidePanelContent({
   // breakpoint into the modal form opens it — and it slides in — instead of
   // mounting it already open.
   return (
-    <>
+    <SidePanelSurfaceContext.Provider value={surface}>
       <Sheet open={context.open && modal} onOpenChange={context.closeFromModal}>
         {modal ? (
           <SheetContent
@@ -461,7 +498,7 @@ export function SidePanelContent({
           {children}
         </InlineSurface>
       )}
-    </>
+    </SidePanelSurfaceContext.Provider>
   );
 }
 
@@ -558,7 +595,7 @@ SidePanelHeader.displayName = 'SidePanelHeader';
 export interface SidePanelTitleProps extends ComponentPropsWithoutRef<'h2'> {}
 
 export function SidePanelTitle({ className, ...rest }: SidePanelTitleProps) {
-  const { titleId, setHasTitle } = useSidePanelContext('SidePanelTitle');
+  const { titleId, setHasTitle } = useSidePanelSurfaceContext('SidePanelTitle');
   useBrowserLayoutEffect(
     function registerTitle() {
       setHasTitle(true);
@@ -584,7 +621,7 @@ SidePanelTitle.displayName = 'SidePanelTitle';
 export interface SidePanelDescriptionProps extends ComponentPropsWithoutRef<'p'> {}
 
 export function SidePanelDescription({ className, ...rest }: SidePanelDescriptionProps) {
-  const { descriptionId, setHasDescription } = useSidePanelContext('SidePanelDescription');
+  const { descriptionId, setHasDescription } = useSidePanelSurfaceContext('SidePanelDescription');
   useBrowserLayoutEffect(
     function registerDescription() {
       setHasDescription(true);
