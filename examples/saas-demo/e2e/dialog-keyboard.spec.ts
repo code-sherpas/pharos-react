@@ -83,8 +83,8 @@ function closeKeyboard(page: Page) {
   });
 }
 
-async function openNewPillar(page: Page) {
-  await page.addInitScript(installOnScreenKeyboard);
+async function openNewPillar(page: Page, { simulateKeyboard = true } = {}) {
+  if (simulateKeyboard) await page.addInitScript(installOnScreenKeyboard);
   await signIn(page);
   await page.getByRole('button', { name: 'Taxonomy', exact: true }).click();
   await page.getByRole('button', { name: 'New pillar' }).click();
@@ -285,8 +285,10 @@ test.describe('Dialog on a phone turned sideways with the keyboard open', () => 
 test.describe('Dialog on a desktop, with no on-screen keyboard', () => {
   test.use({ viewport: DESKTOP });
 
+  // Chromium's own visual viewport, not the simulated one.
   test('is the centered panel, as before', async ({ page }) => {
-    const { dialog, header, footer } = await openNewPillar(page);
+    const { dialog, header, footer } = await openNewPillar(page, { simulateKeyboard: false });
+    expect(await page.evaluate(() => window.visualViewport?.height)).toBe(DESKTOP.height);
     await expect(dialog).toHaveAttribute('data-pharos-mode', 'centered');
     const box = (await dialog.boundingBox())!;
     expect(box.width).toBe(512);
