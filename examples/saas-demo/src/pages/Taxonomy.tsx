@@ -16,6 +16,7 @@ import {
   TreeViewItemDescription,
   TreeViewItemLabel,
 } from '@code-sherpas/pharos-react';
+import { EditDescriptionDialog } from '../components/EditDescriptionDialog';
 import { NewPillarDialog, type NewPillar } from '../components/NewPillarDialog';
 
 interface Element {
@@ -23,6 +24,8 @@ interface Element {
   kind: string;
   name: string;
   summary?: string;
+  /** How many assessments already rated it. */
+  assessments?: number;
   children?: Element[];
 }
 
@@ -54,6 +57,7 @@ const TAXONOMY: Element[] = [
                     name: 'Paraphrases',
                     summary:
                       'Paraphrases what was said and asks open questions before proposing a solution of their own',
+                    assessments: 7,
                   },
                   {
                     id: 'silence',
@@ -98,14 +102,19 @@ function isWideNow() {
   return window.matchMedia(WIDE).matches;
 }
 
+/** Descriptions edited in this session, by element id, over the ones above. */
+type Summaries = Record<string, string>;
+
 interface ItemsProps {
   elements: Element[];
   chosen: string | null;
   chosenRef: React.Ref<HTMLLIElement>;
+  summaries: Summaries;
 }
 
-function Items({ elements, chosenRef, chosen }: ItemsProps) {
+function Items({ elements, chosenRef, chosen, summaries }: ItemsProps) {
   return elements.map(function anItem(element) {
+    const summary = summaries[element.id] ?? element.summary;
     return (
       <TreeViewItem
         key={element.id}
@@ -118,10 +127,15 @@ function Items({ elements, chosenRef, chosen }: ItemsProps) {
         <TreeViewItemLabel>
           <Badge variant="accent-soft">{element.kind}</Badge> {element.name}
         </TreeViewItemLabel>
-        {element.summary && <TreeViewItemDescription>{element.summary}</TreeViewItemDescription>}
+        {summary && <TreeViewItemDescription>{summary}</TreeViewItemDescription>}
         {element.children && (
           <TreeViewGroup>
-            <Items elements={element.children} chosen={chosen} chosenRef={chosenRef} />
+            <Items
+              elements={element.children}
+              chosen={chosen}
+              chosenRef={chosenRef}
+              summaries={summaries}
+            />
           </TreeViewGroup>
         )}
       </TreeViewItem>
@@ -129,10 +143,17 @@ function Items({ elements, chosenRef, chosen }: ItemsProps) {
   });
 }
 
-function Detail({ element, path }: { element: Element; path: Element[] }) {
+interface DetailProps {
+  element: Element;
+  path: Element[];
+  summary: string | undefined;
+  onSummaryChange: (summary: string) => void;
+}
+
+function Detail({ element, path, summary, onSummaryChange }: DetailProps) {
   return (
     <div className="taxonomy-detail">
-      <p>{element.summary ?? `A ${element.kind.toLowerCase()} of the taxonomy.`}</p>
+      <p>{summary ?? `A ${element.kind.toLowerCase()} of the taxonomy.`}</p>
       {path.length > 1 && (
         <p>
           Inside:{' '}
@@ -142,6 +163,13 @@ function Detail({ element, path }: { element: Element; path: Element[] }) {
             .join(' › ')}
         </p>
       )}
+      <EditDescriptionDialog
+        key={element.id}
+        name={element.name}
+        description={summary ?? ''}
+        assessments={element.assessments ?? 0}
+        onSave={onSummaryChange}
+      />
     </div>
   );
 }
@@ -153,7 +181,8 @@ function Detail({ element, path }: { element: Element; path: Element[] }) {
  * element chosen — the list-detail layout. The open branches and the chosen
  * element live here, so the tree comes back as it was. «New pillar» opens the
  * form that creates one in a Dialog, full screen on a phone, and the pillar
- * created joins the tree.
+ * created joins the tree. «Edit description», in the detail, opens a form in a
+ * Dialog with an Alert warning before saving when the element was assessed.
  */
 export function TaxonomyPage() {
   const isWide = useSyncExternalStore(subscribeToWidth, isWideNow, () => true);
@@ -167,6 +196,17 @@ export function TaxonomyPage() {
   const paths = useMemo(() => index(roots), [roots]);
   const path = chosen === null ? [] : (paths.get(chosen) ?? []);
   const element = path.at(-1);
+  const [summaries, setSummaries] = useState<Summaries>({});
+  const detail = element && (
+    <Detail
+      element={element}
+      path={path}
+      summary={summaries[element.id] ?? element.summary}
+      onSummaryChange={function keepTheSummary(summary) {
+        setSummaries((previous) => ({ ...previous, [element.id]: summary }));
+      }}
+    />
+  );
 
   function addPillar(pillar: NewPillar) {
     createdCount.current += 1;
@@ -210,7 +250,7 @@ export function TaxonomyPage() {
         <h1 tabIndex={-1} ref={focusTheHeading}>
           {element.name}
         </h1>
-        <Detail element={element} path={path} />
+        {detail}
       </main>
     );
   }
@@ -236,7 +276,12 @@ export function TaxonomyPage() {
             value={chosen}
             onValueChange={choose}
           >
-            <Items elements={roots} chosen={chosen} chosenRef={focusTheChosenItem} />
+            <Items
+              elements={roots}
+              chosen={chosen}
+              chosenRef={focusTheChosenItem}
+              summaries={summaries}
+            />
           </TreeView>
         </main>
         <SidePanelContent>
@@ -247,7 +292,7 @@ export function TaxonomyPage() {
                 <SidePanelTitle>{element.name}</SidePanelTitle>
                 <SidePanelDescription>Detail of the element chosen.</SidePanelDescription>
               </SidePanelHeader>
-              <Detail element={element} path={path} />
+              {detail}
               <SidePanelFooter>
                 <SidePanelClose render={<Button intent="ghost">Close</Button>} />
               </SidePanelFooter>
