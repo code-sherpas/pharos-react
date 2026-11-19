@@ -150,6 +150,8 @@ test.describe('Dialog on a phone', () => {
 
     await page.setViewportSize(PHONE);
     await expect(dialog).toHaveAttribute('data-pharos-mode', 'fullscreen');
+    // Straight to its new place: no motion slides it in from half off-screen.
+    expect(await dialog.boundingBox()).toEqual({ x: 0, y: 0, ...PHONE });
     await expect(notes).toBeFocused();
     await expect(name).toHaveValue('Communication');
 
@@ -166,6 +168,16 @@ test.describe('Dialog on a phone', () => {
     await page.keyboard.press('Escape');
     await expect(dialog).toHaveCount(0);
     await expect(trigger).toBeFocused();
+  });
+});
+
+test.describe('Dialog at the compact breakpoint', () => {
+  test('is full screen one pixel below 40rem and centered at 40rem', async ({ page }) => {
+    await page.setViewportSize({ width: 639, height: 812 });
+    const { dialog } = await openNewPillar(page);
+    await expect(dialog).toHaveAttribute('data-pharos-mode', 'fullscreen');
+    await page.setViewportSize({ width: 640, height: 812 });
+    await expect(dialog).toHaveAttribute('data-pharos-mode', 'centered');
   });
 });
 

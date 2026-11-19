@@ -1,6 +1,7 @@
 import { afterEach, describe, it, expect, vi } from 'vitest';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { createRef } from 'react';
 import { tokens } from '@code-sherpas/pharos-tokens';
 import {
   AlertDialog,
@@ -103,20 +104,14 @@ describe('Dialog', () => {
 });
 
 /**
- * jsdom has no `matchMedia`, so the viewport is a double: it answers whether
- * the window is narrower than the query's `min-width`, and tells listeners
- * when the width crosses it.
+ * jsdom has no `matchMedia`, so the viewport is a double: it says whether the
+ * window is compact, records the queries it was asked, and tells listeners
+ * when the width crosses the breakpoint.
  */
-function viewport(initialWidthInRem: number) {
-  let width = initialWidthInRem;
+function viewport(initiallyCompact: boolean) {
+  let compact = initiallyCompact;
   const queries: string[] = [];
   const listeners = new Set<() => void>();
-  function matchesAt(media: string): boolean {
-    const minWidth = /min-width:\s*([\d.]+)rem/.exec(media);
-    if (minWidth === null) return false;
-    const atLeast = width >= Number(minWidth[1]);
-    return media.startsWith('not all and') ? !atLeast : atLeast;
-  }
   vi.stubGlobal(
     'matchMedia',
     vi.fn(function matchMedia(media: string) {
@@ -124,7 +119,7 @@ function viewport(initialWidthInRem: number) {
       return {
         media,
         get matches() {
-          return matchesAt(media);
+          return compact;
         },
         addEventListener(_type: string, listener: () => void) {
           listeners.add(listener);
@@ -137,8 +132,8 @@ function viewport(initialWidthInRem: number) {
   );
   return {
     queries,
-    resize(nextWidthInRem: number) {
-      width = nextWidthInRem;
+    resize(nextCompact: boolean) {
+      compact = nextCompact;
       act(function notify() {
         for (const listener of listeners) listener();
       });
@@ -146,9 +141,8 @@ function viewport(initialWidthInRem: number) {
   };
 }
 
-/** A phone (375px) and a desktop (1280px), in rem at the default 16px. */
-const PHONE = 375 / 16;
-const DESKTOP = 1280 / 16;
+const PHONE = true;
+const DESKTOP = false;
 
 function FormDialog() {
   return (
@@ -194,13 +188,22 @@ describe('Dialog at the compact width', () => {
     const screenSize = viewport(PHONE);
     render(<FormDialog />);
     await screen.findByRole('dialog');
-    expect(screenSize.queries).toContain(`not all and (min-width: ${tokens.breakpoint.compact})`);
+    expect(screenSize.queries.some((query) => query.includes(tokens.breakpoint.compact))).toBe(
+      true,
+    );
   });
 
-  it('is centered exactly at the breakpoint', async () => {
-    viewport(Number.parseFloat(tokens.breakpoint.compact));
-    render(<FormDialog />);
-    expect(await screen.findByRole('dialog')).toHaveAttribute('data-pharos-mode', 'centered');
+  it('still hands the consumer its ref to the panel', async () => {
+    viewport(PHONE);
+    const panelRef = createRef<HTMLDivElement>();
+    render(
+      <Dialog defaultOpen>
+        <DialogContent ref={panelRef}>
+          <DialogTitle>New pillar</DialogTitle>
+        </DialogContent>
+      </Dialog>,
+    );
+    expect(panelRef.current).toBe(await screen.findByRole('dialog'));
   });
 
   it('is centered when the browser cannot tell the width', async () => {

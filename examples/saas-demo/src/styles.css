@@ -34,7 +34,8 @@ body {
   margin-bottom: var(--pharos-spacing-4, 1rem);
 }
 
-.field label {
+.field label,
+.field-heading {
   font-size: 0.875rem;
   font-weight: 500;
 }

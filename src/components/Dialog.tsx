@@ -3,10 +3,13 @@
 import {
   useCallback,
   useEffect,
+  useLayoutEffect,
+  useRef,
   useState,
   useSyncExternalStore,
   type ComponentProps,
   type ComponentPropsWithoutRef,
+  type Ref,
 } from 'react';
 import { Dialog as BaseDialog } from '@base-ui/react/dialog';
 import { tokens } from '@code-sherpas/pharos-tokens';
@@ -106,6 +109,10 @@ function subscribeToCompactWidth(notify: () => void): () => void {
   };
 }
 
+// `useLayoutEffect` warns during server rendering on React 18; the effect
+// only matters in the browser.
+const useBrowserLayoutEffect = typeof window === 'undefined' ? useEffect : useLayoutEffect;
+
 /** The form the panel takes at the current viewport width. */
 function useDialogMode(): DialogMode {
   const compact = useSyncExternalStore(
@@ -136,22 +143,42 @@ export interface DialogContentProps extends ComponentProps<typeof BaseDialog.Pop
 function usePinnedEdgesScrollPadding(popup: HTMLElement | null, mode: DialogMode): void {
   useEffect(
     function padForPinnedEdges() {
-      if (popup === null || mode !== 'fullscreen' || typeof ResizeObserver === 'undefined') {
+      if (
+        popup === null ||
+        mode !== 'fullscreen' ||
+        typeof ResizeObserver === 'undefined' ||
+        typeof MutationObserver === 'undefined'
+      ) {
         return;
       }
       const panel = popup;
-      const header = panel.querySelector<HTMLElement>('[data-pharos-slot="dialog-header"]');
-      const footer = panel.querySelector<HTMLElement>('[data-pharos-slot="dialog-footer"]');
+      let header: HTMLElement | null = null;
+      let footer: HTMLElement | null = null;
       function measure() {
         panel.style.setProperty('--dialog-header-size', `${header?.offsetHeight ?? 0}px`);
         panel.style.setProperty('--dialog-footer-size', `${footer?.offsetHeight ?? 0}px`);
       }
-      const observer = new ResizeObserver(measure);
-      if (header !== null) observer.observe(header);
-      if (footer !== null) observer.observe(footer);
+      const sizes = new ResizeObserver(measure);
+      // A header or footer can mount after the dialog opens: find them again
+      // whenever the panel's content changes.
+      function findPinnedEdges() {
+        const nextHeader = panel.querySelector<HTMLElement>('[data-pharos-slot="dialog-header"]');
+        const nextFooter = panel.querySelector<HTMLElement>('[data-pharos-slot="dialog-footer"]');
+        if (nextHeader === header && nextFooter === footer) return;
+        header = nextHeader;
+        footer = nextFooter;
+        sizes.disconnect();
+        if (header !== null) sizes.observe(header);
+        if (footer !== null) sizes.observe(footer);
+        measure();
+      }
+      const content = new MutationObserver(findPinnedEdges);
+      content.observe(panel, { childList: true, subtree: true });
+      findPinnedEdges();
       measure();
       return function stopPadding() {
-        observer.disconnect();
+        content.disconnect();
+        sizes.disconnect();
         panel.style.removeProperty('--dialog-header-size');
         panel.style.removeProperty('--dialog-footer-size');
       };
@@ -160,17 +187,66 @@ function usePinnedEdgesScrollPadding(popup: HTMLElement | null, mode: DialogMode
   );
 }
 
-export function DialogContent({ className, children, ref, ...rest }: DialogContentProps) {
-  const mode = useDialogMode();
+/**
+ * The open and close motion animates `transform`, which the two forms also
+ * use to place the panel. Crossing the breakpoint with the dialog open
+ * changes the form without that motion: the panel goes straight to its new
+ * place instead of sliding half off the screen on every rotation.
+ */
+function useModeChangeWithoutMotion(popup: HTMLElement | null, mode: DialogMode): void {
+  const previousMode = useRef(mode);
+  useBrowserLayoutEffect(
+    function changeFormInPlace() {
+      if (previousMode.current === mode) return;
+      previousMode.current = mode;
+      if (popup === null) return;
+      const transition = popup.style.transition;
+      popup.style.transition = 'none';
+      // Apply the new form's styles while transitions are off.
+      void popup.offsetWidth;
+      popup.style.transition = transition;
+    },
+    [popup, mode],
+  );
+}
+
+/** Points the panel at Pharos and at the consumer's own `ref`, keeping its cleanup. */
+function usePopupRef(
+  ref: Ref<HTMLDivElement> | undefined,
+): [HTMLDivElement | null, (node: HTMLDivElement | null) => () => void] {
   const [popup, setPopup] = useState<HTMLDivElement | null>(null);
   const setPopupRef = useCallback(
     function setPopupRef(node: HTMLDivElement | null) {
       setPopup(node);
-      if (typeof ref === 'function') ref(node);
-      else if (ref) ref.current = node;
+      let cleanupConsumerRef: () => void = function noConsumerRef() {};
+      if (typeof ref === 'function') {
+        const cleanup = ref(node);
+        cleanupConsumerRef =
+          typeof cleanup === 'function'
+            ? cleanup
+            : function clearCallbackRef() {
+                ref(null);
+              };
+      } else if (ref) {
+        ref.current = node;
+        cleanupConsumerRef = function clearObjectRef() {
+          ref.current = null;
+        };
+      }
+      return function detachPopup() {
+        setPopup(null);
+        cleanupConsumerRef();
+      };
     },
     [ref],
   );
+  return [popup, setPopupRef];
+}
+
+export function DialogContent({ className, children, ref, ...rest }: DialogContentProps) {
+  const mode = useDialogMode();
+  const [popup, setPopupRef] = usePopupRef(ref);
+  useModeChangeWithoutMotion(popup, mode);
   usePinnedEdgesScrollPadding(popup, mode);
   return (
     <BaseDialog.Portal>

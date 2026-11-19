@@ -1,4 +1,4 @@
-import { useState, type ChangeEvent } from 'react';
+import { useRef, useState, type ChangeEvent } from 'react';
 import {
   Button,
   Dialog,
@@ -41,6 +41,7 @@ export function NewPillarDialog({ onCreate }: { onCreate: (pillar: NewPillar) =>
   const [description, setDescription] = useState('');
   const [audience, setAudience] = useState('everyone');
   const [notes, setNotes] = useState('');
+  const nameField = useRef<HTMLInputElement>(null);
   const canCreate = name.trim() !== '';
 
   function changeOpen(next: boolean) {
@@ -55,7 +56,7 @@ export function NewPillarDialog({ onCreate }: { onCreate: (pillar: NewPillar) =>
 
   function create() {
     if (!canCreate) {
-      document.getElementById('pillar-name')?.focus();
+      nameField.current?.focus();
       return;
     }
     onCreate({ name: name.trim(), description: description.trim() });
@@ -75,7 +76,7 @@ export function NewPillarDialog({ onCreate }: { onCreate: (pillar: NewPillar) =>
   }
 
   function changeAudience(value: unknown) {
-    setAudience(value as string);
+    setAudience(String(value));
   }
 
   return (
@@ -91,7 +92,13 @@ export function NewPillarDialog({ onCreate }: { onCreate: (pillar: NewPillar) =>
 
         <div className="field">
           <label htmlFor="pillar-name">Name</label>
-          <Input id="pillar-name" value={name} onChange={changeName} />
+          <Input
+            id="pillar-name"
+            ref={nameField}
+            value={name}
+            onChange={changeName}
+            aria-describedby={canCreate ? undefined : 'pillar-name-hint'}
+          />
           {!canCreate && (
             <p id="pillar-name-hint" className="hint-text">
               Add a name to create the pillar.
@@ -110,7 +117,9 @@ export function NewPillarDialog({ onCreate }: { onCreate: (pillar: NewPillar) =>
         </div>
 
         <div className="field">
-          <label id="pillar-audience-label">Applies to</label>
+          <span id="pillar-audience-label" className="field-heading">
+            Applies to
+          </span>
           <RadioGroup
             aria-labelledby="pillar-audience-label"
             value={audience}
