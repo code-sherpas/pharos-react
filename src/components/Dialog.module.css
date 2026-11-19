@@ -94,7 +94,6 @@
   width: auto;
   max-width: none;
   max-height: none;
-  padding-block: 0;
   border-radius: 0;
   box-shadow: none;
   /* Sizes of the pinned header and footer, measured by DialogContent: the
@@ -102,9 +101,27 @@
   scroll-padding-block: var(--dialog-header-size, 0px) var(--dialog-footer-size, 0px);
 }
 
+/* The pinned header and footer carry the panel's top and bottom padding, so
+ * they stick flush to the screen edges; without them the panel keeps its own. */
+.content[data-pharos-mode='fullscreen']:has(.header) {
+  padding-top: 0;
+}
+
+.content[data-pharos-mode='fullscreen']:has(.footer) {
+  padding-bottom: 0;
+}
+
 .content[data-pharos-mode='fullscreen'][data-starting-style],
 .content[data-pharos-mode='fullscreen'][data-ending-style] {
   transform: translateY(var(--pharos-spacing-4));
+}
+
+/* Reduced motion: the full-screen panel fades without sliding up. */
+@media (prefers-reduced-motion: reduce) {
+  .content[data-pharos-mode='fullscreen'][data-starting-style],
+  .content[data-pharos-mode='fullscreen'][data-ending-style] {
+    transform: none;
+  }
 }
 
 .content[data-pharos-mode='fullscreen'] .header {

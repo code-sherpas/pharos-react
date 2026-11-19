@@ -110,7 +110,7 @@ export const Compact: Story = {
         ))}
         <DialogFooter>
           <DialogClose render={<Button intent="ghost">Cancel</Button>} />
-          <DialogClose render={<Button>Create pillar</Button>} />
+          <Button>Create pillar</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
