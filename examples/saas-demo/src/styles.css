@@ -280,3 +280,10 @@ body {
   align-items: center;
   gap: var(--pharos-spacing-2, 0.5rem);
 }
+
+/* The Alert notices of the edit dialog: one under the other, before the
+ * field. */
+.edit-description-notices {
+  display: grid;
+  gap: var(--pharos-spacing-3, 0.75rem);
+}

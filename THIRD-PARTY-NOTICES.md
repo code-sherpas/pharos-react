@@ -11,9 +11,13 @@ inline into these files of the published `dist/`:
 - `icons/LanguagesIcon.js` — `languages`
 - `components/Select.js` — `chevron-down`, `check`
 - `components/Checkbox.js` — `check`, `minus`
+- `components/Toast.js` — `circle-check`, `info`, `triangle-alert`, `circle-alert`, `x`
+- `components/Alert.js` — `circle-check`, `info`, `triangle-alert`, `circle-alert`
 
-`chevron-down`, `check` and `minus` are among the Lucide icons derived from
-Feather, covered by the MIT licence quoted at the end of Lucide's licence below.
+`chevron-down`, `check`, `minus`, `info` and `x`, and `circle-alert` and
+`triangle-alert` (Feather's `alert-circle` and `alert-triangle`), are among the
+Lucide icons derived from Feather, covered by the MIT licence quoted at the end
+of Lucide's licence below.
 
 Lucide's licence, verbatim:
 

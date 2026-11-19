@@ -17,6 +17,8 @@
 // regression cannot ship. Directive placement + single-CSS bundle are checked
 // separately by `scripts/verify-dist-rsc.mjs` (`pnpm verify:dist-rsc`).
 
+import { createElement } from 'react';
+
 // (1) Full public surface, from the barrel.
 import {
   Button,
@@ -94,6 +96,10 @@ import {
   ToastProvider,
   Toaster,
   useToast,
+  Alert,
+  AlertTitle,
+  AlertDescription,
+  alertVariants,
   cn,
   type ButtonProps,
   type IconButtonProps,
@@ -128,6 +134,10 @@ import {
   type ToastOptions,
   type ToastProviderProps,
   type UseToastReturnValue,
+  type AlertProps,
+  type AlertTitleProps,
+  type AlertDescriptionProps,
+  type AlertVariant,
 } from '../dist/index.js';
 
 // (2) Deep-import subpaths (#80): each component's primary symbol (and a type
@@ -162,6 +172,11 @@ import {
 } from '../dist/components/RadioGroup.js';
 import { Toaster as ToasterDeep } from '../dist/components/Toast.js';
 import {
+  Alert as AlertDeep,
+  AlertTitle as AlertTitleDeep,
+  AlertDescription as AlertDescriptionDeep,
+} from '../dist/components/Alert.js';
+import {
   ToggleGroup as ToggleGroupDeep,
   ToggleGroupItem as ToggleGroupItemDeep,
 } from '../dist/components/ToggleGroup.js';
@@ -184,6 +199,9 @@ const _toasterProps: ToasterProps = {
   closeLabel: 'Close',
 };
 const _toastOptions: ToastOptions = { title: 'Saved', variant: 'success' };
+const _alertProps: AlertProps = { variant: 'warning' };
+// `render` makes the title a heading of the consumer's level.
+const _alertTitleProps: AlertTitleProps = { render: createElement('h3') };
 const _alertDialogActionProps: AlertDialogActionProps = { intent: 'destructive' };
 const _buttonPropsDeep: ButtonPropsDeep = { intent: 'secondary' };
 
@@ -212,6 +230,8 @@ export type _PublicPropTypes = [
   TreeViewGroupProps,
   ToastProviderProps,
   UseToastReturnValue,
+  AlertDescriptionProps,
+  AlertVariant,
 ];
 
 // Touch every binding so nothing is flagged as unused (surface presence check).
@@ -326,6 +346,15 @@ export const _smoke = [
   useToast,
   _toasterProps,
   _toastOptions,
+  Alert,
+  AlertTitle,
+  AlertDescription,
+  alertVariants,
+  AlertDeep,
+  AlertTitleDeep,
+  AlertDescriptionDeep,
+  _alertProps,
+  _alertTitleProps,
   _buttonProps,
   _iconButtonProps,
   _badgeProps,

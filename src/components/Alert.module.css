@@ -1,0 +1,126 @@
+/* Alert.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). Hashed into
+ * `dist/styles.css`. An inline notice in the flow of the page: a card surface
+ * with a side bar in the variant's tone on the inline-start edge, an icon,
+ * and the consumer's title, description and action.
+ *
+ * The text keeps the normal text colour in every variant; the tone is in the
+ * bar and the icon only, each at 3:1 or more against the card (WCAG 1.4.11).
+ * Logical properties only, so the bar follows the writing direction.
+ */
+
+.alert {
+  /* The side bar's tone, set per variant below. */
+  --pharos-alert-bar: var(--pharos-color-neutral-500);
+
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pharos-spacing-3);
+  inline-size: 100%;
+  padding-block: var(--pharos-spacing-3);
+  padding-inline: var(--pharos-spacing-3) var(--pharos-spacing-4);
+
+  background-color: var(--pharos-color-surface-card);
+  border: 1px solid var(--pharos-color-border-subtle);
+  border-inline-start: var(--pharos-spacing-1) solid var(--pharos-alert-bar);
+  border-radius: var(--pharos-radius-lg);
+
+  font-family: var(--pharos-font-family-sans);
+  font-size: var(--pharos-font-size-sm);
+  line-height: 1.43; /* 14 / 20, D3 */
+  color: var(--pharos-color-neutral-900);
+}
+
+/* `default` keeps the neutral bar and carries no icon. */
+.default {
+  --pharos-alert-bar: var(--pharos-color-neutral-500);
+}
+
+.info {
+  --pharos-alert-bar: var(--pharos-color-semantic-info-fg);
+}
+
+.success {
+  --pharos-alert-bar: var(--pharos-color-semantic-success-fg);
+}
+
+/* `semantic-warning-fg` is 2.03:1 on the card, so the bar takes the amber
+ * made for borders and bars (pharos-tokens 1.3.0, 3.69:1). */
+.warning {
+  --pharos-alert-bar: var(--pharos-color-semantic-warning-border);
+}
+
+.destructive {
+  --pharos-alert-bar: var(--pharos-color-semantic-error-fg);
+}
+
+/* 20 px, the height of the title's first line, so the two line up. */
+.icon {
+  flex-shrink: 0;
+  inline-size: var(--pharos-spacing-5);
+  block-size: var(--pharos-spacing-5);
+}
+
+.info .icon {
+  color: var(--pharos-color-semantic-info-fg);
+}
+
+.success .icon {
+  color: var(--pharos-color-semantic-success-fg);
+}
+
+.destructive .icon {
+  color: var(--pharos-color-semantic-error-fg);
+}
+
+/* A filled triangle with the glyph in its on-colour, the way a warning sign
+ * reads. Filled with the amber made for borders and bars, like the bar: it is
+ * what tells a warning from a note without colour, so it needs 3:1 on the
+ * card (3.69:1); `semantic-warning-fg` is 2.03:1. The «!» in
+ * `semantic-warning-on` (navy) is about 4.8:1 on that amber. */
+.warning .icon {
+  color: var(--pharos-color-semantic-warning-on);
+}
+
+.warningFill {
+  fill: var(--pharos-color-semantic-warning-border);
+  stroke: var(--pharos-color-semantic-warning-border);
+}
+
+.content {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--pharos-spacing-0-5);
+  min-inline-size: 0;
+  overflow-wrap: anywhere;
+}
+
+/* Rendered as any heading level through `render`: its size, line and margin
+ * come from here, not from the browser's or the page's heading styles. */
+.title {
+  margin: 0;
+  font-size: var(--pharos-font-size-sm);
+  line-height: inherit;
+  font-weight: var(--pharos-font-weight-semibold);
+  color: inherit;
+}
+
+.description {
+  margin: 0;
+  font-size: var(--pharos-font-size-sm);
+  line-height: inherit;
+  color: inherit;
+}
+
+.description > p {
+  margin: 0;
+}
+
+/* An action after the description — "Retry" — sits under the text, apart. */
+.description + * {
+  margin-block-start: var(--pharos-spacing-2);
+}
