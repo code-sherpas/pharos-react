@@ -272,3 +272,10 @@ body {
 .taxonomy-detail p {
   overflow-wrap: anywhere;
 }
+
+/* A radio and its label on one line (the «Applies to» choice of a new pillar). */
+.radio-row {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pharos-spacing-2, 0.5rem);
+}
