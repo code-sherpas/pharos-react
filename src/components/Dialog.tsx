@@ -196,7 +196,10 @@ function usePinnedEdgesScrollPadding(popup: HTMLElement | null, mode: DialogMode
  * A pinch zoom also shrinks the visual viewport, but the person wants the
  * panel magnified, not refitted into what they zoomed into. Only an unzoomed
  * visual viewport smaller than the window is an on-screen keyboard (or a
- * browser toolbar) taking room.
+ * browser toolbar) taking room. iOS Safari also zooms in by itself when a
+ * field with a font smaller than 16px takes the focus; then the panel stops
+ * following the keyboard. Pharos's own fields use 16px on a coarse pointer to
+ * avoid it; a consumer's own field needs the same.
  */
 function isUnzoomed(visualViewport: VisualViewport): boolean {
   return Math.abs(visualViewport.scale - 1) < 0.01;
