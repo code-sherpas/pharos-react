@@ -9,12 +9,16 @@ import { signIn } from './helpers';
 // one the test shortens and moves the way a phone's keyboard does. Below
 // `breakpoint.compact` the full-screen dialog follows it: the footer sits
 // right above the keyboard and the focused field stays in view. From the
-// breakpoint up nothing changes.
+// breakpoint up (a phone turned sideways, a tablet) the centered panel is
+// centred in what the keyboard leaves and no taller than it. With no keyboard
+// the visual viewport is the window, so on a desktop nothing moves.
 const PHONE = { width: 375, height: 812 };
 const PHONE_TURNED = { width: 812, height: 375 };
 const DESKTOP = { width: 1280, height: 800 };
 /** About what an iPhone keyboard with its suggestion bar takes, in CSS px. */
 const KEYBOARD = 336;
+/** The same keyboard with the phone turned sideways. */
+const KEYBOARD_TURNED = 160;
 
 interface OnScreenKeyboard {
   open(height: number, scrolledBy?: number): void;
@@ -44,6 +48,10 @@ function installOnScreenKeyboard() {
     configurable: true,
     get: () => visualViewport,
   });
+  // A real visual viewport also changes when the window does.
+  window.addEventListener('resize', function windowResized() {
+    visualViewport.dispatchEvent(new Event('resize'));
+  });
   function change(height: number, scrolledBy: number) {
     keyboard.height = height;
     keyboard.scrolledBy = scrolledBy;
@@ -60,12 +68,12 @@ function installOnScreenKeyboard() {
   };
 }
 
-function openKeyboard(page: Page, scrolledBy = 0) {
+function openKeyboard(page: Page, scrolledBy = 0, height = KEYBOARD) {
   return page.evaluate(
-    function open([height, by]) {
-      window.onScreenKeyboard.open(height, by);
+    function open([keyboardHeight, by]) {
+      window.onScreenKeyboard.open(keyboardHeight, by);
     },
-    [KEYBOARD, scrolledBy] as const,
+    [height, scrolledBy] as const,
   );
 }
 
@@ -195,12 +203,21 @@ test.describe('Dialog on a phone with the keyboard open', () => {
     await notes.fill('Check it against the 2026 review.');
     await openKeyboard(page);
 
-    // 812px wide is above the compact breakpoint: the centered panel, as it was.
+    // 812px wide is above the compact breakpoint: the centered panel, kept
+    // in what the (shorter) keyboard leaves.
     await page.setViewportSize(PHONE_TURNED);
+    await openKeyboard(page, 0, KEYBOARD_TURNED);
     await expect(dialog).toHaveAttribute('data-pharos-mode', 'centered');
     await expect(dialog).toHaveCSS('max-width', '512px');
+    await expect
+      .poll(async () => {
+        const box = (await dialog.boundingBox())!;
+        return box.y + box.height;
+      })
+      .toBeLessThanOrEqual(PHONE_TURNED.height - KEYBOARD_TURNED);
     await expect(notes).toBeFocused();
 
+    await openKeyboard(page);
     await page.setViewportSize(PHONE);
     await expect(dialog).toHaveAttribute('data-pharos-mode', 'fullscreen');
     await expect
@@ -213,19 +230,70 @@ test.describe('Dialog on a phone with the keyboard open', () => {
   });
 });
 
-test.describe('Dialog on a desktop with a shorter visual viewport', () => {
+test.describe('Dialog on a phone turned sideways with the keyboard open', () => {
+  test.use({ viewport: PHONE_TURNED });
+
+  test('the centered panel stays in what the keyboard leaves, footer included', async ({
+    page,
+  }) => {
+    const { dialog, footer } = await openNewPillar(page);
+    await expect(dialog).toHaveAttribute('data-pharos-mode', 'centered');
+    const notes = dialog.getByLabel('Notes for reviewers');
+    await notes.focus();
+
+    await openKeyboard(page, 0, KEYBOARD_TURNED);
+    const visibleHeight = PHONE_TURNED.height - KEYBOARD_TURNED;
+    // Centred in the visible area and wholly above the keyboard.
+    await expect
+      .poll(async () => {
+        const box = (await dialog.boundingBox())!;
+        return box.y + box.height / 2;
+      })
+      .toBeCloseTo(visibleHeight / 2, 0);
+    const box = (await dialog.boundingBox())!;
+    expect(box.y).toBeGreaterThan(0);
+    expect(box.y + box.height).toBeLessThanOrEqual(visibleHeight);
+
+    // The focused field was brought into the panel's visible part.
+    await expect(notes).toBeFocused();
+    const notesBox = (await notes.boundingBox())!;
+    expect(notesBox.y).toBeLessThan(box.y + box.height);
+    expect(notesBox.y + notesBox.height).toBeGreaterThan(box.y);
+
+    // The footer is at the end of the body, above the keyboard: «Cancel» and
+    // «Create pillar» are reached by scrolling the panel, never covered.
+    await dialog.evaluate(function scrollToEnd(node) {
+      node.scrollTop = node.scrollHeight;
+    });
+    const footerBox = (await footer.boundingBox())!;
+    expect(footerBox.y + footerBox.height).toBeLessThanOrEqual(visibleHeight);
+    for (const name of ['Cancel', 'Create pillar']) {
+      expect(await isOnTop(dialog.getByRole('button', { name }))).toBe(true);
+    }
+
+    // Keyboard closed: centred in the window again.
+    await closeKeyboard(page);
+    await expect
+      .poll(async () => {
+        const closed = (await dialog.boundingBox())!;
+        return closed.y + closed.height / 2;
+      })
+      .toBeCloseTo(PHONE_TURNED.height / 2, 0);
+  });
+});
+
+test.describe('Dialog on a desktop, with no on-screen keyboard', () => {
   test.use({ viewport: DESKTOP });
 
   test('is the centered panel, as before', async ({ page }) => {
     const { dialog, header, footer } = await openNewPillar(page);
-    const before = (await dialog.boundingBox())!;
-    await dialog.getByLabel('Name').focus();
-
-    await openKeyboard(page);
     await expect(dialog).toHaveAttribute('data-pharos-mode', 'centered');
-    expect(await dialog.boundingBox()).toEqual(before);
-    expect(before.x + before.width / 2).toBeCloseTo(DESKTOP.width / 2, 0);
-    expect(before.y + before.height / 2).toBeCloseTo(DESKTOP.height / 2, 0);
+    const box = (await dialog.boundingBox())!;
+    expect(box.width).toBe(512);
+    expect(box.x + box.width / 2).toBeCloseTo(DESKTOP.width / 2, 0);
+    expect(box.y + box.height / 2).toBeCloseTo(DESKTOP.height / 2, 0);
+    // 100dvh minus the margins, as in 4.0.0.
+    await expect(dialog).toHaveCSS('max-height', `${DESKTOP.height - 48}px`);
     await expect(header).toHaveCSS('position', 'static');
     await expect(footer).toHaveCSS('position', 'static');
   });

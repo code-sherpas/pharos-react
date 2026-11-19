@@ -23,7 +23,8 @@ import { Textarea } from './Textarea';
  * footer always in view and only the body scrolling between them. There its
  * height follows the visual viewport, so with a phone's on-screen keyboard
  * open the footer sits right above the keyboard and the focused field stays
- * in view (exercised in the consumer harness: a story cannot open a keyboard).
+ * in view; the centered panel stays within the visual viewport too (exercised
+ * in the consumer harness: a story cannot open a keyboard).
  */
 const meta: Meta<typeof Dialog> = {
   title: 'Components/Dialog',
