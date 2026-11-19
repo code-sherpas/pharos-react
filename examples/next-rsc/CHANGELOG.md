@@ -1,5 +1,13 @@
 # @examples/next-rsc
 
+## 0.0.27
+
+### Patch Changes
+
+- Updated dependencies [5f928ef]
+- Updated dependencies [5f928ef]
+  - @code-sherpas/pharos-react@5.0.0
+
 ## 0.0.26
 
 ### Patch Changes
