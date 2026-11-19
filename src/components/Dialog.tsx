@@ -26,8 +26,11 @@ import styles from './Dialog.module.css';
  * Below the compact width (`breakpoint.compact` in pharos-tokens, a phone's)
  * the same panel fills the screen: no margin, no radius, the header at the top
  * and the footer at the bottom always in view, and only what sits between them
- * scrolls. Crossing the breakpoint with the dialog open only restyles it: it
- * is the same element, so what was typed and the focus stay where they were.
+ * scrolls. Its height follows the visual viewport, so with the on-screen
+ * keyboard open the footer sits right above the keyboard and the focused field
+ * stays in view; when the keyboard closes, the panel takes the whole height
+ * back. Crossing the breakpoint with the dialog open only restyles it: it is
+ * the same element, so what was typed and the focus stay where they were.
  *
  * Sibling of `Sheet` (D18): both wrap the same Base UI `Dialog` primitive.
  * Dialog is the **centered** modal (confirmations, short forms, focused
@@ -126,7 +129,8 @@ function useDialogMode(): DialogMode {
 /**
  * The panel. Collapses Base UI's `Portal` + `Backdrop` + `Popup`. Centered from
  * the compact breakpoint up; below it, full screen with the header and footer
- * pinned and the rest scrolling between them (`data-pharos-mode`). The
+ * pinned and the rest scrolling between them (`data-pharos-mode`), as tall as
+ * the visual viewport, so the on-screen keyboard never covers it. The
  * backdrop and panel share the `--pharos-z-index-modal` layer (D29): a modal
  * opened over the dialog paints above it by portal order, and a Select /
  * Popover opened from inside it sits on the higher popover layer.
@@ -181,6 +185,82 @@ function usePinnedEdgesScrollPadding(popup: HTMLElement | null, mode: DialogMode
         sizes.disconnect();
         panel.style.removeProperty('--dialog-header-size');
         panel.style.removeProperty('--dialog-footer-size');
+      };
+    },
+    [popup, mode],
+  );
+}
+
+/**
+ * A pinch zoom also shrinks the visual viewport, but the person wants the
+ * panel magnified, not refitted into what they zoomed into. Only an unzoomed
+ * visual viewport smaller than the window is an on-screen keyboard (or a
+ * browser toolbar) taking room.
+ */
+function isUnzoomed(visualViewport: VisualViewport): boolean {
+  return Math.abs(visualViewport.scale - 1) < 0.01;
+}
+
+/**
+ * Full screen, the panel follows the visual viewport: the part of the page
+ * the browser actually shows. When the on-screen keyboard opens it covers the
+ * bottom of the window without resizing it (iOS Safari, and Chrome on Android
+ * by default), so a panel sized to the window would leave its footer, and the
+ * field being typed in, under the keyboard. Following the visual viewport, the
+ * footer sits right above the keyboard and the focused field is scrolled into
+ * the body that is left; when the keyboard closes, the panel takes the whole
+ * height back. The size and position are custom properties the CSS reads only
+ * in the full-screen form, so the centered panel never changes.
+ */
+function useFollowVisualViewport(popup: HTMLElement | null, mode: DialogMode): void {
+  useBrowserLayoutEffect(
+    function followVisualViewport() {
+      const visualViewport = window.visualViewport;
+      if (popup === null || mode !== 'fullscreen' || !visualViewport) return;
+      const panel = popup;
+      const viewport = visualViewport;
+      let followedHeight: number | null = null;
+
+      function release() {
+        panel.style.removeProperty('--dialog-viewport-top');
+        panel.style.removeProperty('--dialog-viewport-height');
+        followedHeight = null;
+      }
+
+      /** Keeps the focused field in what is left of the body after the panel shrank. */
+      function revealFocusedField() {
+        const focused = document.activeElement;
+        if (
+          !(focused instanceof HTMLElement) ||
+          focused === panel ||
+          !panel.contains(focused) ||
+          typeof focused.scrollIntoView !== 'function'
+        ) {
+          return;
+        }
+        // The panel's scroll-padding keeps it clear of the pinned header and footer.
+        focused.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      }
+
+      function follow() {
+        if (!isUnzoomed(viewport)) {
+          release();
+          return;
+        }
+        const shrank = followedHeight !== null && viewport.height < followedHeight;
+        panel.style.setProperty('--dialog-viewport-top', `${viewport.offsetTop}px`);
+        panel.style.setProperty('--dialog-viewport-height', `${viewport.height}px`);
+        followedHeight = viewport.height;
+        if (shrank) revealFocusedField();
+      }
+
+      follow();
+      viewport.addEventListener('resize', follow);
+      viewport.addEventListener('scroll', follow);
+      return function stopFollowing() {
+        viewport.removeEventListener('resize', follow);
+        viewport.removeEventListener('scroll', follow);
+        release();
       };
     },
     [popup, mode],
@@ -248,6 +328,7 @@ export function DialogContent({ className, children, ref, ...rest }: DialogConte
   const [popup, setPopupRef] = usePopupRef(ref);
   useModeChangeWithoutMotion(popup, mode);
   usePinnedEdgesScrollPadding(popup, mode);
+  useFollowVisualViewport(popup, mode);
   return (
     <BaseDialog.Portal>
       <BaseDialog.Backdrop className={styles.backdrop} />
