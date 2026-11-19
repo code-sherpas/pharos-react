@@ -13,6 +13,12 @@
  * included. A backdrop on a lower layer (overlay 1300) would sit under the
  * first modal's panel and leave it undimmed. A Select, Popover or menu opened
  * from inside the dialog sits on the popover layer (1500), above it.
+ *
+ * Two forms, keyed off `data-pharos-mode` (set by DialogContent from the
+ * pharos-tokens `breakpoint.compact`, read with matchMedia because a custom
+ * property does not work inside @media — D32): `centered` from the breakpoint
+ * up, `fullscreen` below it. AlertDialog shares these classes but never sets
+ * the attribute, so it stays centered at every width.
  */
 
 /* === Backdrop (Dialog.Backdrop) === */
@@ -70,6 +76,55 @@
 .content[data-ending-style] {
   opacity: 0;
   transform: translate(-50%, -50%) scale(0.96);
+}
+
+/* === Compact width: full screen ===
+ * Below `breakpoint.compact` the panel fills the screen, with no margin,
+ * radius or shadow. The panel itself is still the scroll container; the
+ * header and the footer stick to its top and bottom edges, so they stay in
+ * view and only what lies between them scrolls. They span the full width
+ * (negative inline margins cancel the panel's padding) with an opaque
+ * background and a rule, so content scrolling under them is hidden and the
+ * scrolling region reads as one. The body keeps the panel's inline padding.
+ * Only the styling changes: it is the same element, so a resize or a
+ * rotation keeps what was typed and the focus. */
+.content[data-pharos-mode='fullscreen'] {
+  inset: 0;
+  transform: none;
+  width: auto;
+  max-width: none;
+  max-height: none;
+  padding-block: 0;
+  border-radius: 0;
+  box-shadow: none;
+  /* Sizes of the pinned header and footer, measured by DialogContent: the
+   * browser keeps a field it reveals for the focus clear of them. */
+  scroll-padding-block: var(--dialog-header-size, 0px) var(--dialog-footer-size, 0px);
+}
+
+.content[data-pharos-mode='fullscreen'][data-starting-style],
+.content[data-pharos-mode='fullscreen'][data-ending-style] {
+  transform: translateY(var(--pharos-spacing-4));
+}
+
+.content[data-pharos-mode='fullscreen'] .header {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  margin-inline: calc(-1 * var(--pharos-spacing-6));
+  padding: var(--pharos-spacing-6) var(--pharos-spacing-6) var(--pharos-spacing-4);
+  background-color: var(--pharos-color-base-white);
+  border-bottom: 1px solid var(--pharos-color-border-subtle);
+}
+
+.content[data-pharos-mode='fullscreen'] .footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  margin-inline: calc(-1 * var(--pharos-spacing-6));
+  padding: var(--pharos-spacing-4) var(--pharos-spacing-6) var(--pharos-spacing-6);
+  background-color: var(--pharos-color-base-white);
+  border-top: 1px solid var(--pharos-color-border-subtle);
 }
 
 /* === Slots === */

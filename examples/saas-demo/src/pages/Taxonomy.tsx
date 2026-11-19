@@ -1,4 +1,4 @@
-import { useRef, useState, useSyncExternalStore } from 'react';
+import { useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { tokens } from '@code-sherpas/pharos-tokens';
 import {
   Badge,
@@ -16,6 +16,7 @@ import {
   TreeViewItemDescription,
   TreeViewItemLabel,
 } from '@code-sherpas/pharos-react';
+import { NewPillarDialog, type NewPillar } from '../components/NewPillarDialog';
 
 interface Element {
   id: string;
@@ -85,9 +86,6 @@ function index(elements: Element[], parents: Element[] = [], into = new Map<stri
   return into;
 }
 
-/** For each element, its chain from the root down to itself. */
-const PATHS = index(TAXONOMY);
-
 const WIDE = `(min-width: ${tokens.breakpoint.panel})`;
 
 function subscribeToWidth(onChange: () => void) {
@@ -131,8 +129,7 @@ function Items({ elements, chosenRef, chosen }: ItemsProps) {
   });
 }
 
-function Detail({ element }: { element: Element }) {
-  const path = PATHS.get(element.id) ?? [];
+function Detail({ element, path }: { element: Element; path: Element[] }) {
   return (
     <div className="taxonomy-detail">
       <p>{element.summary ?? `A ${element.kind.toLowerCase()} of the taxonomy.`}</p>
@@ -154,15 +151,33 @@ function Detail({ element }: { element: Element }) {
  * detail: beside the tree in a SidePanel from the panel breakpoint up, and
  * below it as a view of its own with «Back», which gives focus back to the
  * element chosen — the list-detail layout. The open branches and the chosen
- * element live here, so the tree comes back as it was.
+ * element live here, so the tree comes back as it was. «New pillar» opens the
+ * form that creates one in a Dialog, full screen on a phone, and the pillar
+ * created joins the tree.
  */
 export function TaxonomyPage() {
   const isWide = useSyncExternalStore(subscribeToWidth, isWideNow, () => true);
   const [expanded, setExpanded] = useState<string[]>(['people']);
   const [chosen, setChosen] = useState<string | null>(null);
   const [showingDetail, setShowingDetail] = useState(false);
+  const [roots, setRoots] = useState<Element[]>(TAXONOMY);
+  const createdCount = useRef(0);
   const returning = useRef(false);
-  const element = chosen === null ? undefined : PATHS.get(chosen)?.at(-1);
+  /** For each element, its chain from the root down to itself. */
+  const paths = useMemo(() => index(roots), [roots]);
+  const path = chosen === null ? [] : (paths.get(chosen) ?? []);
+  const element = path.at(-1);
+
+  function addPillar(pillar: NewPillar) {
+    createdCount.current += 1;
+    const created: Element = {
+      id: `new-pillar-${createdCount.current}`,
+      kind: 'Pillar',
+      name: pillar.name,
+      summary: pillar.description === '' ? undefined : pillar.description,
+    };
+    setRoots((current) => [...current, created]);
+  }
 
   function choose(value: string) {
     setChosen(value);
@@ -195,7 +210,7 @@ export function TaxonomyPage() {
         <h1 tabIndex={-1} ref={focusTheHeading}>
           {element.name}
         </h1>
-        <Detail element={element} />
+        <Detail element={element} path={path} />
       </main>
     );
   }
@@ -209,7 +224,10 @@ export function TaxonomyPage() {
         }}
       >
         <main className="shell-main report-body">
-          <h1>Competency taxonomy</h1>
+          <div className="page-head">
+            <h1>Competency taxonomy</h1>
+            <NewPillarDialog onCreate={addPillar} />
+          </div>
           <TreeView
             aria-label="Competency taxonomy"
             className="taxonomy-tree"
@@ -218,7 +236,7 @@ export function TaxonomyPage() {
             value={chosen}
             onValueChange={choose}
           >
-            <Items elements={TAXONOMY} chosen={chosen} chosenRef={focusTheChosenItem} />
+            <Items elements={roots} chosen={chosen} chosenRef={focusTheChosenItem} />
           </TreeView>
         </main>
         <SidePanelContent>
@@ -229,7 +247,7 @@ export function TaxonomyPage() {
                 <SidePanelTitle>{element.name}</SidePanelTitle>
                 <SidePanelDescription>Detail of the element chosen.</SidePanelDescription>
               </SidePanelHeader>
-              <Detail element={element} />
+              <Detail element={element} path={path} />
               <SidePanelFooter>
                 <SidePanelClose render={<Button intent="ghost">Close</Button>} />
               </SidePanelFooter>

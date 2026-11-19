@@ -1,7 +1,15 @@
 'use client';
 
-import type { ComponentProps, ComponentPropsWithoutRef } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useState,
+  useSyncExternalStore,
+  type ComponentProps,
+  type ComponentPropsWithoutRef,
+} from 'react';
 import { Dialog as BaseDialog } from '@base-ui/react/dialog';
+import { tokens } from '@code-sherpas/pharos-tokens';
 import { cn } from '../lib/cn';
 import styles from './Dialog.module.css';
 
@@ -11,6 +19,12 @@ import styles from './Dialog.module.css';
  * disclosure: `role="dialog"` + `aria-modal`, focus trapped inside the panel,
  * scroll locked, Escape and backdrop-click dismiss, focus returns to the
  * trigger on close.
+ *
+ * Below the compact width (`breakpoint.compact` in pharos-tokens, a phone's)
+ * the same panel fills the screen: no margin, no radius, the header at the top
+ * and the footer at the bottom always in view, and only what sits between them
+ * scrolls. Crossing the breakpoint with the dialog open only restyles it: it
+ * is the same element, so what was typed and the focus stay where they were.
  *
  * Sibling of `Sheet` (D18): both wrap the same Base UI `Dialog` primitive.
  * Dialog is the **centered** modal (confirmations, short forms, focused
@@ -55,21 +69,118 @@ export function DialogTrigger(props: DialogTriggerProps) {
 DialogTrigger.displayName = 'DialogTrigger';
 
 /**
- * The centered panel. Collapses Base UI's `Portal` + `Backdrop` + `Popup`. The
+ * The form the panel takes: `centered` from the compact breakpoint up,
+ * `fullscreen` below it. Mirrored on `data-pharos-mode`.
+ */
+type DialogMode = 'centered' | 'fullscreen';
+
+/**
+ * Below the compact width the panel fills the screen. The breakpoint comes from
+ * pharos-tokens (D32); a custom property does not work inside `@media`, so it
+ * is read here with `matchMedia` and the CSS keys off `data-pharos-mode`.
+ */
+const COMPACT_QUERY = `not all and (min-width: ${tokens.breakpoint.compact})`;
+
+function canMatchMedia(): boolean {
+  return typeof window !== 'undefined' && typeof window.matchMedia === 'function';
+}
+
+function readCompactMatch(): boolean {
+  return canMatchMedia() && window.matchMedia(COMPACT_QUERY).matches;
+}
+
+/**
+ * The server has no viewport: it renders the centered form, and the browser
+ * corrects it right after hydration without a mismatch.
+ */
+function readServerCompactMatch(): boolean {
+  return false;
+}
+
+function subscribeToCompactWidth(notify: () => void): () => void {
+  if (!canMatchMedia()) return function noop() {};
+  const query = window.matchMedia(COMPACT_QUERY);
+  query.addEventListener('change', notify);
+  return function unsubscribe() {
+    query.removeEventListener('change', notify);
+  };
+}
+
+/** The form the panel takes at the current viewport width. */
+function useDialogMode(): DialogMode {
+  const compact = useSyncExternalStore(
+    subscribeToCompactWidth,
+    readCompactMatch,
+    readServerCompactMatch,
+  );
+  return compact ? 'fullscreen' : 'centered';
+}
+
+/**
+ * The panel. Collapses Base UI's `Portal` + `Backdrop` + `Popup`. Centered from
+ * the compact breakpoint up; below it, full screen with the header and footer
+ * pinned and the rest scrolling between them (`data-pharos-mode`). The
  * backdrop and panel share the `--pharos-z-index-modal` layer (D29): a modal
  * opened over the dialog paints above it by portal order, and a Select /
  * Popover opened from inside it sits on the higher popover layer.
  */
 export interface DialogContentProps extends ComponentProps<typeof BaseDialog.Popup> {}
 
-export function DialogContent({ className, children, ...rest }: DialogContentProps) {
+/**
+ * Full screen, the header and the footer stick over the scrolling body. A
+ * field the keyboard reaches while it sits under one of them is still inside
+ * the scroll container, so the browser would not scroll it into view and it
+ * would stay hidden (WCAG 2.4.11). Their sizes become the panel's
+ * `scroll-padding`, which the browser honours when it reveals the focus.
+ */
+function usePinnedEdgesScrollPadding(popup: HTMLElement | null, mode: DialogMode): void {
+  useEffect(
+    function padForPinnedEdges() {
+      if (popup === null || mode !== 'fullscreen' || typeof ResizeObserver === 'undefined') {
+        return;
+      }
+      const panel = popup;
+      const header = panel.querySelector<HTMLElement>('[data-pharos-slot="dialog-header"]');
+      const footer = panel.querySelector<HTMLElement>('[data-pharos-slot="dialog-footer"]');
+      function measure() {
+        panel.style.setProperty('--dialog-header-size', `${header?.offsetHeight ?? 0}px`);
+        panel.style.setProperty('--dialog-footer-size', `${footer?.offsetHeight ?? 0}px`);
+      }
+      const observer = new ResizeObserver(measure);
+      if (header !== null) observer.observe(header);
+      if (footer !== null) observer.observe(footer);
+      measure();
+      return function stopPadding() {
+        observer.disconnect();
+        panel.style.removeProperty('--dialog-header-size');
+        panel.style.removeProperty('--dialog-footer-size');
+      };
+    },
+    [popup, mode],
+  );
+}
+
+export function DialogContent({ className, children, ref, ...rest }: DialogContentProps) {
+  const mode = useDialogMode();
+  const [popup, setPopup] = useState<HTMLDivElement | null>(null);
+  const setPopupRef = useCallback(
+    function setPopupRef(node: HTMLDivElement | null) {
+      setPopup(node);
+      if (typeof ref === 'function') ref(node);
+      else if (ref) ref.current = node;
+    },
+    [ref],
+  );
+  usePinnedEdgesScrollPadding(popup, mode);
   return (
     <BaseDialog.Portal>
       <BaseDialog.Backdrop className={styles.backdrop} />
       <BaseDialog.Popup
         data-pharos-slot="dialog-content"
+        data-pharos-mode={mode}
         className={cn(styles.content, className)}
         {...rest}
+        ref={setPopupRef}
       >
         {children}
       </BaseDialog.Popup>
