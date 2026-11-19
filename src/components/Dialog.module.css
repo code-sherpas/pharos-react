@@ -86,10 +86,20 @@
  * (negative inline margins cancel the panel's padding) with an opaque
  * background and a rule, so content scrolling under them is hidden and the
  * scrolling region reads as one. The body keeps the panel's inline padding.
+ * The panel's height follows the visual viewport, so the keyboard shortens
+ * the body, never covers the footer.
  * Only the styling changes: it is the same element, so a resize or a
  * rotation keeps what was typed and the focus. */
 .content[data-pharos-mode='fullscreen'] {
-  inset: 0;
+  /* As tall as the visual viewport, and where it is: with the on-screen
+   * keyboard open the footer sits right above it (iOS Safari and Chrome on
+   * Android cover the window with the keyboard instead of resizing it).
+   * DialogContent measures it; without a visual viewport, the window. */
+  top: var(--dialog-viewport-top, 0px);
+  right: 0;
+  bottom: auto;
+  left: 0;
+  height: var(--dialog-viewport-height, 100%);
   transform: none;
   width: auto;
   max-width: none;

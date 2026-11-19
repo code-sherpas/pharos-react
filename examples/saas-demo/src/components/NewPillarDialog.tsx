@@ -30,8 +30,9 @@ const AUDIENCES = [
  * Creating an element of the taxonomy is a form in a Dialog: the Alexandria
  * case the compact-width Dialog exists for. The form is taller than a phone,
  * so below `breakpoint.compact` the dialog fills the screen with its header
- * and footer pinned and only the fields scrolling between them; turning the
- * phone keeps what was typed. «Create pillar» stays unavailable (the focusable
+ * and footer pinned and only the fields scrolling between them; with the
+ * on-screen keyboard open it is as tall as what the keyboard leaves, so
+ * «Create pillar» sits right above it; turning the phone keeps what was typed. «Create pillar» stays unavailable (the focusable
  * way, aria-disabled) until there is a name, and pressed then it points at the
  * name field.
  */
