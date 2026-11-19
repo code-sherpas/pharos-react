@@ -130,7 +130,8 @@ function useDialogMode(): DialogMode {
  * The panel. Collapses Base UI's `Portal` + `Backdrop` + `Popup`. Centered from
  * the compact breakpoint up; below it, full screen with the header and footer
  * pinned and the rest scrolling between them (`data-pharos-mode`), as tall as
- * the visual viewport, so the on-screen keyboard never covers it. The
+ * the visual viewport, so the on-screen keyboard never covers it; the
+ * centered panel is centred in the visual viewport and no taller than it. The
  * backdrop and panel share the `--pharos-z-index-modal` layer (D29): a modal
  * opened over the dialog paints above it by portal order, and a Select /
  * Popover opened from inside it sits on the higher popover layer.
@@ -202,21 +203,23 @@ function isUnzoomed(visualViewport: VisualViewport): boolean {
 }
 
 /**
- * Full screen, the panel follows the visual viewport: the part of the page
- * the browser actually shows. When the on-screen keyboard opens it covers the
- * bottom of the window without resizing it (iOS Safari, and Chrome on Android
- * by default), so a panel sized to the window would leave its footer, and the
+ * The panel follows the visual viewport: the part of the page the browser
+ * actually shows. When the on-screen keyboard opens it covers the bottom of
+ * the window without resizing it (iOS Safari, and Chrome on Android by
+ * default), so a panel sized to the window would leave its footer, and the
  * field being typed in, under the keyboard. Following the visual viewport, the
- * footer sits right above the keyboard and the focused field is scrolled into
- * the body that is left; when the keyboard closes, the panel takes the whole
- * height back. The size and position are custom properties the CSS reads only
- * in the full-screen form, so the centered panel never changes.
+ * full-screen panel is as tall as what the keyboard leaves, with its footer
+ * right above it; the centered panel (a phone turned sideways, a tablet) is
+ * centred in that area and no taller than it. Either way the focused field is
+ * scrolled into the body that is left, and when the keyboard closes the panel
+ * takes its room back. With no keyboard the visual viewport is the window, so
+ * on a desktop the panel stays exactly where it was.
  */
-function useFollowVisualViewport(popup: HTMLElement | null, mode: DialogMode): void {
+function useFollowVisualViewport(popup: HTMLElement | null): void {
   useBrowserLayoutEffect(
     function followVisualViewport() {
       const visualViewport = window.visualViewport;
-      if (popup === null || mode !== 'fullscreen' || !visualViewport) return;
+      if (popup === null || !visualViewport) return;
       const panel = popup;
       const viewport = visualViewport;
       let followedHeight: number | null = null;
@@ -263,7 +266,7 @@ function useFollowVisualViewport(popup: HTMLElement | null, mode: DialogMode): v
         release();
       };
     },
-    [popup, mode],
+    [popup],
   );
 }
 
@@ -328,7 +331,7 @@ export function DialogContent({ className, children, ref, ...rest }: DialogConte
   const [popup, setPopupRef] = usePopupRef(ref);
   useModeChangeWithoutMotion(popup, mode);
   usePinnedEdgesScrollPadding(popup, mode);
-  useFollowVisualViewport(popup, mode);
+  useFollowVisualViewport(popup);
   return (
     <BaseDialog.Portal>
       <BaseDialog.Backdrop className={styles.backdrop} />

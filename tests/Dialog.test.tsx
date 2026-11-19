@@ -380,17 +380,33 @@ describe('Dialog with the on-screen keyboard open', () => {
     expect(followed(dialog)).toEqual({ top: '0px', height: '812px' });
   });
 
-  it('does not change the centered panel from the compact breakpoint up', async () => {
+  it('keeps the centered panel in what the keyboard leaves, from the compact breakpoint up', async () => {
     viewport(DESKTOP);
     const keyboard = visualViewport();
     render(<FormDialog />);
     const dialog = await screen.findByRole('dialog');
+    expect(dialog).toHaveAttribute('data-pharos-mode', 'centered');
 
-    keyboard.openKeyboard(476);
-    expect(followed(dialog)).toEqual(NOT_FOLLOWED);
+    keyboard.openKeyboard(200, 40);
+    expect(followed(dialog)).toEqual({ top: '40px', height: '200px' });
+    keyboard.closeKeyboard();
+    expect(followed(dialog)).toEqual({ top: '0px', height: '812px' });
   });
 
-  it('stops following it once the width crosses the breakpoint', async () => {
+  it('brings the focused field back into view in the centered panel too', async () => {
+    const user = userEvent.setup();
+    viewport(DESKTOP);
+    const keyboard = visualViewport();
+    render(<FormDialog />);
+    const name = screen.getByLabelText('Name');
+    await user.click(name);
+    name.scrollIntoView = vi.fn();
+
+    keyboard.openKeyboard(200);
+    expect(name.scrollIntoView).toHaveBeenCalledWith({ block: 'nearest', inline: 'nearest' });
+  });
+
+  it('keeps following it when the width crosses the breakpoint', async () => {
     const screenSize = viewport(PHONE);
     const keyboard = visualViewport();
     render(<FormDialog />);
@@ -398,12 +414,28 @@ describe('Dialog with the on-screen keyboard open', () => {
     keyboard.openKeyboard(476);
 
     screenSize.resize(DESKTOP);
-    expect(followed(dialog)).toEqual(NOT_FOLLOWED);
+    expect(followed(dialog)).toEqual({ top: '0px', height: '476px' });
     keyboard.closeKeyboard();
-    expect(followed(dialog)).toEqual(NOT_FOLLOWED);
+    expect(followed(dialog)).toEqual({ top: '0px', height: '812px' });
 
     screenSize.resize(PHONE);
     expect(followed(dialog)).toEqual({ top: '0px', height: '812px' });
+  });
+
+  it('leaves AlertDialog centred in the window: a confirmation takes no typing', async () => {
+    viewport(DESKTOP);
+    const keyboard = visualViewport();
+    render(
+      <AlertDialog defaultOpen>
+        <AlertDialogContent>
+          <AlertDialogTitle>Remove Ada?</AlertDialogTitle>
+          <AlertDialogCancel>Keep Ada</AlertDialogCancel>
+        </AlertDialogContent>
+      </AlertDialog>,
+    );
+    const confirm = await screen.findByRole('alertdialog');
+    keyboard.openKeyboard(200);
+    expect(followed(confirm)).toEqual(NOT_FOLLOWED);
   });
 
   it('stays the size of the window where the browser has no visual viewport', async () => {

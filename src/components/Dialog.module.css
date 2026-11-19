@@ -38,7 +38,14 @@
 /* === Panel (Dialog.Popup) === */
 .content {
   position: fixed;
-  top: 50%;
+  /* Centred in the visual viewport, the part of the page the browser shows,
+   * and no taller than it: an on-screen keyboard (a phone turned sideways, a
+   * tablet) covers the window without resizing it, so a panel centred in the
+   * window would leave its footer under the keyboard. DialogContent measures
+   * it; with no keyboard it is the window, so on a desktop nothing moves.
+   * AlertDialog shares this class but does not measure it: the fallbacks
+   * centre it in the window, as before. */
+  top: calc(var(--dialog-viewport-top, 0px) + var(--dialog-viewport-height, 100%) / 2);
   left: 50%;
   /* Centering lives in the transform; the scale for the open/close motion is
    * composed on top of the same translate (see starting/ending styles). */
@@ -49,7 +56,7 @@
   box-sizing: border-box;
   width: calc(100% - 2 * var(--pharos-spacing-4));
   max-width: 32rem;
-  max-height: calc(100dvh - 2 * var(--pharos-spacing-6));
+  max-height: calc(var(--dialog-viewport-height, 100dvh) - 2 * var(--pharos-spacing-6));
   overflow-y: auto;
 
   display: flex;
