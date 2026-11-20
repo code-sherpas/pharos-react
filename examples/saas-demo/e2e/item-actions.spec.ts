@@ -17,6 +17,7 @@ const DESKTOP = { width: 1280, height: 800 };
 const KEYS_FROM_PEOPLE: Record<string, string[]> = {
   People: [],
   Feedback: ['ArrowDown', 'ArrowRight', 'ArrowRight'],
+  Facilitation: ['ArrowDown', 'ArrowRight', 'ArrowRight', 'ArrowDown'],
   Paraphrases: [
     'ArrowDown',
     'ArrowRight',
@@ -225,6 +226,9 @@ test.describe('Actions on an item, on a phone (375 px)', () => {
     const menu = page.getByRole('menu');
     await expect(menu.getByRole('menuitem')).toHaveText(['Move', 'Retire']);
     await expect(menu.getByRole('separator')).toHaveCount(0);
+    await page.keyboard.press('Escape');
+    // Why it has no «Delete», and what to do.
+    await expect(page.getByText('It cannot be deleted while it has elements inside')).toBeVisible();
   });
 
   test('with no actions, the head has the same shape, with only its title', async ({ page }) => {
@@ -274,6 +278,43 @@ test.describe('Actions on an item, on a phone (375 px)', () => {
 test.describe('Actions on an item, on a desktop', () => {
   test.use({ viewport: DESKTOP });
 
+  test('deleting closes the panel, with focus on the parent in the tree', async ({ page }) => {
+    await openDetail(page, 'Facilitation');
+    const panel = page.getByRole('complementary', { name: 'Facilitation' });
+    await panel.getByRole('button', { name: 'Delete' }).click();
+    await page
+      .getByRole('alertdialog', { name: 'Delete Facilitation?' })
+      .getByRole('button', { name: 'Delete Facilitation' })
+      .click();
+    await expect(panel).toHaveCount(0);
+    await expect(item(page, /Facilitation$/)).toHaveCount(0);
+    await expect(item(page, /Collaboration across teams/)).toBeFocused();
+  });
+
+  test('deleting a pillar of its own gives focus to the page title', async ({ page }) => {
+    await signIn(page);
+    await page.getByRole('button', { name: 'Taxonomy', exact: true }).click();
+    await page.getByRole('button', { name: 'New pillar' }).click();
+    const form = page.getByRole('dialog', { name: 'New pillar' });
+    await form.getByLabel('Name').fill('Craft');
+    await form.getByRole('button', { name: 'Create pillar' }).click();
+    await expect(form).toHaveCount(0);
+    await item(page, /Craft$/).click();
+
+    const panel = page.getByRole('complementary', { name: 'Craft' });
+    await expect(panel.getByRole('group', { name: 'Actions' }).getByRole('button')).toHaveText([
+      'Edit description',
+      'Delete',
+    ]);
+    await panel.getByRole('button', { name: 'Delete' }).click();
+    await page
+      .getByRole('alertdialog', { name: 'Delete Craft?' })
+      .getByRole('button', { name: 'Delete Craft' })
+      .click();
+    await expect(item(page, /Craft$/)).toHaveCount(0);
+    await expect(page.getByRole('heading', { name: 'Competency taxonomy' })).toBeFocused();
+  });
+
   test('every action shows, in a row that wraps inside the SidePanel', async ({ page }) => {
     await openDetail(page, 'Leaves silence');
     const panel = page.getByRole('complementary', { name: 'Leaves silence' });
@@ -303,6 +344,8 @@ test.describe('Actions on an item, on a desktop', () => {
       expect(box.x).toBeGreaterThanOrEqual(panelBox.x);
       expect(box.x + box.width).toBeLessThanOrEqual(panelBox.x + panelBox.width);
     }
+    // The panel is narrower than the four: they take more than one line.
+    expect(await rowsOf(actions)).toBeGreaterThan(1);
 
     // Deleting from the row asks first; keeping it gives focus back to Delete.
     await actions.getByRole('button', { name: 'Delete' }).click();

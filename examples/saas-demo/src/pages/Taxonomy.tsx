@@ -245,6 +245,13 @@ function Detail({ element, path, summary }: DetailProps) {
           they mean. Retire it instead.
         </p>
       )}
+      {!element.fromTemplate &&
+        (element.assessments ?? 0) === 0 &&
+        (element.children?.length ?? 0) > 0 && (
+          <p className="hint-text">
+            It cannot be deleted while it has elements inside. Delete or move them first.
+          </p>
+        )}
     </div>
   );
 }
