@@ -18,7 +18,7 @@ import styles from './Alert.module.css';
  * that stays in the flow for as long as it is true. Not a `Toast` (which goes
  * away on its own and is for what can be missed) and not a `Dialog` (which
  * interrupts). Names and parts follow shadcn: `Alert`, `AlertTitle`,
- * `AlertDescription`.
+ * `AlertDescription`, `AlertAction`.
  *
  * - **`variant`** says what it is about, with the values of `Toast` and
  *   `Badge`. Every variant but `default` adds the same icon as `Toast`, and
@@ -42,8 +42,14 @@ import styles from './Alert.module.css';
  *   `info` to `warning`, say — changes its role, so the alert is mounted anew,
  *   as if it had just appeared, and announced with the new urgency; its
  *   children mount anew too.
- * - It does not close on its own and has no close button. Put an action — a
- *   `Button` — after `AlertDescription`.
+ * - It does not close on its own and has no close button. What the person can
+ *   do about it — "Retry" — goes in `AlertAction`, after `AlertDescription`:
+ *   one or more Pharos `Button`s, under the text, in reading and focus order.
+ * - **Telling the person a retry failed again.** Keep the same `Alert` on
+ *   screen and change its text — "Still couldn't load, after 2 attempts" — so
+ *   the change is seen and announced in the region, and the focused `Retry`
+ *   stays where it is. Remounting it (a new `key`) would announce it too, but
+ *   would take the focus away with the button.
  * - Pharos puts no text in it: the title, the description and the action
  *   come from the consumer, localised. `AlertTitle` is a `div`; give it the
  *   heading level its place needs with `render`.
@@ -52,6 +58,15 @@ import styles from './Alert.module.css';
  * <Alert variant="warning">
  *   <AlertTitle render={<h3 />}>Used in 7 assessments</AlertTitle>
  *   <AlertDescription>Saving changes what they mean.</AlertDescription>
+ * </Alert>
+ *
+ * @example
+ * <Alert variant="destructive">
+ *   <AlertTitle render={<h2 />}>Billing couldn't be loaded</AlertTitle>
+ *   <AlertDescription>The rest of the page is up to date.</AlertDescription>
+ *   <AlertAction>
+ *     <Button intent="secondary" size="sm" onClick={retry}>Retry</Button>
+ *   </AlertAction>
  * </Alert>
  */
 
@@ -159,6 +174,20 @@ export function AlertDescription({ className, ...rest }: AlertDescriptionProps) 
 }
 
 AlertDescription.displayName = 'AlertDescription';
+
+export interface AlertActionProps extends ComponentPropsWithoutRef<'div'> {}
+
+/**
+ * What the person can do about the alert — "Retry", "Review" — after the
+ * description: one or more Pharos `Button`s, in a row that wraps. It sits
+ * under the text, where it comes in the reading and focus order, not in a
+ * corner. The consumer writes the labels, localised.
+ */
+export function AlertAction({ className, ...rest }: AlertActionProps) {
+  return <div data-pharos-slot="alert-action" className={cn(styles.action, className)} {...rest} />;
+}
+
+AlertAction.displayName = 'AlertAction';
 
 export { alertVariants };
 

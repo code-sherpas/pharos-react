@@ -5,7 +5,14 @@ import { renderToString } from 'react-dom/server';
 import { hydrateRoot } from 'react-dom/client';
 import { act } from 'react';
 import userEvent from '@testing-library/user-event';
-import { Alert, AlertDescription, AlertTitle, type AlertVariant } from '../src/components/Alert';
+import {
+  Alert,
+  AlertAction,
+  AlertDescription,
+  AlertTitle,
+  type AlertVariant,
+} from '../src/components/Alert';
+import { Button } from '../src/components/Button';
 
 function Warning() {
   return (
@@ -84,21 +91,88 @@ describe('Alert', () => {
     expect(screen.queryByRole('heading')).toBeNull();
   });
 
-  it('keeps an action after the description, inside the alert', async () => {
+  it('puts the action after the description, inside the alert, in reading and focus order', async () => {
+    const user = userEvent.setup();
     render(
-      <Alert variant="destructive">
-        <AlertTitle>Couldn’t load the suggestions</AlertTitle>
-        <AlertDescription>Check your connection and try again.</AlertDescription>
-        <button type="button">Retry</button>
-      </Alert>,
+      <>
+        <Alert variant="destructive">
+          <AlertTitle>Couldn’t load the suggestions</AlertTitle>
+          <AlertDescription>Check your connection and try again.</AlertDescription>
+          <AlertAction className="consumer-class">
+            <Button intent="secondary">Retry</Button>
+          </AlertAction>
+        </Alert>
+        <button type="button">After the alert</button>
+      </>,
     );
 
     const retry = await screen.findByRole('button', { name: 'Retry' });
+    await waitFor(() => expect(retry).toBeVisible());
     const description = screen.getByText('Check your connection and try again.');
+    const action = retry.closest('[data-pharos-slot="alert-action"]');
+    expect(action).toHaveClass('consumer-class');
     expect(screen.getByRole('alert')).toContainElement(retry);
     expect(
       description.compareDocumentPosition(retry) & Node.DOCUMENT_POSITION_FOLLOWING,
     ).toBeTruthy();
+
+    await user.tab();
+    expect(retry).toHaveFocus();
+    await user.tab();
+    expect(screen.getByRole('button', { name: 'After the alert' })).toHaveFocus();
+  });
+
+  it('still keeps a bare action after the description, as before AlertAction', async () => {
+    render(
+      <Alert variant="destructive">
+        <AlertTitle>Couldn’t load the suggestions</AlertTitle>
+        <AlertDescription>Check your connection and try again.</AlertDescription>
+        <Button intent="secondary">Retry</Button>
+      </Alert>,
+    );
+
+    expect(screen.getByRole('alert')).toContainElement(
+      await screen.findByRole('button', { name: 'Retry' }),
+    );
+  });
+
+  // A retry that fails again changes the text of the alert already on screen:
+  // the change is announced in the same region, and the focused Retry stays.
+  it('tells a retry that failed again in the same region, keeping the focus on Retry', async () => {
+    const user = userEvent.setup();
+    function Section() {
+      const [attempts, setAttempts] = useState(1);
+      return (
+        <Alert variant="destructive">
+          <AlertTitle>Billing couldn’t be loaded</AlertTitle>
+          <AlertDescription>
+            {attempts === 1 ? 'The rest of the page is up to date.' : 'Still failing.'}
+          </AlertDescription>
+          <AlertAction>
+            <Button
+              intent="secondary"
+              onClick={function failAgain() {
+                setAttempts(attempts + 1);
+              }}
+            >
+              Retry
+            </Button>
+          </AlertAction>
+        </Alert>
+      );
+    }
+    render(<Section />);
+    const region = screen.getByRole('alert');
+    const retry = await screen.findByRole('button', { name: 'Retry' });
+    await waitFor(() => expect(retry).toBeVisible());
+
+    await user.click(retry);
+
+    expect(screen.getByRole('alert')).toBe(region);
+    expect(region).toHaveTextContent('Still failing.');
+    expect(screen.getByText('Still failing.')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Retry' })).toBe(retry);
+    expect(retry).toHaveFocus();
   });
 
   it('puts no text of its own in the alert', async () => {

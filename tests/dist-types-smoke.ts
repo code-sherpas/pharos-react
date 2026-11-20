@@ -99,6 +99,7 @@ import {
   Alert,
   AlertTitle,
   AlertDescription,
+  AlertAction,
   alertVariants,
   cn,
   type ButtonProps,
@@ -137,6 +138,7 @@ import {
   type AlertProps,
   type AlertTitleProps,
   type AlertDescriptionProps,
+  type AlertActionProps,
   type AlertVariant,
 } from '../dist/index.js';
 
@@ -175,6 +177,7 @@ import {
   Alert as AlertDeep,
   AlertTitle as AlertTitleDeep,
   AlertDescription as AlertDescriptionDeep,
+  AlertAction as AlertActionDeep,
 } from '../dist/components/Alert.js';
 import {
   ToggleGroup as ToggleGroupDeep,
@@ -231,6 +234,7 @@ export type _PublicPropTypes = [
   ToastProviderProps,
   UseToastReturnValue,
   AlertDescriptionProps,
+  AlertActionProps,
   AlertVariant,
 ];
 
@@ -349,10 +353,12 @@ export const _smoke = [
   Alert,
   AlertTitle,
   AlertDescription,
+  AlertAction,
   alertVariants,
   AlertDeep,
   AlertTitleDeep,
   AlertDescriptionDeep,
+  AlertActionDeep,
   _alertProps,
   _alertTitleProps,
   _buttonProps,

@@ -1,22 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
-import { signIn } from './helpers';
-
-/** Makes the demo backend wait for {@link answerRequests} instead of a timer. */
-async function holdRequests(page: Page) {
-  await page.addInitScript(function holdDemoRequests() {
-    (window as Window & { demoRequests?: unknown }).demoRequests = { held: true, waiting: [] };
-  });
-}
-
-/** Answers every request the demo backend is holding. */
-async function answerRequests(page: Page) {
-  await page.evaluate(function answerHeldRequests() {
-    const held = (window as Window & { demoRequests?: { waiting: (() => void)[] } }).demoRequests;
-    held?.waiting.splice(0).forEach(function answer(respond) {
-      respond();
-    });
-  });
-}
+import { answerRequests, holdRequests, signIn } from './helpers';
 
 // The per-row DropdownMenu (kebab IconButton) inside a list, plus a
 // destructive action that mutates the list once an AlertDialog confirms it.
