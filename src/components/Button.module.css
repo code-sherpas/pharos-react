@@ -35,7 +35,12 @@
   margin: 0;
   padding-top: 0;
   padding-bottom: 0;
-  border: 0 solid transparent;
+  /* An intent with a visible border (secondary) sets its width here; the
+   * size rules take it off the padding, so the border never adds to the
+   * size: every intent of a size has the same height and the same width
+   * for the same label (32 / 40 / 48). */
+  --button-border-width: 0px;
+  border: var(--button-border-width) solid transparent;
   border-radius: var(--pharos-radius-full);
 
   /* === Layout === */
@@ -171,7 +176,8 @@
    * the cross-DS comparison; Button secondary, Input and Badge outline
    * share the same border tone so the system has one accessible boundary
    * intensity across primitives. */
-  border: 1px solid var(--pharos-color-neutral-500);
+  --button-border-width: 1px;
+  border-color: var(--pharos-color-neutral-500);
   --button-focus-ring: var(--pharos-color-primary-600);
 }
 
@@ -222,7 +228,8 @@
 .sizeSm {
   min-height: var(--pharos-spacing-8);
   gap: var(--pharos-spacing-1-5);
-  padding: var(--pharos-spacing-1-5) var(--pharos-spacing-3);
+  padding: calc(var(--pharos-spacing-1-5) - var(--button-border-width))
+    calc(var(--pharos-spacing-3) - var(--button-border-width));
   font-size: var(--pharos-font-size-sm);
   line-height: calc(1.25 / 0.875);
 }
@@ -230,7 +237,8 @@
 .sizeMd {
   min-height: var(--pharos-spacing-10);
   gap: var(--pharos-spacing-2);
-  padding: var(--pharos-spacing-2) var(--pharos-spacing-4);
+  padding: calc(var(--pharos-spacing-2) - var(--button-border-width))
+    calc(var(--pharos-spacing-4) - var(--button-border-width));
   font-size: var(--pharos-font-size-sm);
   line-height: calc(1.25 / 0.875);
 }
@@ -238,7 +246,8 @@
 .sizeLg {
   min-height: var(--pharos-spacing-12);
   gap: var(--pharos-spacing-2);
-  padding: var(--pharos-spacing-3) var(--pharos-spacing-6);
+  padding: calc(var(--pharos-spacing-3) - var(--button-border-width))
+    calc(var(--pharos-spacing-6) - var(--button-border-width));
   font-size: var(--pharos-font-size-base);
   line-height: 1.5;
 }
