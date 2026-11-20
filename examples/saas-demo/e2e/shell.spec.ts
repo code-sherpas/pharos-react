@@ -9,6 +9,26 @@ test.describe('App shell', () => {
     await signIn(page);
   });
 
+  test('the navigation is level: the current section is as tall as the others', async ({
+    page,
+  }) => {
+    // The current section is a secondary Button, the others ghost: its border
+    // must not make it taller than its neighbours (the 32px of size sm).
+    const sections = page.getByRole('navigation', { name: 'Primary' }).getByRole('button');
+    await expect(sections.first()).toHaveAttribute('aria-current', 'page');
+    await expect(sections.first()).toHaveAttribute('data-pharos-intent', 'secondary');
+    const heights = await sections.evaluateAll(function measureHeights(buttons) {
+      return buttons.map(function heightOf(button) {
+        return button.getBoundingClientRect().height;
+      });
+    });
+    expect(heights).toEqual(
+      heights.map(function sm() {
+        return 32;
+      }),
+    );
+  });
+
   test('account menu navigates to Settings', async ({ page }) => {
     await page.getByRole('button', { name: 'Account menu' }).click();
     await page.getByRole('menuitem', { name: 'Settings' }).click();

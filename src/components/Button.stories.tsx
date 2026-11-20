@@ -116,10 +116,26 @@ export const AsLink: Story = {
   ),
 };
 
+/** The 32 / 40 / 48 grid of the contract, the same for every intent: a size
+ * is one height, so a row mixing intents stays level. */
+const HEIGHT_OF: Record<(typeof SIZES)[number], number> = { sm: 32, md: 40, lg: 48 };
+
 export const Matrix: Story = {
   parameters: {
     controls: { disable: true },
     actions: { disable: true },
+  },
+  play: async ({ canvasElement }) => {
+    for (const size of SIZES) {
+      for (const button of canvasElement.querySelectorAll<HTMLElement>(
+        `button[data-pharos-size="${size}"]`,
+      )) {
+        const intent = button.getAttribute('data-pharos-intent');
+        await expect(button.getBoundingClientRect().height, `${intent} ${size}`).toBe(
+          HEIGHT_OF[size],
+        );
+      }
+    }
   },
   render: () => (
     <div className="storybook-matrix">
