@@ -35,12 +35,15 @@ type BillingState =
   | { status: 'loaded'; billing: Billing };
 
 /**
- * Loads the billing; the demo backend fails the first two attempts. A failure
- * keeps the same Alert on screen and changes its text — «Trying again…», then
- * how many attempts failed — so the person sees each outcome and a screen
- * reader announces it in the region, while the focus stays on «Retry». Once
- * it loads, the Alert goes and the focus moves to the section's heading, the
- * start of what just appeared, rather than falling to the page.
+ * Loads the billing; the demo backend fails the first two attempts. A retry
+ * on its way is said politely, in a status under the alert, so it does not
+ * interrupt; the alert itself keeps its text until the answer. A failure
+ * keeps the same Alert on screen and changes its text — how many attempts
+ * failed — so the person sees it and a screen reader announces it, once and
+ * urgently, while the focus stays on «Retry». Once it loads, the Alert goes;
+ * if the focus went with its button, it moves to the section's heading, the
+ * start of what just appeared, rather than falling to the page. If the person
+ * had moved on — clicked Retry and went back to the form — it stays there.
  */
 function BillingSection() {
   const [attempt, setAttempt] = useState(1);
@@ -67,7 +70,11 @@ function BillingSection() {
 
   useEffect(
     function focusWhatARetryLoaded() {
-      if (state.status === 'loaded' && attempt > 1) heading.current?.focus();
+      if (state.status !== 'loaded' || attempt === 1) return;
+      // The focused Retry went with the alert: focus fell to the page.
+      const focusWasLost =
+        document.activeElement === null || document.activeElement === document.body;
+      if (focusWasLost) heading.current?.focus();
     },
     [state.status, attempt],
   );
@@ -80,7 +87,7 @@ function BillingSection() {
   }
 
   return (
-    <section aria-labelledby="billing-heading" aria-busy={state.status === 'loading'}>
+    <section aria-labelledby="billing-heading">
       <h2 id="billing-heading" ref={heading} tabIndex={-1}>
         Billing
       </h2>
@@ -108,6 +115,13 @@ function BillingSection() {
           </AlertAction>
         </Alert>
       )}
+      {/* Exists before its message, so the message is announced; polite, so a
+          retry on its way does not interrupt like the failure does. */}
+      {state.status !== 'loading' && state.status !== 'loaded' && (
+        <p role="status" className="hint-text">
+          {state.status === 'retrying' ? 'Trying again…' : ''}
+        </p>
+      )}
       {state.status === 'loaded' && (
         <dl className="billing-facts">
           <div>
@@ -126,9 +140,8 @@ function BillingSection() {
   );
 }
 
-/** What the failure says now: the first time, a retry on its way, or how many failed. */
-function BillingFailure({ state }: { state: { status: 'failed' | 'retrying'; attempts: number } }) {
-  if (state.status === 'retrying') return <>Trying again…</>;
+/** What the failure says: the first time, or how many attempts failed. */
+function BillingFailure({ state }: { state: { attempts: number } }) {
   if (state.attempts === 1) {
     return <>Your plan and seats aren’t shown. The rest of your settings can still be saved.</>;
   }

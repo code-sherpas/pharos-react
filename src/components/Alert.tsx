@@ -49,7 +49,8 @@ import styles from './Alert.module.css';
  *   screen and change its text — "Still couldn't load, after 2 attempts" — so
  *   the change is seen and announced in the region, and the focused `Retry`
  *   stays where it is. Remounting it (a new `key`) would announce it too, but
- *   would take the focus away with the button.
+ *   would take the focus away with the button. Say a retry in progress
+ *   outside the alert, in a polite status, so only the failure interrupts.
  * - Pharos puts no text in it: the title, the description and the action
  *   come from the consumer, localised. `AlertTitle` is a `div`; give it the
  *   heading level its place needs with `render`.
