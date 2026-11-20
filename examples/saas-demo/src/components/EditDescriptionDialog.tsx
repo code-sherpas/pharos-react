@@ -77,7 +77,13 @@ export function EditDescriptionDialog({
 
   return (
     <Dialog open={open} onOpenChange={openWithTheCurrentDescription}>
-      <DialogTrigger render={<Button intent="secondary">Edit description</Button>} />
+      <DialogTrigger
+        render={
+          <Button intent="primary" data-item-action="edit">
+            Edit description
+          </Button>
+        }
+      />
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit description</DialogTitle>
