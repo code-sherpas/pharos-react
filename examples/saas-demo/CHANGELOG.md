@@ -1,5 +1,12 @@
 # @examples/saas-demo
 
+## 0.0.36
+
+### Patch Changes
+
+- Updated dependencies [9eab3a9]
+  - @code-sherpas/pharos-react@5.2.1
+
 ## 0.0.35
 
 ### Patch Changes
