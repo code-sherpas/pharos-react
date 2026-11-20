@@ -236,11 +236,18 @@ export type {
   TreeViewItemDescriptionProps,
   TreeViewGroupProps,
 } from './components/TreeView';
-export { Alert, AlertTitle, AlertDescription, alertVariants } from './components/Alert';
+export {
+  Alert,
+  AlertTitle,
+  AlertDescription,
+  AlertAction,
+  alertVariants,
+} from './components/Alert';
 export type {
   AlertProps,
   AlertTitleProps,
   AlertDescriptionProps,
+  AlertActionProps,
   AlertVariant,
 } from './components/Alert';
 export { ToastProvider, Toaster, useToast } from './components/Toast';

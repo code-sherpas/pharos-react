@@ -120,7 +120,18 @@
   margin: 0;
 }
 
-/* An action after the description — "Retry" — sits under the text, apart. */
-.description + * {
+/* An action after the description — "Retry" — sits under the text, apart.
+ * `.description + *` keeps a bare `Button` (before `AlertAction`) in place. */
+.description + *,
+.action {
   margin-block-start: var(--pharos-spacing-2);
+}
+
+/* `AlertAction`: one or more buttons in a row that wraps on a narrow screen,
+ * in reading order, under the text. */
+.action {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pharos-spacing-2);
 }

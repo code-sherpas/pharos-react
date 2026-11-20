@@ -28,6 +28,7 @@ import {
   useToast,
 } from '@code-sherpas/pharos-react';
 import { DATA_REGIONS, SKILLS, TIMEZONES } from '../data';
+import { WorkspaceSections } from '../components/WorkspaceSections';
 
 const VISIBILITY = {
   private: 'Private',
@@ -41,7 +42,9 @@ const VISIBILITY = {
  * (single filter) and Combobox (multi with removable chips), plus validation
  * and a save confirmation in a toast. Exercises every form atom composed on one
  * page. The validation error stays next to its field: a toast is for what can
- * be missed.
+ * be missed. Below the form, three workspace sections with nothing to show,
+ * each for its own reason: one that could not be loaded and offers «Retry»
+ * (Alert with AlertAction), one that is empty, and one the person may not see.
  */
 export function SettingsPage() {
   const [name, setName] = useState('Ada Lovelace');
@@ -261,6 +264,7 @@ export function SettingsPage() {
           <Button type="submit">Save changes</Button>
         </div>
       </form>
+      <WorkspaceSections />
     </section>
   );
 }

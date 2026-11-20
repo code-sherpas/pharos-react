@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { Alert, AlertDescription, AlertTitle } from './Alert';
+import { Alert, AlertAction, AlertDescription, AlertTitle } from './Alert';
 import { Button } from './Button';
 
 /**
@@ -10,7 +10,8 @@ import { Button } from './Button';
  * `role="alert"`; `default`, `info` and `success` are `role="status"`. Every
  * variant but `default` has an icon and a side bar of its tone; the text keeps
  * the normal colour. The consumer writes every word, and gives `AlertTitle`
- * the heading level its place needs with `render`.
+ * the heading level its place needs with `render`. What the person can do
+ * about it — "Retry" — goes in `AlertAction`, after the description.
  *
  * Use it for what must not be missed and belongs where it is shown. Feedback
  * that can be missed is a `Toast`; a decision that must interrupt is a
@@ -107,20 +108,68 @@ export const Variants: Story = {
   ),
 };
 
-/** An action goes after the description, under the text. */
+/**
+ * `AlertAction` holds what the person can do about it, after the description
+ * and under the text, in reading and focus order. Several actions sit in a row
+ * that wraps.
+ */
 export const WithAction: Story = {
   render: function WithActionStory() {
     return (
       <Alert variant="destructive">
         <AlertTitle>Couldn’t load the suggestions</AlertTitle>
         <AlertDescription>Check your connection and try again.</AlertDescription>
-        <Button intent="secondary" size="sm">
-          Retry
-        </Button>
+        <AlertAction>
+          <Button intent="secondary" size="sm">
+            Retry
+          </Button>
+        </AlertAction>
       </Alert>
     );
   },
   play: waitForText('Retry'),
+};
+
+/**
+ * A retry that fails again: the same alert stays and its text changes, so the
+ * person sees it and a screen reader announces it in the region, while the
+ * focus stays on Retry.
+ */
+export const RetryThatFailsAgain: Story = {
+  render: function RetryThatFailsAgainStory() {
+    const [attempts, setAttempts] = useState(1);
+    return (
+      <Alert variant="destructive">
+        <AlertTitle render={<h2 />}>Billing couldn’t be loaded</AlertTitle>
+        <AlertDescription>
+          {attempts === 1
+            ? 'The rest of the page is up to date.'
+            : `Still couldn’t load it after ${attempts} attempts.`}
+        </AlertDescription>
+        <AlertAction>
+          <Button
+            intent="secondary"
+            size="sm"
+            onClick={function failAgain() {
+              setAttempts(attempts + 1);
+            }}
+          >
+            Retry
+          </Button>
+        </AlertAction>
+      </Alert>
+    );
+  },
+  play: async function retryAndFailAgain({ canvasElement }) {
+    const canvas = within(canvasElement);
+    // Out of the accessibility tree for the alert's first two frames.
+    const retry = await canvas.findByRole('button', { name: 'Retry' });
+    await userEvent.click(retry);
+    await expect(canvas.getByRole('alert')).toHaveTextContent(
+      'Still couldn’t load it after 2 attempts.',
+    );
+    await expect(retry).toHaveFocus();
+  },
 };
 
 /**

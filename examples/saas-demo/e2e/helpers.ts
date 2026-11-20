@@ -33,3 +33,20 @@ export function layerAtTheCorner(page: Page): Promise<number> {
     return 0;
   });
 }
+
+/** Makes the demo backend wait for {@link answerRequests} instead of a timer. */
+export async function holdRequests(page: Page) {
+  await page.addInitScript(function holdDemoRequests() {
+    (window as Window & { demoRequests?: unknown }).demoRequests = { held: true, waiting: [] };
+  });
+}
+
+/** Answers every request the demo backend is holding. */
+export async function answerRequests(page: Page) {
+  await page.evaluate(function answerHeldRequests() {
+    const held = (window as Window & { demoRequests?: { waiting: (() => void)[] } }).demoRequests;
+    held?.waiting.splice(0).forEach(function answer(respond) {
+      respond();
+    });
+  });
+}

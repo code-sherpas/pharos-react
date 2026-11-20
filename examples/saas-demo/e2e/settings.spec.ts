@@ -42,7 +42,7 @@ test.describe('Settings form', () => {
   test('validates the required display name', async ({ page }) => {
     await page.getByLabel('Display name').fill('');
     await page.getByRole('button', { name: 'Save changes' }).click();
-    await expect(page.getByRole('alert')).toHaveText(/display name is required/i);
+    await expect(page.locator('form').getByRole('alert')).toHaveText(/display name is required/i);
     await expect(page.getByLabel('Display name')).toHaveAttribute('aria-invalid', 'true');
   });
 
