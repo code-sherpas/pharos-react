@@ -335,8 +335,8 @@ test.describe('Team page, confirming a removal on a narrow screen', () => {
   });
 
   test('a Button in a row does not shrink: its label stays on one line', async ({ page }) => {
-    // The top bar's nav does not fit at 320px; its Buttons keep their one-line
-    // height instead of squeezing their labels onto several lines.
+    // At 320px the top bar's nav wraps onto several rows; its Buttons keep
+    // their one-line height instead of squeezing their labels onto several lines.
     await page.setViewportSize({ width: 320, height: 640 });
     await signIn(page);
     const nav = page.getByRole('button', { name: 'Taxonomy', exact: true });

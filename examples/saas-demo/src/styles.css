@@ -53,10 +53,17 @@ body {
 }
 
 /* ---- App shell ---- */
+/*
+ * The bar wraps instead of overflowing (WCAG 1.4.10 Reflow): on a phone the
+ * brand, the primary navigation and the actions each take the lines they
+ * need, in DOM order, and the navigation's own Buttons wrap too. On a wide
+ * screen everything still fits on one line.
+ */
 .topbar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--pharos-spacing-4, 1rem);
+  gap: var(--pharos-spacing-2, 0.5rem) var(--pharos-spacing-4, 1rem);
   padding: var(--pharos-spacing-3, 0.75rem) var(--pharos-spacing-6, 1.5rem);
   border-bottom: 1px solid var(--pharos-color-neutral-200, #e5e5e5);
   background: var(--pharos-color-base-white, #fff);
@@ -69,6 +76,9 @@ body {
 
 .topbar-nav {
   display: flex;
+  flex-wrap: wrap;
+  /* Each Button keeps its own height; a row never stretches it. */
+  align-items: center;
   gap: var(--pharos-spacing-1, 0.25rem);
 }
 
