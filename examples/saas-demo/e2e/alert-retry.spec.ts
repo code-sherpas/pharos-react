@@ -40,8 +40,7 @@ test.describe('Alert with a retry action', () => {
     const billing = section(page, 'Billing');
     const billingHeading = billing.getByRole('heading', { level: 2, name: 'Billing' });
 
-    // While it loads, the section says so, and is busy.
-    await expect(billing).toHaveAttribute('aria-busy', 'true');
+    // While it loads, the section says so, in a status.
     await expect(billing.getByRole('status')).toHaveText('Loading billing…');
 
     await answerRequests(page);
@@ -53,7 +52,6 @@ test.describe('Alert with a retry action', () => {
       alert.getByRole('heading', { level: 3, name: 'Billing couldn’t be loaded' }),
     ).toBeVisible();
     await expect(alert).toContainText('Your plan and seats aren’t shown.');
-    await expect(billing).toHaveAttribute('aria-busy', 'false');
 
     // «Retry» is a Pharos Button in the alert's action, after the description:
     // the first stop of the keyboard after the section's heading.
@@ -73,11 +71,16 @@ test.describe('Alert with a retry action', () => {
       (await new AxeBuilder({ page }).include('.workspace-sections').analyze()).violations,
     ).toEqual([]);
 
-    // A retry on its way: said in the same alert, Retry unavailable the
+    // A retry on its way: said politely in a status under the alert, which
+    // keeps its text (no second urgent announcement); Retry unavailable the
     // focusable way, and still focused.
     await markTheRegion(alert);
+    const progress = billing.getByRole('status');
+    await expect(progress).toHaveText('');
     await page.keyboard.press('Enter');
-    await expect(alert).toContainText('Trying again…');
+    await expect(progress).toHaveText('Trying again…');
+    await expect(alert).not.toContainText('Trying again…');
+    await expect(alert).toContainText('Your plan and seats aren’t shown.');
     await expect(retry).toHaveAttribute('aria-disabled', 'true');
     await expect(retry).toBeFocused();
     // Pressing it again meanwhile sends nothing more.
@@ -90,18 +93,44 @@ test.describe('Alert with a retry action', () => {
     await expect(alert).toContainText('Still couldn’t load it after 2 attempts.');
     await expect(alert).not.toContainText('Your plan and seats aren’t shown.');
     await expect(alert).toHaveAttribute('data-test-region', 'first');
+    await expect(progress).toHaveText('');
     await expect(retry).not.toHaveAttribute('aria-disabled');
     await expect(retry).toBeFocused();
 
     // It works: the alert goes, the billing shows, and the focus moves to the
     // section's heading, where what just appeared starts.
     await page.keyboard.press('Enter');
-    await expect(alert).toContainText('Trying again…');
+    await expect(progress).toHaveText('Trying again…');
     await answerRequests(page);
     await expect(billing.getByRole('alert')).toHaveCount(0);
     await expect(billing.getByRole('definition').first()).toHaveText('Team');
     await expect(billing).toContainText('8 of 10');
     await expect(billingHeading).toBeFocused();
+  });
+
+  test('leaves the focus where the person went while a retry was on its way', async ({ page }) => {
+    await openSettings(page);
+    await answerRequests(page);
+    const billing = section(page, 'Billing');
+    const retry = billing.getByRole('alert').getByRole('button', { name: 'Retry' });
+
+    // Two failed attempts, then the one that works.
+    await retry.click();
+    await answerRequests(page);
+    await expect(billing.getByRole('alert')).toContainText('after 2 attempts');
+
+    // Retry with the mouse, then back to the form to type while it loads.
+    await retry.click();
+    const bio = page.getByLabel('Bio');
+    await bio.focus();
+    await page.keyboard.type('Writes');
+    await answerRequests(page);
+
+    await expect(billing.getByRole('alert')).toHaveCount(0);
+    await expect(billing).toContainText('8 of 10');
+    await expect(bio).toBeFocused();
+    await page.keyboard.type(' code');
+    await expect(bio).toHaveValue('Writes code');
   });
 
   test('tells a failed section apart from an empty one and from one the person may not see', async ({
