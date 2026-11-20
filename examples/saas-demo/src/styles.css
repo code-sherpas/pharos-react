@@ -274,6 +274,35 @@ body {
   overflow-wrap: anywhere;
 }
 
+/* The head of an element's detail on its own view: badges, title and actions,
+ * one under the other, the same shape with or without actions. */
+.item-head {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--pharos-spacing-2, 0.5rem);
+  width: 100%;
+}
+
+.item-head h1 {
+  margin: 0;
+}
+
+.item-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pharos-spacing-1, 0.25rem);
+}
+
+/* «Actions on an item»: one row of md Buttons that wraps when it does not
+ * fit; in a compact width it holds two at most, the rest in «More actions». */
+.item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pharos-spacing-2, 0.5rem);
+  margin-top: var(--pharos-spacing-2, 0.5rem);
+}
+
 /* A radio and its label on one line (the «Applies to» choice of a new pillar). */
 .radio-row {
   display: inline-flex;
