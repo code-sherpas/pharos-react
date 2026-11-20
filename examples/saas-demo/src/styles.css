@@ -171,6 +171,14 @@ body {
   display: flex;
   flex-direction: column;
   margin-right: auto;
+  /* May shrink below its longest word, so the row fits a 320px screen. */
+  min-width: 0;
+}
+
+/* A long name or address wraps rather than pushing the row's menu off screen. */
+.member-name,
+.member-email {
+  overflow-wrap: anywhere;
 }
 
 .member-email {
@@ -191,8 +199,11 @@ body {
   margin-top: var(--pharos-spacing-4, 1rem);
 }
 
+/* Wraps instead of overflowing (WCAG 1.4.10 Reflow): on a 320px screen the
+ * title, the filter and the view toggle take the lines they need. */
 .page-head {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: var(--pharos-spacing-4, 1rem);
