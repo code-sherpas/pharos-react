@@ -1,4 +1,4 @@
-import { useRef, useState, type MouseEvent } from 'react';
+import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +30,7 @@ import {
 import { MoreHorizontal } from 'lucide-react';
 import { requestRemoval } from '../api';
 import { MEMBERS, ROLE_TONE, initials, type Member } from '../data';
+import { TeamLink, type TeamView } from '../components/TeamLink';
 
 /**
  * A member list with a per-row DropdownMenu (kebab IconButton). The canonical
@@ -55,7 +56,15 @@ const ROLE_FILTERS: { value: RoleFilter; label: string }[] = [
   { value: 'Viewer', label: 'Viewer' },
 ];
 
-export function TeamPage() {
+interface TeamPageProps {
+  /** Whether the signed-in person may open a member's page: each name is then a link to it. */
+  canOpenMember: boolean;
+  /** Set when the person came up from an inner screen: focus lands on the heading. */
+  focusHeadingOnArrival: boolean;
+  onNavigate: (view: TeamView) => void;
+}
+
+export function TeamPage({ canOpenMember, focusHeadingOnArrival, onNavigate }: TeamPageProps) {
   const [members, setMembers] = useState<Member[]>(MEMBERS);
   const [layout, setLayout] = useState<Layout>('list');
   const [roleFilter, setRoleFilter] = useState<RoleFilter>('any');
@@ -68,6 +77,12 @@ export function TeamPage() {
   const removalTrigger = useRef<HTMLElement | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const toast = useToast();
+  useEffect(
+    function focusTheListWhenComingBackUp() {
+      if (focusHeadingOnArrival) heading.current?.focus();
+    },
+    [focusHeadingOnArrival],
+  );
 
   function askToRemove(member: Member) {
     removalTrigger.current = document.getElementById(`actions-${member.id}`);
@@ -162,7 +177,17 @@ export function TeamPage() {
                   <AvatarFallback>{initials(m.name)}</AvatarFallback>
                 </Avatar>
                 <div className="member-id">
-                  <span className="member-name">{m.name}</span>
+                  {canOpenMember ? (
+                    <TeamLink
+                      className="member-name text-link"
+                      to={{ kind: 'member', memberId: m.id }}
+                      onNavigate={onNavigate}
+                    >
+                      {m.name}
+                    </TeamLink>
+                  ) : (
+                    <span className="member-name">{m.name}</span>
+                  )}
                   <span className="member-email">{m.email}</span>
                 </div>
                 <Badge variant={ROLE_TONE[m.role]}>{m.role}</Badge>

@@ -46,6 +46,10 @@
       "types": "./dist/components/Badge.d.ts",
       "import": "./dist/components/Badge.js"
     },
+    "./Breadcrumb": {
+      "types": "./dist/components/Breadcrumb.d.ts",
+      "import": "./dist/components/Breadcrumb.js"
+    },
     "./Button": {
       "types": "./dist/components/Button.d.ts",
       "import": "./dist/components/Button.js"

@@ -28,6 +28,7 @@ const CLIENT = [
   'Alert',
   'AlertDialog',
   'Avatar',
+  'Breadcrumb',
   'Button',
   'IconButton',
   'Checkbox',

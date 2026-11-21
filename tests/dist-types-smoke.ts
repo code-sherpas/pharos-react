@@ -101,6 +101,13 @@ import {
   AlertDescription,
   AlertAction,
   alertVariants,
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbText,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
   cn,
   type ButtonProps,
   type IconButtonProps,
@@ -140,6 +147,13 @@ import {
   type AlertDescriptionProps,
   type AlertActionProps,
   type AlertVariant,
+  type BreadcrumbProps,
+  type BreadcrumbListProps,
+  type BreadcrumbItemProps,
+  type BreadcrumbLinkProps,
+  type BreadcrumbTextProps,
+  type BreadcrumbPageProps,
+  type BreadcrumbSeparatorProps,
 } from '../dist/index.js';
 
 // (2) Deep-import subpaths (#80): each component's primary symbol (and a type
@@ -180,6 +194,11 @@ import {
   AlertAction as AlertActionDeep,
 } from '../dist/components/Alert.js';
 import {
+  Breadcrumb as BreadcrumbDeep,
+  BreadcrumbLink as BreadcrumbLinkDeep,
+  BreadcrumbPage as BreadcrumbPageDeep,
+} from '../dist/components/Breadcrumb.js';
+import {
   ToggleGroup as ToggleGroupDeep,
   ToggleGroupItem as ToggleGroupItemDeep,
 } from '../dist/components/ToggleGroup.js';
@@ -205,6 +224,9 @@ const _toastOptions: ToastOptions = { title: 'Saved', variant: 'success' };
 const _alertProps: AlertProps = { variant: 'warning' };
 // `render` makes the title a heading of the consumer's level.
 const _alertTitleProps: AlertTitleProps = { render: createElement('h3') };
+// The navigation region must be named; `render` hands a level to a router link.
+const _breadcrumbProps: BreadcrumbProps = { 'aria-label': 'Breadcrumb' };
+const _breadcrumbLinkProps: BreadcrumbLinkProps = { render: createElement('a', { href: '/' }) };
 const _alertDialogActionProps: AlertDialogActionProps = { intent: 'destructive' };
 const _buttonPropsDeep: ButtonPropsDeep = { intent: 'secondary' };
 
@@ -236,6 +258,11 @@ export type _PublicPropTypes = [
   AlertDescriptionProps,
   AlertActionProps,
   AlertVariant,
+  BreadcrumbListProps,
+  BreadcrumbItemProps,
+  BreadcrumbTextProps,
+  BreadcrumbPageProps,
+  BreadcrumbSeparatorProps,
 ];
 
 // Touch every binding so nothing is flagged as unused (surface presence check).
@@ -361,6 +388,18 @@ export const _smoke = [
   AlertActionDeep,
   _alertProps,
   _alertTitleProps,
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbText,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+  BreadcrumbDeep,
+  BreadcrumbLinkDeep,
+  BreadcrumbPageDeep,
+  _breadcrumbProps,
+  _breadcrumbLinkProps,
   _buttonProps,
   _iconButtonProps,
   _badgeProps,

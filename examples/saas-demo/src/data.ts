@@ -13,7 +13,23 @@ export const MEMBERS: Member[] = [
   { id: '2', name: 'Alan Turing', email: 'alan@nimbus.io', role: 'Editor' },
   { id: '3', name: 'Grace Hopper', email: 'grace@nimbus.io', role: 'Viewer' },
   { id: '4', name: 'Katherine Johnson', email: 'katherine@nimbus.io', role: 'Editor' },
+  // A long name, the kind that has to wrap in a breadcrumb on a phone.
+  { id: '5', name: 'Maria Salomea Skłodowska-Curie', email: 'maria@nimbus.io', role: 'Editor' },
 ];
+
+/** Who can open a member's page: admins and editors. Viewers see only their own projects. */
+export function canOpenMemberPages(role: Member['role']): boolean {
+  return role !== 'Viewer';
+}
+
+/** The projects each member works on, by member id. */
+export const PROJECTS_BY_MEMBER: Record<Member['id'], string[]> = {
+  '1': ['Q3 roadmap', 'Design review'],
+  '2': ['Design review', 'Platform migration'],
+  '3': ['Q3 roadmap'],
+  '4': ['Platform migration', 'Mission planning dashboard'],
+  '5': ['Radiation safety guidelines for the research laboratories'],
+};
 
 export const TIMEZONES = [
   'UTC',

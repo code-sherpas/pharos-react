@@ -1,0 +1,96 @@
+/* Breadcrumb.module.css
+ *
+ * Per-component CSS Modules definition (Decision D9). Hashed into
+ * `dist/styles.css`. A row of levels that wraps: nothing is ever cut, at any
+ * width down to 320 px (WCAG 1.4.10), whatever the length of a name.
+ *
+ * The three kinds of level are told apart by more than colour (WCAG 1.4.1):
+ * a link is underlined; a level that cannot be opened is plain secondary
+ * text; the current screen is in the text colour and a heavier weight.
+ * Logical properties only, so the row and the chevron follow the writing
+ * direction.
+ */
+
+.breadcrumb {
+  font-family: var(--pharos-font-family-sans);
+  font-size: var(--pharos-font-size-sm);
+  line-height: 1.43; /* 14 / 20, D3 */
+  color: var(--pharos-color-neutral-600);
+}
+
+.list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pharos-spacing-1) var(--pharos-spacing-1-5);
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A level can be as wide as the row and no wider: a long name wraps inside it
+ * rather than pushing the page sideways. */
+.item {
+  display: inline-flex;
+  align-items: center;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  overflow-wrap: anywhere;
+}
+
+/* 20 px of line plus 2 px above and below: every level is at least 24 px
+ * tall, the minimum pointer target (WCAG 2.5.8), and the three kinds line up. */
+.link,
+.text,
+.page {
+  display: inline-block;
+  box-sizing: border-box;
+  min-block-size: var(--pharos-spacing-6);
+  padding-block: var(--pharos-spacing-0-5);
+}
+
+.link {
+  color: var(--pharos-color-neutral-600);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  border-radius: var(--pharos-radius-sm);
+}
+
+.link:hover {
+  color: var(--pharos-color-neutral-900);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--pharos-color-primary-600);
+  outline-offset: 2px;
+}
+
+/* A level the person cannot open: no underline, so it does not read as a
+ * link, and regular weight, so it does not read as the current screen. */
+.text {
+  color: var(--pharos-color-neutral-600);
+}
+
+.page {
+  color: var(--pharos-color-neutral-900);
+  font-weight: var(--pharos-font-weight-medium);
+}
+
+.separator {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  color: var(--pharos-color-neutral-500);
+}
+
+.chevron {
+  inline-size: var(--pharos-spacing-4);
+  block-size: var(--pharos-spacing-4);
+}
+
+/* The chevron points the way the text runs. */
+.chevron:dir(rtl) {
+  transform: scaleX(-1);
+}
