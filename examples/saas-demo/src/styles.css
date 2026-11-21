@@ -186,6 +186,55 @@ body {
   color: var(--pharos-color-neutral-500, #737373);
 }
 
+/* ---- Team: inner screens ----
+ * A member's page and a member's projects: the breadcrumb above the heading,
+ * the way an application lays out the inner screens of a section. */
+.inner-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pharos-spacing-3, 0.75rem);
+}
+
+.inner-page h1 {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+/* A link inside the app's content: underlined, so it is not colour alone. */
+.text-link {
+  color: var(--pharos-color-primary-600, #2f4ad6);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+/* A card with no header or footer: its content carries the block padding. */
+.member-facts,
+.project-card {
+  padding-block: var(--pharos-spacing-6, 1.5rem);
+}
+
+.member-facts dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: var(--pharos-spacing-2, 0.5rem) var(--pharos-spacing-4, 1rem);
+  margin: 0 0 var(--pharos-spacing-4, 1rem);
+}
+
+.member-facts dt {
+  color: var(--pharos-color-neutral-500, #737373);
+}
+
+.member-facts dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.project-list {
+  margin: 0;
+  padding-inline-start: var(--pharos-spacing-5, 1.25rem);
+  overflow-wrap: anywhere;
+}
+
 /* ---- Settings form ---- */
 .settings-form {
   max-width: 30rem;

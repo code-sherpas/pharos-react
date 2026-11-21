@@ -35,6 +35,24 @@ export type {
   CardContentProps,
   CardFooterProps,
 } from './components/Card';
+export {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbText,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from './components/Breadcrumb';
+export type {
+  BreadcrumbProps,
+  BreadcrumbListProps,
+  BreadcrumbItemProps,
+  BreadcrumbLinkProps,
+  BreadcrumbTextProps,
+  BreadcrumbPageProps,
+  BreadcrumbSeparatorProps,
+} from './components/Breadcrumb';
 export { Avatar, AvatarImage, AvatarFallback, AvatarGroup } from './components/Avatar';
 export type {
   AvatarProps,

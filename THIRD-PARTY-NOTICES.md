@@ -13,8 +13,9 @@ inline into these files of the published `dist/`:
 - `components/Checkbox.js` — `check`, `minus`
 - `components/Toast.js` — `circle-check`, `info`, `triangle-alert`, `circle-alert`, `x`
 - `components/Alert.js` — `circle-check`, `info`, `triangle-alert`, `circle-alert`
+- `components/Breadcrumb.js` — `chevron-right`
 
-`chevron-down`, `check`, `minus`, `info` and `x`, and `circle-alert` and
+`chevron-down`, `chevron-right`, `check`, `minus`, `info` and `x`, and `circle-alert` and
 `triangle-alert` (Feather's `alert-circle` and `alert-triangle`), are among the
 Lucide icons derived from Feather, covered by the MIT licence quoted at the end
 of Lucide's licence below.

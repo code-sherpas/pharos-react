@@ -23,7 +23,7 @@ import {
   SelectTrigger,
 } from '@code-sherpas/pharos-react';
 import { useEffect, useRef, useState } from 'react';
-import { Bell, LogOut, Settings as SettingsIcon, Users } from 'lucide-react';
+import { Bell, FolderOpen, LogOut, Settings as SettingsIcon, Users } from 'lucide-react';
 import { NOTIFICATIONS, initials } from '../data';
 import { NewProjectSheet } from './NewProjectSheet';
 import type { Page } from '../Shell';
@@ -32,6 +32,8 @@ interface TopBarProps {
   user: string;
   page: Page;
   onNavigate: (page: Page) => void;
+  /** Opens the signed-in person's own projects; absent when they are not on the team. */
+  onOpenOwnProjects?: () => void;
   onSignOut: () => void;
 }
 
@@ -55,7 +57,7 @@ const NAV: { id: Page; label: string }[] = [
  * It also publishes where it ends, as `--nimbus-topbar-bottom` on the root,
  * so the app's Toaster can sit below it through `offset` instead of over it.
  */
-export function TopBar({ user, page, onNavigate, onSignOut }: TopBarProps) {
+export function TopBar({ user, page, onNavigate, onOpenOwnProjects, onSignOut }: TopBarProps) {
   const bar = useRef<HTMLElement>(null);
   const [language, setLanguage] = useState<Language>('English');
   useEffect(function publishWhereTheBarEnds() {
@@ -172,6 +174,11 @@ export function TopBar({ user, page, onNavigate, onSignOut }: TopBarProps) {
               <DropdownMenuItem onClick={() => onNavigate('team')}>
                 <Users size={16} aria-hidden="true" /> Team
               </DropdownMenuItem>
+              {onOpenOwnProjects && (
+                <DropdownMenuItem onClick={onOpenOwnProjects}>
+                  <FolderOpen size={16} aria-hidden="true" /> Your projects
+                </DropdownMenuItem>
+              )}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem variant="destructive" onClick={onSignOut}>
