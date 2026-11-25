@@ -4,9 +4,10 @@
  * `dist/styles.css`. A row of levels that wraps: nothing is ever cut, at any
  * width down to 320 px (WCAG 1.4.10), whatever the length of a name.
  *
- * The three kinds of level are told apart by more than colour (WCAG 1.4.1):
- * a link is underlined; a level that cannot be opened is plain secondary
- * text; the current screen is in the text colour and a heavier weight.
+ * A link is seablue, as interaction is in Pharos, and underlined, so it is
+ * told from text by more than colour (WCAG 1.4.1); a level that cannot be
+ * opened is plain secondary text; the current screen is in the text colour
+ * and a heavier weight. Focus is Pharos's one shared ring.
  * Logical properties only, so the row and the chevron follow the writing
  * direction.
  */
@@ -51,7 +52,7 @@
 }
 
 .link {
-  color: var(--pharos-color-neutral-600);
+  color: var(--pharos-color-primary-600);
   text-decoration-line: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 0.2em;
@@ -59,12 +60,19 @@
 }
 
 .link:hover {
-  color: var(--pharos-color-neutral-900);
+  color: var(--pharos-color-primary-700);
 }
 
+.link:active {
+  color: var(--pharos-color-primary-800);
+}
+
+/* The ring every Pharos control shows: a white halo, then primary-600. */
 .link:focus-visible {
-  outline: 2px solid var(--pharos-color-primary-600);
-  outline-offset: 2px;
+  outline: none;
+  box-shadow:
+    0 0 0 2px var(--pharos-color-base-white),
+    0 0 0 4px var(--pharos-color-primary-600);
 }
 
 /* A level the person cannot open: no underline, so it does not read as a

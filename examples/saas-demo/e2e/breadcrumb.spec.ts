@@ -77,10 +77,25 @@ test.describe('Breadcrumb on the inner screens of Team', () => {
     await page.keyboard.press('Shift+Tab');
     const up = breadcrumb(page).getByRole('link', { name: 'Team' });
     await expect(up).toBeFocused();
-    const ring = await up.evaluate(function readOutline(element) {
-      return getComputedStyle(element).outlineStyle;
+    // Pharos's one focus ring: the same as a focused Pharos Button's.
+    const linkRing = await up.evaluate(function readRing(element) {
+      return getComputedStyle(element).boxShadow;
     });
-    expect(ring, 'the focused link shows a focus ring').not.toBe('none');
+    const primary = page.getByRole('button', { name: 'New project' });
+    await primary.focus();
+    await page.keyboard.press('Shift+Tab');
+    await page.keyboard.press('Tab');
+    await expect(primary).toBeFocused();
+    expect(linkRing, 'the focused link shows a focus ring').toContain('4px');
+    // The Button's ring fades in: wait for it to settle before comparing.
+    await expect
+      .poll(function readButtonRing() {
+        return primary.evaluate(function readRing(element) {
+          return getComputedStyle(element).boxShadow;
+        });
+      })
+      .toBe(linkRing);
+    await up.focus();
 
     await page.keyboard.press('Enter');
     await expect(page.getByRole('heading', { name: 'Team', level: 1 })).toBeFocused();

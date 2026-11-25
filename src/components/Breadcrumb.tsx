@@ -25,8 +25,9 @@ import styles from './Breadcrumb.module.css';
  * - **A level the person can open is a link.** `BreadcrumbLink` is an
  *   `<a href>`: Tab reaches it, Enter follows it. `render` hands it to the
  *   application's router link (`render={<Link href="/assessments" />}`)
- *   keeping its styles. Underlined, so it is told from text by more than
- *   colour.
+ *   keeping its styles. Seablue, as interaction is in Pharos, and
+ *   underlined, so it is told from text by more than colour; focus shows
+ *   Pharos's shared ring.
  * - **The current screen is not a link.** `BreadcrumbPage` is the last level:
  *   plain text with `aria-current="page"`, not focusable. It is not given
  *   shadcn's `role="link"` + `aria-disabled`: it is not a link, and a link
